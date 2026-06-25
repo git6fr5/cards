@@ -1,0 +1,16 @@
+# Node
+node_modules/
+.next/
+
+# Git / IDE
+.git/
+.github/
+.vscode/
+.idea/
+
+# Local dev
+.claude/
+*.log
+.DS_Store
+.env
+.env.*
