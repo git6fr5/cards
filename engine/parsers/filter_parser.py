@@ -22,3 +22,6 @@ def parse_filters(line: str) -> dict[str, dict | list]:
             filters["structure"][key.lower()] = raw_values.lower().split("|")
 
     return filters
+
+def satisfies_filters(filters : dict[str, dict | list]):
+    pass

@@ -1,8 +1,6 @@
 from enum import Enum
+from engine.utils.enums import Alignment
 from dataclasses import dataclass
-
-from triggers import TriggerStep
-from targets import TargetStep
 
 
 class EffectOperation(str, Enum):
@@ -19,13 +17,6 @@ class EffectStep:
     params: dict[str, str | int]
 
 
-@dataclass
-class ParsedEffect:
-    trigger: TriggerStep
-    target: TargetStep
-    steps: EffectStep
-
-
 def parse_effect_line(line: str) -> EffectStep:
     parts = line.upper().strip().split()
     if not parts:
@@ -39,27 +30,23 @@ def parse_effect_line(line: str) -> EffectStep:
     match parts:
 
         case ["KILL"]:
-            # e.g., "KILL"
-            return EffectStep(operation=operation, params={})
+            return EffectStep(operation=EffectOperation.KILL, params={})
 
-        case ["SUMMON", identity]:
-            # e.g., "SUMMON SKELETON"
+        case ["SUMMON", alignment]:
             return EffectStep(
-                operation=operation,
-                params={"identity": identity.lower()}
+                operation=EffectOperation.SUMMON,
+                params={"alignment": Alignment[alignment]}
             )
 
         case ["PUT", layer]:
-            # e.g., "PUT BOARD" or "PUT BAG"
             return EffectStep(
-                operation=operation,
+                operation=EffectOperation.PUT,
                 params={"layer": layer.upper()}
             )
 
         case ["MODIFY", attribute, delta, "TURNS", turns]:
-            # e.g., "MODIFY ACTION_COUNT -1 TURNS 1"
             return EffectStep(
-                operation=operation,
+                operation=EffectOperation.MODIFY,
                 params={
                     "attribute": attribute.lower(),
                     "delta": int(delta),

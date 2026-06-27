@@ -1,5 +1,5 @@
-from game.enums import EffectOp, Layer, Trigger, BOARD_SIZE
-from game.models import EffectStep, Piece, GameState, PlayerState, Modifier
+from engine.enums import EffectOp, Layer, Trigger, BOARD_SIZE
+from engine.models import EffectStep, Piece, GameState, PlayerState, Modifier
 
 def _summon_cost_mod(
     step: EffectStep,
@@ -36,8 +36,18 @@ def apply_modifier_effect(
 
     for piece in targets:
         piece.modifiers.append(Modifier(
-            attr=attribute, delta=delta, turns_left=duration, source=label,
+            attr=attribute, delta=delta, turns_left=turns, source=label,
         ))
-        sign = "+" if delta >= 0 else ""
-        log.append(f"{piece.name} {label} {sign}{delta} for {duration} turns")
+        log.append(f"{piece.name} {label} {"+" if delta >= 0 else ""}{delta} for {turns} turns")
     return log
+
+
+
+# A cross pattern (like a plus sign)
+CROSS_PATTERN = {
+    Position(0, 1),   # Up
+    Position(0, -1),  # Down
+    Position(-1, 0),  # Left
+    Position(1, 0),   # Right
+    Position(0, 0)    # Center
+}

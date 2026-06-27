@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
-from player import Player
-from board import Board
+from engine.entities.player import Player
+from engine.entities.board import Board
 
 @dataclass
 class Room:

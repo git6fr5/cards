@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from piece import Piece
-from tools.positions import Position
+from engine.entities.pieces.piece import Piece
+from engine.utils.positions import Position
 
 @dataclass
 class Board:

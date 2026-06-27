@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from sqlalchemy.orm import Session
 from sqlalchemy import Engine, select
-from game.orm.token_definition import TokenDefinition
+from engine.orm.token_definition import TokenDefinition
 
 _DATA_DIR = Path(__file__).parents[2] / "frontend" / "data"
 

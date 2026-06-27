@@ -1,8 +1,32 @@
 from enum import Enum
 from dataclasses import dataclass
 
-from engine.entities.pieces.parsers.filter_parser import parse_filters
-from engine.entities.pieces.trigger import TriggerCondition, TriggerStep
+from engine.parsers.filter_parser import parse_filters
+
+class TriggerCondition(str, Enum):
+    TURNEND = "TURNEND"
+    MOVE = "MOVE"
+    KILL = "KILL"
+    DEATH = "DEATH"
+    SUMMON = "SUMMON"
+    PROMOTION = "PROMOTION"
+    NONE = ""
+
+
+@dataclass
+class TriggerStep:
+    condition: TriggerCondition
+    params: dict[str, str | int]
+
+
+TRIGGER_ATTRIBUTE: dict[TriggerCondition, str] = {
+    TriggerCondition.TURNEND: "turns_on_board",
+    TriggerCondition.MOVE: "distance_total",
+    TriggerCondition.KILL: "kill_count",
+    TriggerCondition.DEATH: "death_count",
+    TriggerCondition.SUMMON: "summon_count",
+    TriggerCondition.PROMOTION: "promotion_count",
+}
 
 def parse_trigger_line(line: str) -> TriggerStep:
     parts = line.upper().strip().split()
@@ -16,56 +40,12 @@ def parse_trigger_line(line: str) -> TriggerStep:
 
             return TriggerStep(
                 condition=TriggerCondition(condition),
-                params={"value": int(value), "filters": parse_filters(filter_line)}
+                params={
+                    "attribute": TRIGGER_ATTRIBUTE[TriggerCondition(condition)],
+                    "value": int(value), 
+                    "filters": parse_filters(filter_line)
+                }
             )
         
-        # case ["ON", "TURNEND", turns, *filter_parts]:
-        #     filter_line = " ".join(filter_parts)
-
-        #     return TriggerStep(
-        #         condition=TriggerCondition.TURNEND,
-        #         params={"turns": int(turns), "filters": parse_filters(filter_line)}
-        #     )
-
-        # case ["ON", "MOVE", distance, *filter_parts]:
-        #     filter_line = " ".join(filter_parts)
-
-        #     return TriggerStep(
-        #         condition=TriggerCondition.MOVE,
-        #         params={"distance": int(distance), "filters": parse_filters(filter_line)}
-        #     )
-
-        # case ["ON", "KILL", kills, *filter_parts]:
-        #     filter_line = " ".join(filter_parts)
-
-        #     return TriggerStep(
-        #         condition=TriggerCondition.KILL,
-        #         params={kills: int(kills), "filters": parse_filters(filter_line)}
-        #     )
-
-        # case ["ON", "DEATH", deaths, *filter_parts]:
-        #     filter_line = " ".join(filter_parts)
-
-        #     return TriggerStep(
-        #         condition=TriggerCondition.DEATH,
-        #         params={"deaths": int(deaths), "filters": parse_filters(filter_line)}
-        #     )
-
-        # case ["ON", "SUMMON", summons, *filter_parts]:
-        #     filter_line = " ".join(filter_parts)
-
-        #     return TriggerStep(
-        #         condition=TriggerCondition.SUMMON,
-        #         params={"summons": int(summons), "filters": parse_filters(filter_line)}
-        #     )
-
-        # case ["ON", "PROMOTION", promotions, *filter_parts]:
-        #     filter_line = " ".join(filter_parts)
-
-        #     return TriggerStep(
-        #         condition=TriggerCondition.PROMOTION,
-        #         params={"promotions": int(promotions), "filters": parse_filters(filter_line)}
-        #     )
-
         case _:
             raise ValueError(f"Unparseable trigger instruction sequence: {line}")

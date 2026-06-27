@@ -11,14 +11,19 @@ class PieceAttributeModifier:
 
 @dataclass
 class PieceAttributes:
-    summon_cost: int     # tribute
-    action_cost: int       # tribute
-    action_count: int      # adrenaline
-    turns_on_board: int  # age
-    kill_count: int      # bloodthirst
-    distance_total: int       # explorer
 
-    # SAFE: Ensures every single piece gets its own unique tracking list
+    summon_cost: int
+    action_cost: int
+    action_count_per_turn: int
+
+    # Trackers
+    turns_on_board: int = 0
+    kill_count: int = 0
+    death_count: int = 0
+    promotion_count: int = 0
+    actions_performed_count: int = 0
+    distance_moved_count: int = 0
+
     modifiers: list[PieceAttributeModifier] = field(default_factory=list)
 
     def set(self, name: str, value: int) -> None:
@@ -30,16 +35,15 @@ class PieceAttributes:
         if name == "modifiers":
             raise AttributeError("Cannot fetch modifiers array as an integer attribute.")
             
-        base_val = getattr(self, name)
+        base_value = getattr(self, name)
         active_modifiers = [
             mod for mod in self.modifiers 
             if mod.attribute == name and mod.turns_left > 0
         ]
         total_delta = sum(mod.delta for mod in active_modifiers)
-        return base_val + total_delta
+        return base_value + total_delta
     
     def modify(self, name: str, delta: int, turns: int, source: str = "") -> None:
-        # Fixed keyword argument from name=name to attribute=name
         self.modifiers.append(
             PieceAttributeModifier(
                 attribute=name, 

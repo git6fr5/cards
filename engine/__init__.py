@@ -4,8 +4,8 @@ sqlite_engine = None
 
 
 def register_routes(app) -> None:
-    from game.routes import router
-    from game.sets_routes import router as sets_router
+    from backend.routes import router
+    from backend.sets_routes import router as sets_router
     app.include_router(router)
     app.include_router(sets_router)
 

@@ -1,19 +1,27 @@
 from __future__ import annotations
 import random
 from dataclasses import dataclass
-from engine.entities.piece import KingPiece, Piece
-from tools.positions import Position
-from board import Board
-from enums import Trigger, PieceType
+from engine.entities.pieces.piece import KingPiece, Piece
+from engine.utils.positions import Position
+from engine.entities.board import Board
+from engine.parsers.trigger_parser import TriggerCondition as Trigger
 
 @dataclass
 class Player:
+
     player_id: int
     king: KingPiece
     shelf: list[Piece]
     bag: list[Piece]
     current_mana: int = 0
     total_mana: int = 0
+
+    def load(self) -> None:
+        for piece in self.bag:
+            piece.ability = parse_ability(self.raw_ability_dsl)
+            
+        for i in range(3):
+            self.draw()
 
     def draw(self) -> None:
         if not self.bag:

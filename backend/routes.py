@@ -3,8 +3,8 @@ import json
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from utils.websockets import manager
 from utils.errors import assert_preconditions
-from game.context import get_room, set_current_game, reset_current_game
-from game.engine import process_action, save_snapshot_async, _serialize_state, initialize_room
+from engine.context import get_room, set_current_game, reset_current_game
+from engine.engine import process_action, save_snapshot_async, _serialize_state, initialize_room
 
 router = APIRouter(prefix="/game", tags=["Game"])
 

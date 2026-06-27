@@ -5,8 +5,8 @@ from fastapi import APIRouter, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-import game
-from game.orm.token_definition import TokenDefinition
+import engine.engine as engine
+from engine.orm.token_definition import TokenDefinition
 
 router = APIRouter(prefix="/sets", tags=["Sets"])
 
@@ -31,7 +31,7 @@ def _token_def_to_dict(td: TokenDefinition) -> dict:
 @router.get("/tokens")
 def list_tokens() -> dict:
     """Returns every TokenDefinition in the database (for the token builder)."""
-    with Session(game.sqlite_engine) as session:
+    with Session(engine.sqlite_engine) as session:
         rows = session.execute(select(TokenDefinition)).scalars().all()
         return {"tokens": [_token_def_to_dict(td) for td in rows]}
 
@@ -45,7 +45,7 @@ def get_default_set(archetype: str) -> dict:
     with csv_path.open(newline="") as f:
         names = [row[0].strip() for row in csv.reader(f) if row and row[0].strip()]
 
-    with Session(game.sqlite_engine) as session:
+    with Session(engine.sqlite_engine) as session:
         tokens = []
         for name in names:
             td = session.execute(

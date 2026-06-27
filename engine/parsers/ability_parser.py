@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from engine.entities.pieces.parsers.trigger_parser import parse_trigger_line, TriggerStep
-from engine.entities.pieces.parsers.effect_parser import parse_effect_line, EffectStep
-from engine.entities.pieces.parsers.target_parser import parse_target_line, TargetStep
+from engine.parsers.trigger_parser import parse_trigger_line, TriggerStep
+from engine.parsers.effect_parser import parse_effect_line, EffectStep
+from engine.parsers.target_parser import parse_target_line, TargetStep
 
 @dataclass
 class PieceAbility:

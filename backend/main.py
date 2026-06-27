@@ -29,10 +29,10 @@ async def lifespan(app: FastAPI):
 
     # SQLite game engine — spun up for the lifecycle of this process only
     from sqlalchemy import create_engine as _ce
-    from game.orm import GameBase, TokenDefinition, GameSnapshot  # noqa: F401
+    from engine.orm import GameBase, TokenDefinition, GameSnapshot  # noqa: F401
     from game.seed import seed_tokens
-    from game.context import init_room_0
-    import game as _game
+    from engine.context import init_room_0
+    import engine as _game
 
     sqlite_engine = _ce(
         "sqlite:///./game.db",
@@ -70,7 +70,7 @@ def health() -> dict:
 
 
 from example_package import register_routes as register_example_routes
-from game import register_routes as register_game_routes
+from engine import register_routes as register_game_routes
 
 register_example_routes(app)
 register_game_routes(app)
