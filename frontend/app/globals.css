@@ -1,19 +1,85 @@
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer base {
-  body {
-    font-family: 'EB Garamond', serif;
-  }
+@source "../";
+
+@theme inline {
+  --color-kingkiller-black:         #111111;
+  --color-kingkiller-obsidian:      #1F2937;
+  --color-kingkiller-white:         #FFFFFF;
+  --color-kingkiller-hover:         #F3F4F6;
+  --color-kingkiller-stone:         #374151;
+  --color-kingkiller-grey:          #6B7280;
+  --color-kingkiller-grey-muted:    #9CA3AF;
+  --color-kingkiller-grey-light:    #E5E7EB;
+  --color-kingkiller-gold:          #D97706;
+  --color-kingkiller-gold-light:    #FDE68A;
+  --color-kingkiller-emerald:       #16A34A;
+  --color-kingkiller-crimson:       #DC2626;
+  --color-kingkiller-crimson-light: #FEE2E2;
+  --color-kingkiller-amber:         #F59E0B;
+  --color-kingkiller-amber-light:   #FEF3C7;
+  --color-kingkiller-arcane:        #7C3AED;
+  --color-kingkiller-arcane-light:  #EDE9FE;
+  --color-kingkiller-blue:          #2563EB;
+  --color-kingkiller-blue-light:    #DBEAFE;
+
+  --radius-none: 0px;
+  --radius-sm:   2px;
+  --radius-md:   4px;
+  --radius-lg:   8px;
+
+  --font-size-xs:   0.75rem;
+  --font-size-sm:   0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg:   1.125rem;
+  --font-size-xl:   1.25rem;
+
+  --line-height-tight:  1;
+  --line-height-normal: 1.2;
+  --line-height-loose:  1.5;
+
+  --font-family-garamond: 'EB Garamond', serif;
+
+  --opacity-disabled: 0.4;
+  --opacity-muted:    0.6;
+
+  --width-sidebar: 13rem;
+
+  --max-width-modal-sm: 24rem;
+  --max-width-modal-md: 28rem;
+  --max-width-modal-lg: 32rem;
+
+  --max-height-modal: 90vh;
+
+  --z-index-pin:      1;
+  --z-index-dropdown: 10;
+  --z-index-modal:    50;
+  --z-index-toast:    60;
+
+  --animate-cursor-blink:        cursor-blink 1s step-end infinite;
+  --animate-cursor-smear:        cursor-smear 0.2s ease-out forwards;
+  --animate-kingkiller-border-pulse:  kingkiller-border-pulse 500ms ease-out forwards;
 }
 
-@keyframes project-border-pulse {
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes cursor-smear {
   0%   { opacity: 1; }
   100% { opacity: 0; }
 }
-.project-border-pulse {
-  animation: project-border-pulse 500ms ease-out forwards;
+
+@keyframes kingkiller-border-pulse {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@layer base {
+  body {
+    font-family: var(--font-family-garamond);
+  }
 }

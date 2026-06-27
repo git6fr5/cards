@@ -8,7 +8,7 @@ export default function AnimatedExampleText() {
       {LETTERS.map((letter, index) => (
         <span
           key={index}
-          className="text-4xl font-garamond font-bold text-project-accent animate-bounce"
+          className="text-4xl font-garamond font-bold text-kingkiller-gold animate-bounce"
           style={{ animationDelay: `${index * 0.12}s` }}
         >
           {letter}

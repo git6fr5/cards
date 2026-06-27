@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { get } from '@/utils/api';
-import ProjectLoader from '@/components/layout/ProjectLoader';
+import KingkillerLoader from '@/components/layout/KingkillerLoader';
 import AnimatedExampleText from './_components/AnimatedExampleText';
 
 interface ExampleItem {
@@ -35,32 +35,32 @@ export default function ExamplePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-project-white p-8">
+    <div className="min-h-screen bg-kingkiller-white p-8">
       <div className="max-w-2xl mx-auto space-y-8">
         <div className="flex flex-col items-center gap-4 py-8">
           <AnimatedExampleText />
-          <p className="text-sm text-project-grey font-garamond">
+          <p className="text-sm text-kingkiller-grey font-garamond">
             This is an example page demonstrating the template structure.
           </p>
         </div>
 
         <section>
-          <h2 className="text-lg font-garamond text-project-black mb-4 border-b border-project-grey-light pb-2">
+          <h2 className="text-lg font-garamond text-kingkiller-black mb-4 border-b border-kingkiller-grey-light pb-2">
             Example Items
           </h2>
 
           {isLoading && (
             <div className="flex justify-center py-8">
-              <ProjectLoader />
+              <KingkillerLoader />
             </div>
           )}
 
           {error && !isLoading && (
-            <p className="text-sm text-project-red">{error}</p>
+            <p className="text-sm text-kingkiller-crimson">{error}</p>
           )}
 
           {!isLoading && !error && items.length === 0 && (
-            <p className="text-sm text-project-grey">No example items found.</p>
+            <p className="text-sm text-kingkiller-grey">No example items found.</p>
           )}
 
           {!isLoading && !error && items.length > 0 && (
@@ -68,11 +68,11 @@ export default function ExamplePage() {
               {items.map((item) => (
                 <li
                   key={item.id}
-                  className="flex items-start gap-3 p-3 bg-project-hover rounded-sm"
+                  className="flex items-start gap-3 p-3 bg-kingkiller-hover rounded-sm"
                 >
-                  <span className="text-base font-garamond text-project-black">{item.name}</span>
+                  <span className="text-base font-garamond text-kingkiller-black">{item.name}</span>
                   {item.description && (
-                    <span className="text-sm text-project-grey font-garamond">{item.description}</span>
+                    <span className="text-sm text-kingkiller-grey font-garamond">{item.description}</span>
                   )}
                 </li>
               ))}
