@@ -171,5 +171,5 @@ WIN GAME IF KILL COUNT >= 4
 ## Open design questions
 
 - Position inference for `SUMMON` when no position is specified: adjacent cell, same cell, or prompt? → deferred
-- `ON ACTIVATE` targeting rules when selection is not SELF: does the player pick, or is it deterministic? → deterministic for now (no user targeting)
+- `ON ACTIVATE` targeting rules when selection is not SELF: **resolved** — **building** activations take an explicit player-selected target (the `@target` in move input); the building stays put and resolves its effect seeded from the chosen square (e.g. a `MATRIX` centered on the target, not on the building). **Units** get no separate target pick — their targeting is coupled to the move destination, if they have user targeting at all.
 - TURNS revert system: how to clean up expired buffs cleanly at turn end → deferred, using TURNS 99 as stand-in

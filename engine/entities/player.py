@@ -1,33 +1,27 @@
 from __future__ import annotations
 import random
-from dataclasses import dataclass
-from engine.entities.pieces.piece import KingPiece, Piece
+from dataclasses import dataclass, field
+from engine.entities.piece import KingPiece, Piece
 from engine.utils.positions import Position
 from engine.entities.board import Board
-from engine.parsers.trigger_parser import TriggerCondition as Trigger
+from engine.enums.triggers import TriggerCondition as Trigger
 
 @dataclass
 class Player:
 
     player_id: int
-    king: KingPiece
-    shelf: list[Piece]
-    bag: list[Piece]
+    king: KingPiece | None = None
+    shelf: list[Piece] = field(default_factory=list)
+    bag: list[Piece] = field(default_factory=list)
     current_mana: int = 0
     total_mana: int = 0
 
-    def load(self) -> None:
-        for piece in self.bag:
-            piece.ability = parse_ability(self.raw_ability_dsl)
-            
-        for i in range(3):
-            self.draw()
-
-    def draw(self) -> None:
-        if not self.bag:
-            return  # Can't draw from an empty bag
-        draw_index = random.randrange(len(self.bag))
-        self.shelf.append(self.bag.pop(draw_index))
+    def draw(self, count: int = 1) -> None:
+        for i in range(count):
+            if not self.bag:
+                return  # Can't draw from an empty bag
+            draw_index = random.randrange(len(self.bag))
+            self.shelf.append(self.bag.pop(draw_index))
 
     def summon(self, shelf_index: int, position: Position, board: Board) -> str | None:
         if not (0 <= shelf_index < len(self.shelf)):
@@ -68,8 +62,12 @@ class Player:
             return "Can't move"
         
         target_piece = board.pieces.get(target)
-        if target_piece and self.owns(target_piece) and not piece.can_target_own_pieces:
-                return "Position occupied"
+        if target_piece:
+            if self.owns(target_piece):
+                if not piece.can_capture_allies:
+                    return "Position occupied"
+            elif not piece.can_capture_enemies:
+                return "Can't capture"
 
         if piece.is_building:
             fire_trigger(Trigger.ACTIVATE, piece, target_piece)

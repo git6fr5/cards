@@ -1,0 +1,13 @@
+{
+  "name": "Goblin King",
+  "archetype": "GOBLIN",
+  "roleType": "KING",
+  "movement": "SQUARE 1",
+  "summoning": "SQUARE 1",
+  "ability": "ON SUMMON 1\nMODIFY ACTION_COUNT +1 TURNS 1\nFRIENDLY BOARD:PATTERN:SQUARE:1 ALL WHERE ARCHETYPE:GOBLIN",
+  "attributes": {
+    "summon_cost": 0,
+    "action_cost": 1,
+    "action_count": 1
+  }
+}

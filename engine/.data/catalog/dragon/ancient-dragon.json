@@ -1,0 +1,12 @@
+{
+  "name": "Ancient Dragon",
+  "archetype": "DRAGON",
+  "roleType": "UNIT",
+  "movement": "CROSS 6",
+  "ability": "ON TURNEND 1\nMODIFY ACTION_COUNT -99 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL",
+  "attributes": {
+    "summon_cost": 8,
+    "action_cost": 6,
+    "action_count": 1
+  }
+}

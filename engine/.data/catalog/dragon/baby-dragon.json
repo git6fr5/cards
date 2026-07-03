@@ -1,0 +1,13 @@
+{
+  "name": "Baby Dragon",
+  "archetype": "DRAGON",
+  "roleType": "UNIT",
+  "can_target_own_pieces": false,
+  "movement": "FORWARD 1",
+  "ability": "ON PROMOTION 1\nSUMMON FRIENDLY\nFRIENDLY BAG:SEE:0 1 WHERE ARCHETYPE:DRAGON ATT:SUMMON_COST<=2",
+  "attributes": {
+    "summon_cost": 1,
+    "action_cost": 1,
+    "action_count": 1
+  }
+}

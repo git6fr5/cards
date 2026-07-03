@@ -1,0 +1,54 @@
+import json
+from pathlib import Path
+from engine.entities.piece import Piece, KingPiece
+from engine.entities.board import Board
+from engine.entities.player import Player
+from engine.utils.positions import Position
+
+DATA_DIR = Path(__file__).parent / ".data"
+CATALOG_DIR = DATA_DIR / "catalog"
+DEFAULT_BAGS_DIR = DATA_DIR / "default_bags"
+
+KING_START = {
+    0: Position(3, 0),
+    1: Position(3, 6),
+}
+
+
+def load_catalog() -> dict[str, dict]:
+    catalog: dict[str, dict] = {}
+    for path in sorted(CATALOG_DIR.glob("**/*.json")):
+        data = json.loads(path.read_text())
+        catalog[data["name"]] = data
+
+    return catalog
+
+
+def load_players(catalog: dict[str, dict]) -> list[Player]:
+    def load_bag(bag_name: str, player: Player) -> list[Piece]:
+        path = DEFAULT_BAGS_DIR / f"{bag_name}.txt"
+        names = [name.strip() for name in path.read_text().splitlines() if name.strip()]
+        return [Piece.create(catalog[name], player) for name in names]
+
+    player_0 = Player(player_id=0)
+    player_0.bag = load_bag("goblin", player_0)
+
+    player_1 = Player(player_id=1)
+    player_1.bag = load_bag("dragon", player_1)
+
+    return [player_0, player_1]
+
+
+def load_board(players: list[Player]) -> Board:
+    board = Board()
+    for player in players:
+        king = next(piece for piece in player.bag if isinstance(piece, KingPiece))
+        player.bag.remove(king)
+        player.king = king
+        board.pieces[KING_START[player.player_id]] = king
+    return board
+
+
+def load_shelves(players: list[Player]) -> None:
+    for player in players:
+        player.draw(3)

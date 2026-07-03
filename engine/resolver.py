@@ -1,19 +1,19 @@
-from engine.effects.apply import apply_effect
-from engine.entities.pieces.piece import Piece
+# from engine.effects.apply import apply_effect  # TODO: effect application home
+from engine.entities.piece import Piece
 from enum import Enum
 from dataclasses import dataclass
 from typing import Callable
 import random
 
-from engine.parsers.trigger_parser import TriggerStep, TriggerCondition
+from engine.enums.triggers import TriggerStep, TriggerCondition
 
 def is_triggered(condition: TriggerCondition, piece: Piece, defender: Piece | None):
     return False
 #     trigger_step = piece.ability.trigger_step
 
-#     if trigger_step.condition != condition: 
+#     if trigger_step.condition != condition:
 #         return
-    
+
 #     filters = trigger_step.params["filters"]
 #     if not piece.satisfies_filters(filters):
 #         return
@@ -25,7 +25,7 @@ def is_triggered(condition: TriggerCondition, piece: Piece, defender: Piece | No
 
 #     target_step = piece.ability.target_step
 #     targets = resolve_targets(target_step, piece, defender)
-    
+
 #     effect_step = piece.ability.effect_step
 #     apply_effect(effect_step, targets)
 
@@ -54,13 +54,13 @@ def is_triggered(condition: TriggerCondition, piece: Piece, defender: Piece | No
 #         alignment = target_step.params["alignment"]
 #         layer = target_step.params["layer"]
 #         return get_viable_pieces(piece.player_id, layer, alignment, filters)
-        
+
 
 
 # def get_viable_pieces(player_id: int, layer: Layer, alignment: Alignment, filters: dict):
 #     if alignment == Alignment.ENEMY:
 #         player_id = (player_id+1)%2
-    
+
 #     room: Room = Room.get_current()
 #     player = any(p.player_id == player_id for p in room.players)
 
@@ -72,7 +72,7 @@ def is_triggered(condition: TriggerCondition, piece: Piece, defender: Piece | No
 #             pieces_in_layer= player.shelf
 #         elif layer=Layer.BAG:
 #             pieces_in_layer= player.bag
-        
+
 #     return [p for p in pieces_in_layer if p.satisfies_filter(filters)]
 
 

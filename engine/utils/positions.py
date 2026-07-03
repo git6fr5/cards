@@ -1,5 +1,4 @@
 from typing import NamedTuple
-from enum import Enum
 
 class Position(NamedTuple):
     x: int
@@ -10,19 +9,6 @@ class Position(NamedTuple):
 
     def scale(self, scalar: int) -> "Position":
         return Position(self.x * scalar, self.y * scalar)
-
-class Patterns(frozenset, Enum):
-    CROSS = frozenset({
-        Position(0, 1), Position(-1, 0),
-        Position(1, 0), Position(0, -1),
-    })
-    DIAGONAL = frozenset({
-        Position(-1, 1), Position(1, 1),
-        Position(-1, -1), Position(1, -1),
-    })
-    FORWARD = frozenset({Position(0, 1)})
-    SQUARE = CROSS | DIAGONAL
-    NONE = frozenset({})
 
 def scale_pattern(positions: set[Position], scalar: int) -> set[Position]:
     scaled = set()

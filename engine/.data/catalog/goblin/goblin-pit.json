@@ -1,0 +1,12 @@
+{
+  "name": "Goblin Pit",
+  "archetype": "GOBLIN",
+  "roleType": "BUILDING",
+  "movement": "CROSS 1",
+  "ability": "ON ACTIVATE\nMODIFY ACTION_COUNT -99 TURNS 3\nDEFENDER",
+  "attributes": {
+    "summon_cost": 3,
+    "action_cost": 3,
+    "action_count": 1
+  }
+}
