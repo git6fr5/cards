@@ -1,7 +1,10 @@
+import os
 from contextvars import ContextVar
 from functools import wraps
 from sqlalchemy.orm import Session, DeclarativeBase
-from sqlalchemy import text
+from sqlalchemy import create_engine, inspect as sa_inspect
+from sqlalchemy.engine import Engine
+from sqlalchemy.pool import StaticPool
 from typing import Type, TypeVar, Optional, Any
 from sqlalchemy.orm import Query
 
@@ -12,6 +15,35 @@ class Base(DeclarativeBase):
 current_session: ContextVar[Session] = ContextVar('session')
 current_session_readonly: ContextVar[bool] = ContextVar('session_readonly', default=False)
 T = TypeVar('T')
+
+
+engine: Engine | None = None
+
+
+def init_engine() -> Engine:
+    global engine
+    if engine is None:
+        url = os.getenv("DATABASE_URL")
+        echo = os.getenv("DEBUG_DATABASE", "false").lower() == "true"
+
+        if url.startswith("sqlite"):
+            # StaticPool keeps one shared connection alive for the engine's
+            # lifetime — required for sqlite:///:memory: (each new connection
+            # otherwise gets its own separate, empty in-memory database).
+            engine = create_engine(
+                url,
+                echo=echo,
+                connect_args={"check_same_thread": False},
+                poolclass=StaticPool,
+            )
+        else:
+            engine = create_engine(
+                url,
+                echo=echo,
+                pool_pre_ping=True,
+                connect_args={"connect_timeout": 10},
+            )
+    return engine
 
 
 class DatabaseConnection:
@@ -66,8 +98,7 @@ class DatabaseConnection:
 def _read_session(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        from main import engine
-        with Session(engine) as session:
+        with Session(init_engine()) as session:
             token = current_session.set(session)
             ro_token = current_session_readonly.set(True)
             try:
@@ -81,8 +112,7 @@ def _read_session(func):
 def _write_session(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        from main import engine
-        with Session(engine, expire_on_commit=False) as session:
+        with Session(init_engine(), expire_on_commit=False) as session:
             token = current_session.set(session)
             ro_token = current_session_readonly.set(False)
             try:
@@ -101,15 +131,15 @@ def _write_session(func):
 def _creation_session(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        from main import engine
-        with Session(engine, expire_on_commit=False) as session:
+        with Session(init_engine(), expire_on_commit=False) as session:
             token = current_session.set(session)
             ro_token = current_session_readonly.set(False)
             try:
                 resource = func(*args, **kwargs)
                 DatabaseConnection.add(resource)
                 DatabaseConnection.flush()
-                DatabaseConnection.refresh(resource)
+                col_attrs = [c.key for c in sa_inspect(type(resource)).mapper.column_attrs]
+                DatabaseConnection.refresh(resource, attribute_names=col_attrs)
                 session.commit()
                 return resource
             except Exception:

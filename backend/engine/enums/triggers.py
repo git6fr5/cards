@@ -21,7 +21,7 @@ class TriggerStep:
 
 TRIGGER_ATTRIBUTE: dict[TriggerCondition, str] = {
     TriggerCondition.TURNEND: "turns_on_board",
-    TriggerCondition.MOVE: "distance_total",
+    TriggerCondition.MOVE: "distance_moved_count",
     TriggerCondition.KILL: "kill_count",
     TriggerCondition.DEATH: "death_count",
     TriggerCondition.SUMMON: "summon_count",

@@ -5,7 +5,7 @@ from dataclasses import dataclass
 class TargetType(str, Enum):
     SELF = "SELF"
     DEFENDER = "DEFENDER"   # The unit receiving the damage/kill
-    LAYER = "LAYER"
+    ZONE = "ZONE"
     NONE = ""
 
 

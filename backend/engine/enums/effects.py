@@ -2,6 +2,9 @@ from enum import Enum
 from dataclasses import dataclass
 
 
+PERMANENT_TURNS = 99  # "TURNS 99" convention for approximating a permanent effect
+
+
 class EffectOperation(str, Enum):
     KILL = "KILL"
     SUMMON = "SUMMON"

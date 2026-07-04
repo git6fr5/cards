@@ -2,7 +2,7 @@ import os
 
 from dotenv import load_dotenv
 from utils.databases import Base
-from example_package.orm import ExampleItem  # noqa: F401
+from play.orm import Game, GamePlayer, GameLog  # noqa: F401
 
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config

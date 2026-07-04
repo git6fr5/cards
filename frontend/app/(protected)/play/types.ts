@@ -8,7 +8,7 @@ export interface Piece {
   effect_grid: (string | null)[][];
   card_effects: unknown[];
   raw_effect_dsl: string;
-  layer: 'BOARD' | 'SHELF' | 'BAG';
+  zone: 'BOARD' | 'SHELF' | 'BAG';
   position: [number, number] | null;
   owner_id: number;
   summon_cost: number;

@@ -32,9 +32,13 @@ def load_players(catalog: dict[str, dict]) -> list[Player]:
 
     player_0 = Player(player_id=0)
     player_0.bag = load_bag("goblin", player_0)
+    player_0.total_mana = 1
+    player_0.current_mana = player_0.total_mana
 
     player_1 = Player(player_id=1)
     player_1.bag = load_bag("dragon", player_1)
+    player_1.total_mana = 0
+    player_1.current_mana = player_1.total_mana 
 
     return [player_0, player_1]
 

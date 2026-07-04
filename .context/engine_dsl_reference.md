@@ -33,7 +33,7 @@ Every ability is **exactly three non-blank lines**, in this fixed order:
 
 **General rules the parser applies to every line:**
 - Input is upper-cased, so casing in the source doesn't matter.
-- Tokens are split on **spaces**; sub-tokens inside a layer are split on **colons** (`:`).
+- Tokens are split on **spaces**; sub-tokens inside a zone are split on **colons** (`:`).
 - Each parser is a `match`/`case` on the token shape. No matching case → `ValueError`
   (the DSL fails loud on anything malformed).
 
@@ -46,7 +46,10 @@ ON <CONDITION> <N> [WHERE <filter>]      # counter triggers
 ON ACTIVATE                              # manual trigger (no N)
 ```
 
-- `<N>` is the threshold/period consumed at resolution. Use **`1`** for "every time".
+- `<N>` is a **modulo period**: the trigger fires whenever the counter attribute is an
+  exact multiple of `<N>` (`attribute % N == 0`). Use **`1`** for "every time". **Confirmed
+  decision** — resolves the earlier ambiguity between modulo, `>=` threshold, and
+  consumed-on-fire readings.
 - `[WHERE …]` optionally filters on the *firing* piece (see §5).
 - `ON ACTIVATE` is special — player-initiated (buildings), takes **no** `N` or filter.
 
@@ -55,15 +58,12 @@ ON ACTIVATE                              # manual trigger (no N)
 | Condition | Fires when… | Counter attribute |
 |---|---|---|
 | `TURNEND` | end of a turn | `turns_on_board` |
-| `MOVE` | the piece moves | `distance_total` ⚠️ |
+| `MOVE` | the piece moves | `distance_moved_count` |
 | `KILL` | the piece captures | `kill_count` |
 | `DEATH` | the piece is captured | `death_count` |
 | `SUMMON` | the piece enters the board | `summon_count` |
 | `PROMOTION` | the piece is promoted | `promotion_count` |
 | `ACTIVATE` | player activates (buildings) | — (manual) |
-
-⚠️ `MOVE` maps to `distance_total`, but `PieceAttributes` has no such field (it has
-`distance_moved_count`) — a latent resolution-time mismatch, harmless to parsing.
 
 **King rule:** a king's ability fires when **any** of its owner's pieces meets the
 condition (kings react to the whole army, not just themselves).
@@ -76,7 +76,7 @@ condition (kings react to the whole army, not just themselves).
 |---|---|
 | `KILL` | remove the target(s) from the board |
 | `SUMMON <ALIGNMENT>` | summon a piece of that alignment |
-| `PUT <LAYER>` | move the target into a zone (`BOARD` / `SHELF` / `BAG`) |
+| `PUT <ZONE>` | move the target into a zone (`BOARD` / `SHELF` / `BAG`) |
 | `MODIFY <ATTR> <DELTA> TURNS <N>` | add a temporary modifier of `<DELTA>` to a numeric attribute for `<N>` turns |
 | `CONVERT <FIELD> <VALUE>` | permanently change a type field (`ROLETYPE`/`ARCHETYPE`) to `VALUE` |
 | `CONVERT <FIELD> <VALUE> TURNS <N>` | same, but only for `<N>` turns |
@@ -93,18 +93,18 @@ condition (kings react to the whole army, not just themselves).
 ```
 SELF                                       # the piece holding the ability
 DEFENDER                                   # the piece on the receiving end
-<ALIGNMENT> <LAYER> <COUNT> [WHERE …]      # a query over a layer
+<ALIGNMENT> <ZONE> <COUNT> [WHERE …]        # a query over a zone
 ```
 
 - `DEFENDER` = the captured unit (on `KILL`/`DEATH`), or the unit a building activates on.
-- The query form picks `<COUNT>` pieces of `<ALIGNMENT>` from `<LAYER>` that pass the filter.
+- The query form picks `<COUNT>` pieces of `<ALIGNMENT>` from `<ZONE>` that pass the filter.
 - `<COUNT>` is an integer or `ALL` (parsed as `99`).
 
 **Alignment:** `FRIENDLY` · `ENEMY` · `ANY`
 
-**Layer** (colon-delimited sub-grammar, parsed by `parse_layer`):
+**Zone** (colon-delimited sub-grammar, parsed by `parse_zone`):
 
-| Layer | Meaning |
+| Zone | Meaning |
 |---|---|
 | `SHELF` | the player's hand |
 | `BAG:SEE:<N\|ALL>` | the draw bag, seeing the top `N` |
@@ -114,7 +114,7 @@ DEFENDER                                   # the piece on the receiving end
 
 ## 5. Filters (`WHERE …`)
 
-Appended to a trigger or a layer-target. `WHERE ANY` (or no `WHERE`) means no filter.
+Appended to a trigger or a zone-target. `WHERE ANY` (or no `WHERE`) means no filter.
 Each space-separated criterion is one of:
 
 - **Structure** — `<FIELD>:<VALUE>[|<VALUE>…]`
@@ -158,7 +158,7 @@ Used by a piece's `movement`, a king's `summoning`, and the area inside
 - **RoleType:** `UNIT` (captures enemies), `CANNIBAL` (captures anyone), `PACIFIST`
   (captures no one), `BUILDING` (activates instead of moving), `KING`
 - **Alignment:** `FRIENDLY`, `ENEMY`, `ANY`
-- **Zone / layer:** `BOARD`, `BAG`, `SHELF`
+- **Zone:** `BOARD`, `BAG`, `SHELF`
 - **Numeric attributes** (for `MODIFY` / `ATT:` filters): `summon_cost`, `action_cost`,
   `action_count`, `turns_on_board`, `kill_count`, `death_count`, `promotion_count`,
   `summon_count`, `actions_performed_count`, `distance_moved_count`
@@ -170,11 +170,11 @@ Used by a piece's `movement`, a king's `summoning`, and the area inside
 ```
 "ON KILL 1"        --parse_trigger_line-->  TriggerStep(KILL, {attribute, value, filters})
 "MODIFY ... TURNS" --parse_effect_line--->  EffectStep(MODIFY, {attribute, delta, turns})
-"FRIENDLY SHELF 1" --parse_target_line-->   TargetStep(LAYER, {alignment, layer, count, filters})
+"FRIENDLY SHELF 1" --parse_target_line-->   TargetStep(ZONE, {alignment, zone, count, filters})
 ```
 
-Each parser upper-cases, splits, and matches token shape; layers recurse into
-`parse_layer` (`:`-split), filters into `parse_filters` (regex for `ATT:`, `|`-split for
+Each parser upper-cases, splits, and matches token shape; zones recurse into
+`parse_zone` (`:`-split), filters into `parse_filters` (regex for `ATT:`, `|`-split for
 structure values). The result is a `PieceAbility` of three `*Step` dataclasses whose
 `.params` dicts carry already-resolved enums / operator functions / position sets.
 

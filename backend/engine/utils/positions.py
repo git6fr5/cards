@@ -10,6 +10,9 @@ class Position(NamedTuple):
     def scale(self, scalar: int) -> "Position":
         return Position(self.x * scalar, self.y * scalar)
 
+    def translate(self, offset: "Position") -> "Position":
+        return Position(self.x + offset.x, self.y + offset.y)
+
 def scale_pattern(positions: set[Position], scalar: int) -> set[Position]:
     scaled = set()
     for i in range(1, scalar + 1):

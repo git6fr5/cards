@@ -16,3 +16,7 @@ class Patterns(frozenset, Enum):
     FORWARD = frozenset({Position(0, 1)})
     SQUARE = CROSS | DIAGONAL
     NONE = frozenset({})
+
+    @staticmethod
+    def is_within(origin: Position, target: Position, positions: set[Position]) -> bool:
+        return origin.displacement(target) in positions

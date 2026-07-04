@@ -84,10 +84,10 @@ def parse_effect_line(line: str, separator: str = " ") -> EffectStep:
                 params={"alignment": Alignment[alignment]}
             )
 
-        case ["PUT", layer]:
+        case ["PUT", zone]:
             return EffectStep(
                 operation=EffectOperation.PUT,
-                params={"layer": layer.upper()}
+                params={"zone": zone.upper()}
             )
 
         case ["MODIFY", attribute, delta, "TURNS", turns]:
@@ -139,15 +139,15 @@ def parse_target_line(line: str, separator: str = " ") -> TargetStep:
         case ["DEFENDER"]:
             return TargetStep(target_type=TargetType.DEFENDER, params={})
 
-        case [alignment, layer_parts, count, *filter_parts]:
+        case [alignment, zone_parts, count, *filter_parts]:
             if count == "ALL": count = 99
-            layer = parse_layer(layer_parts, ":")
+            zone = parse_zone(zone_parts, ":")
 
             return TargetStep(
-                target_type=TargetType.LAYER,
+                target_type=TargetType.ZONE,
                 params={
                     "alignment": Alignment(alignment),
-                    "layer": layer,
+                    "zone": zone,
                     "count": int(count),
                     "filters": parse_filters(" ".join(filter_parts))
                 }
@@ -157,23 +157,23 @@ def parse_target_line(line: str, separator: str = " ") -> TargetStep:
             raise ValueError(f"Unparseable target instruction sequence: {line}")
 
 
-def parse_layer(layer_dsl: str, separator: str = " ") -> dict:
-    match layer_dsl.split(separator):
+def parse_zone(zone_dsl: str, separator: str = " ") -> dict:
+    match zone_dsl.split(separator):
         case ["BAG", "SEE", see_count]:
             return {
-                "layer": Zone.BAG,
+                "zone": Zone.BAG,
                 "see": 99 if see_count == "ALL" else int(see_count)
             }
         case ["BOARD", "PATTERN", pattern_type, pattern_size]:
-            raw_pattern_dsl = f"{pattern_type} {pattern_size}" 
+            raw_pattern_dsl = f"{pattern_type} {pattern_size}"
             return {
-                "layer": Zone.BOARD,
+                "zone": Zone.BOARD,
                 "positions": parse_pattern(raw_pattern_dsl)
             }
         case ["SHELF"]:
-            return {"layer": Zone.SHELF}
+            return {"zone": Zone.SHELF}
         case _:
-            raise ValueError(f"Unparseable layer spec: {layer_dsl}")
+            raise ValueError(f"Unparseable zone spec: {zone_dsl}")
 
 
 def parse_pattern(raw_pattern_dsl: str, separator: str = " ") -> set[Position]:

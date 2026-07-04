@@ -114,6 +114,7 @@ class Piece:
 
     movement: set[Position]
     ability: PieceAbility
+    ability_dsl: str
 
     piecetype: PieceType
     attributes: PieceAttributes
@@ -157,6 +158,9 @@ class Piece:
 
         return True
 
+    def describe_ability(self) -> str:
+        return self.ability_dsl
+
     @staticmethod
     def load_ability(raw_ability_dsl: str) -> PieceAbility:
         from engine.utils.parsers import parse_ability
@@ -176,6 +180,7 @@ class Piece:
             name=data.get("name"),
             movement=Piece.load_movement(data.get("movement")),
             ability=Piece.load_ability(data.get("ability")),
+            ability_dsl=data.get("ability"),
             piecetype=PieceType(
                 archetype=Archetype[data.get("archetype")],
                 roletype=roletype,
