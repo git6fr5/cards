@@ -37,9 +37,10 @@ def create_action(room: UUID, request: CreateActionRequest) -> CreateActionRespo
     game_row = DatabaseConnection.execute(select(Game).where(Game.room == room)).scalar_one_or_none()
     assert_preconditions([(game_row is None, 404, "game_not_found")], ERRORS)
 
-    engine_game = replay_game(game_row)
+    engine_game, log = replay_game(game_row)
     outcome = dispatch_input(engine_game, request.raw_input)
     assert_preconditions([(outcome is None, 422, "unparseable_input")], ERRORS)
+    log.append(outcome.outcome)
 
     move_number = DatabaseConnection.execute(
         select(func.count()).select_from(GameLog).where(GameLog.game_id == game_row.id)
@@ -48,4 +49,4 @@ def create_action(room: UUID, request: CreateActionRequest) -> CreateActionRespo
     DatabaseConnection.add(GameLog(game_id=game_row.id, move_number=move_number, input=request.raw_input))
     DatabaseConnection.flush()
 
-    return CreateActionResponse(valid=outcome.valid, outcome=outcome.outcome, state=pack_game_state(engine_game))
+    return CreateActionResponse(valid=outcome.valid, outcome=outcome.outcome, state=pack_game_state(engine_game, log))

@@ -9,7 +9,7 @@ from play.orm.game_log import GameLog
 from utils.databases import DatabaseConnection
 
 
-def pack_game_state(engine_game: EngineGame) -> dict:
+def pack_game_state(engine_game: EngineGame, log: list[str]) -> dict:
     board = {
         format_square(position): {
             "name": piece.name,
@@ -44,6 +44,7 @@ def pack_game_state(engine_game: EngineGame) -> dict:
         "active_player_index": engine_game.active_player_index,
         "turn_count": engine_game.turn_count,
         "is_game_over": any(not player.king.alive for player in engine_game.players),
+        "log": log,
     }
 
 
@@ -59,14 +60,13 @@ def dispatch_input(engine_game: EngineGame, raw_input: str) -> InputOutcome | No
     return result
 
 
-def replay_game(game_row: Game) -> EngineGame:
+def replay_game(game_row: Game) -> tuple[EngineGame, list[str]]:
     engine_game = start_game(seed=game_row.seed)
 
     logs = DatabaseConnection.execute(
         select(GameLog).where(GameLog.game_id == game_row.id).order_by(GameLog.move_number)
     ).scalars().all()
 
-    for log in logs:
-        dispatch_input(engine_game, log.input)
+    log = [dispatch_input(engine_game, entry.input).outcome for entry in logs]
 
-    return engine_game
+    return engine_game, log

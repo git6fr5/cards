@@ -1,55 +1,48 @@
-export interface Piece {
-  piece_id: number;
+import type { BoardPiece } from '@/app/_components/types';
+
+export type { BoardPiece };
+
+export interface ShelfPiece {
   name: string;
   archetype: string;
-  piece_type: string;
-  body_color: string;
-  movement: number[][];
-  effect_grid: (string | null)[][];
-  card_effects: unknown[];
-  raw_effect_dsl: string;
-  zone: 'BOARD' | 'SHELF' | 'BAG';
-  position: [number, number] | null;
-  owner_id: number;
   summon_cost: number;
-  move_cost: number;
-  move_count: number;
-  is_alive: boolean;
-  turns_on_board: number;
-  kill_count: number;
-  summon_cost_delta: number;
-  move_count_delta: number;
-  mod_turns_left: number;
 }
 
-export interface PlayerState {
+export interface GameStatePlayer {
   player_id: number;
-  board: Record<string, Piece>;
-  shelf: Piece[];
-  bag: Piece[];
+  current_mana: number;
+  total_mana: number;
+  shelf: ShelfPiece[];
+  bag_count: number;
 }
 
 export interface GameState {
-  room_id: number;
-  turn: number;
-  active_player: number;
-  players: Record<string, PlayerState>;
+  board: Record<string, BoardPiece>;
+  players: GameStatePlayer[];
+  active_player_index: number;
+  turn_count: number;
+  is_game_over: boolean;
   log: string[];
 }
 
-export interface TokenDefinition {
-  id: number;
-  name: string;
-  archetype: string;
-  piece_type: string;
-  body_color: string;
-  movement: number[][];
-  effect_grid: (string | null)[][];
-  effect_dsl: string | null;
-  summon_cost: number;
-  move_cost: number;
+export interface GamePlayer {
+  player_index: number;
+  player_user_id: number | null;
 }
 
-export interface SetResponse {
-  tokens: TokenDefinition[];
+export interface Game {
+  room: string;
+  is_completed: boolean;
+  players: GamePlayer[];
+}
+
+export interface ActionResult {
+  valid: boolean;
+  outcome: string;
+  state: GameState;
+}
+
+export interface PreviewActionResult {
+  valid: boolean;
+  outcome: string;
 }

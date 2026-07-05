@@ -66,6 +66,7 @@ class GameStateResponse(BaseModel):
     active_player_index: int
     turn_count: int
     is_game_over: bool
+    log: list[str]
 
 
 @router.post("/", response_model=GameResponse)
@@ -83,8 +84,8 @@ def read_game_state(room: UUID) -> dict:
     game_row = DatabaseConnection.execute(select(Game).where(Game.room == room)).scalar_one_or_none()
     assert_preconditions([(game_row is None, 404, "game_not_found")], ERRORS)
 
-    engine_game = replay_game(game_row)
-    return pack_game_state(engine_game)
+    engine_game, log = replay_game(game_row)
+    return pack_game_state(engine_game, log)
 
 
 @router.put("/{room}/completed", response_model=GameResponse)

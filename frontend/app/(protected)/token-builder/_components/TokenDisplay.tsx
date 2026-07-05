@@ -1,18 +1,27 @@
 import type { TokenData } from '../types';
-import TokenCircle from './TokenCircle';
+import type { BodyColor } from '@/utils/archetypes';
+import PieceToken from '@/app/_components/Piece';
 import TokenGrid from './TokenGrid';
 
 interface TokenDisplayProps {
-  token: TokenData;
+  token:     TokenData;
+  bodyColor: BodyColor;
 }
 
-export default function TokenDisplay({ token }: TokenDisplayProps) {
-  const { name, archetype, piece_type, bodyColor, movement, effect } = token;
+export default function TokenDisplay({ token, bodyColor }: TokenDisplayProps) {
+  const { name, archetype, piece_type, movement, ability } = token;
 
   return (
     <div className="flex flex-col items-center gap-8">
       <div className="flex items-center gap-4">
-        <TokenCircle archetype={archetype} pieceType={piece_type} bodyColor={bodyColor} size="lg" />
+        <PieceToken
+          name={name}
+          archetype={archetype}
+          pieceType={piece_type}
+          bodyColor={bodyColor}
+          size="lg"
+          abilityText={ability}
+        />
         <div>
           <p className="text-lg font-semibold text-kingkiller-white">{name}</p>
           <div className="mt-1 flex items-center gap-2">
@@ -26,8 +35,8 @@ export default function TokenDisplay({ token }: TokenDisplayProps) {
       </div>
 
       <TokenGrid
+        name={name}
         movement={movement}
-        effect={effect}
         archetype={archetype}
         pieceType={piece_type}
         bodyColor={bodyColor}

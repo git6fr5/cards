@@ -5,25 +5,28 @@
 @source "../";
 
 @theme inline {
-  --color-kingkiller-black:         #111111;
-  --color-kingkiller-obsidian:      #1F2937;
-  --color-kingkiller-white:         #FFFFFF;
-  --color-kingkiller-hover:         #F3F4F6;
-  --color-kingkiller-stone:         #374151;
-  --color-kingkiller-grey:          #6B7280;
-  --color-kingkiller-grey-muted:    #9CA3AF;
-  --color-kingkiller-grey-light:    #E5E7EB;
-  --color-kingkiller-gold:          #D97706;
-  --color-kingkiller-gold-light:    #FDE68A;
-  --color-kingkiller-emerald:       #16A34A;
-  --color-kingkiller-crimson:       #DC2626;
-  --color-kingkiller-crimson-light: #FEE2E2;
-  --color-kingkiller-amber:         #F59E0B;
-  --color-kingkiller-amber-light:   #FEF3C7;
-  --color-kingkiller-arcane:        #7C3AED;
-  --color-kingkiller-arcane-light:  #EDE9FE;
-  --color-kingkiller-blue:          #2563EB;
-  --color-kingkiller-blue-light:    #DBEAFE;
+  --color-kingkiller-black:         #1A1225;
+  --color-kingkiller-obsidian:      #2A1F3D;
+  --color-kingkiller-white:         #F0EAD8;
+  --color-kingkiller-hover:         #E4DCC8;
+  --color-kingkiller-stone:         #4A3F5C;
+  --color-kingkiller-grey:          #7A7060;
+  --color-kingkiller-grey-muted:    #9A9080;
+  --color-kingkiller-grey-light:    #D8D0C0;
+  --color-kingkiller-gold:          #C9A84C;
+  --color-kingkiller-gold-light:    #F0D880;
+  --color-kingkiller-gold-deep:     #8C6D2F;
+  --color-kingkiller-steel:         #B8C2CC;
+  --color-kingkiller-emerald:       #2D6A4F;
+  --color-kingkiller-emerald-dark:  #1F4D38;
+  --color-kingkiller-crimson:       #A32030;
+  --color-kingkiller-crimson-light: #F0D4D4;
+  --color-kingkiller-amber:         #C8901C;
+  --color-kingkiller-amber-light:   #F5E8C0;
+  --color-kingkiller-arcane:        #5A3085;
+  --color-kingkiller-arcane-light:  #D0C0E8;
+  --color-kingkiller-blue:          #3E6B99;
+  --color-kingkiller-blue-light:    #B8CFE0;
 
   --radius-none: 0px;
   --radius-sm:   2px;

@@ -1,6 +1,6 @@
 import { Triangle } from 'lucide-react';
-import type { Archetype, BodyColor, Effect, PieceType } from '../types';
-import TokenCircle from './TokenCircle';
+import type { Archetype, BodyColor, PieceType } from '@/utils/archetypes';
+import PieceToken from '@/app/_components/Piece';
 
 type DiagOffset = (i: number, count: number, arrowPx: number) => number;
 
@@ -24,14 +24,14 @@ const DIRECTIONS: Record<string, DirectionConfig> = {
 };
 
 interface TokenGridProps {
+  name:      string;
   movement:  number[][];
-  effect:    (Effect | null)[][];
   archetype: Archetype;
   pieceType: PieceType;
   bodyColor: BodyColor;
 }
 
-export default function TokenGrid({ movement, effect, archetype, pieceType, bodyColor }: TokenGridProps) {
+export default function TokenGrid({ name, movement, archetype, pieceType, bodyColor }: TokenGridProps) {
   return (
     <div className="grid grid-cols-5 gap-px bg-kingkiller-stone p-px">
       {[0, 1, 2, 3, 4].flatMap((row) =>
@@ -43,7 +43,7 @@ export default function TokenGrid({ movement, effect, archetype, pieceType, body
           if (isCenter) {
             return (
               <div key={key} className="relative flex h-14 w-14 items-center justify-center bg-kingkiller-white">
-                <TokenCircle archetype={archetype} pieceType={pieceType} bodyColor={bodyColor} size="sm" />
+                <PieceToken name={name} archetype={archetype} pieceType={pieceType} bodyColor={bodyColor} size="sm" />
                 {[0, 1, 2].flatMap((mr) =>
                   [0, 1, 2].map((mc) => {
                     if (mr === 1 && mc === 1) return null;
@@ -78,11 +78,8 @@ export default function TokenGrid({ movement, effect, archetype, pieceType, body
           }
 
           if (isInner) {
-            const eff = effect[row - 1]?.[col - 1] ?? null;
             return (
-              <div key={key} className="flex h-14 w-14 items-center justify-center bg-kingkiller-white">
-                {eff && <eff.Icon className={`h-5 w-5 opacity-30 ${eff.color}`} />}
-              </div>
+              <div key={key} className="flex h-14 w-14 items-center justify-center bg-kingkiller-white" />
             );
           }
 

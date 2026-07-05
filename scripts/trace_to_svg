@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Vectorize a PNG in frontend/public into a flat black/currentColor SVG silhouette.
+# Usage: ./scripts/trace_to_svg <name>   (reads frontend/public/<name>.png, writes frontend/public/<name>.svg)
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $0 <name>   (e.g. $0 goblin_1)" >&2
+  exit 1
+fi
+
+name="$1"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+public_dir="$script_dir/../frontend/public"
+src="$public_dir/$name.png"
+svg="$public_dir/$name.svg"
+tmp_pbm="${TMPDIR:-/tmp}/trace_to_svg_${name}_$$.pbm"
+
+for tool in magick potrace; do
+  if ! command -v "$tool" >/dev/null 2>&1; then
+    echo "error: '$tool' not found. Install with: brew install imagemagick potrace" >&2
+    exit 1
+  fi
+done
+
+if [[ ! -f "$src" ]]; then
+  echo "error: source image not found: $src" >&2
+  exit 1
+fi
+
+trap 'rm -f "$tmp_pbm"' EXIT
+
+# flatten transparency to white, force pure bilevel black/white (kills anti-aliasing noise)
+magick "$src" -alpha off -background white -flatten -colorspace gray -threshold 50% "$tmp_pbm"
+
+# trace to SVG — turdsize suppresses speckle noise, alphamax smooths corners
+potrace "$tmp_pbm" -s -o "$svg" --turdsize 4 --alphamax 1
+
+# recolor so it behaves like the project's existing icons (fill-current pattern)
+sed -i '' 's/fill="#000000"/fill="currentColor"/' "$svg"
+
+echo "wrote $svg"
