@@ -5,7 +5,7 @@ import redis
 
 _client: redis.Redis | None = None
 
-#hi
+
 def _get_client() -> redis.Redis:
     global _client
     if _client is None:
