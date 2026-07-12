@@ -8,7 +8,7 @@ import type { TokenData } from './types';
 import type { BodyColor } from '@/utils/archetypes';
 import PieceToken from '@/app/_components/Piece';
 import TokenDisplay from './_components/TokenDisplay';
-import KingkillerLoader from '@/components/layout/KingkillerLoader';
+import RajaLoader from '@/components/layout/RajaLoader';
 
 interface TokensResponse {
   tokens: TokenDefinition[];
@@ -39,24 +39,24 @@ export default function TokenBuilder() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-kingkiller-black">
-        <KingkillerLoader alt size="lg" />
+      <div className="flex min-h-screen items-center justify-center bg-raja-black">
+        <RajaLoader alt size="lg" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-kingkiller-black">
-        <p className="font-garamond text-sm text-kingkiller-crimson">{error}</p>
+      <div className="flex min-h-screen items-center justify-center bg-raja-black">
+        <p className="font-garamond text-sm text-raja-crimson">{error}</p>
       </div>
     );
   }
 
   if (tokens.length === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-kingkiller-black">
-        <p className="font-garamond text-sm text-kingkiller-grey-muted">No tokens found.</p>
+      <div className="flex min-h-screen items-center justify-center bg-raja-black">
+        <p className="font-garamond text-sm text-raja-grey-muted">No tokens found.</p>
       </div>
     );
   }
@@ -64,10 +64,10 @@ export default function TokenBuilder() {
   const token = tokens[selectedIndex];
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-10 bg-kingkiller-black py-12">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-10 bg-raja-black py-12">
       <button
         onClick={() => setBodyColor(bodyColor === 'steel' ? 'gold' : 'steel')}
-        className="rounded-full border border-kingkiller-stone px-4 py-1 text-xs uppercase tracking-widest text-kingkiller-grey-muted hover:text-kingkiller-white"
+        className="rounded-full border border-raja-stone px-4 py-1 text-xs uppercase tracking-widest text-raja-grey-muted hover:text-raja-white"
       >
         {bodyColor}
       </button>
@@ -89,7 +89,7 @@ export default function TokenBuilder() {
                 size="md"
                 abilityText={t.ability}
               />
-              <span className="text-xs text-kingkiller-grey-muted">{t.name}</span>
+              <span className="text-xs text-raja-grey-muted">{t.name}</span>
             </button>
           );
         })}

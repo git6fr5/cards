@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { get, post } from '@/utils/api';
-import KingkillerLoader from '@/components/layout/KingkillerLoader';
+import RajaLoader from '@/components/layout/RajaLoader';
 import Board from '@/app/_components/Board';
 import PlayerPanel from './_components/PlayerPanel';
 import TurnStatus from './_components/TurnStatus';
@@ -98,16 +98,16 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-kingkiller-black flex items-center justify-center">
-        <KingkillerLoader alt size="lg" />
+      <div className="min-h-screen bg-raja-black flex items-center justify-center">
+        <RajaLoader alt size="lg" />
       </div>
     );
   }
 
   if (!gameState) {
     return (
-      <div className="min-h-screen bg-kingkiller-black flex items-center justify-center">
-        <p className="font-garamond text-sm text-kingkiller-crimson">{error ?? 'Game not found'}</p>
+      <div className="min-h-screen bg-raja-black flex items-center justify-center">
+        <p className="font-garamond text-sm text-raja-crimson">{error ?? 'Game not found'}</p>
       </div>
     );
   }
@@ -118,7 +118,7 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
   const lastOutcome = gameState.log[gameState.log.length - 1];
 
   return (
-    <div className="min-h-screen bg-kingkiller-black flex items-center justify-center gap-8 p-8">
+    <div className="min-h-screen bg-raja-black flex items-center justify-center gap-8 p-8">
       <div className="flex items-center gap-8">
         <PlayerPanel
           player={opponent}
@@ -143,10 +143,10 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
             lastOutcome={lastOutcome}
           />
           {infoText && (
-            <p className="font-garamond text-xs text-kingkiller-grey-light max-w-xs text-center">{infoText}</p>
+            <p className="font-garamond text-xs text-raja-grey-light max-w-xs text-center">{infoText}</p>
           )}
           {error && (
-            <p className="font-garamond text-xs text-kingkiller-crimson">{error}</p>
+            <p className="font-garamond text-xs text-raja-crimson">{error}</p>
           )}
           {isActivePlayer && (
             <ActionInput onSubmit={handleSubmitAction} isSubmitting={isSubmitting} />

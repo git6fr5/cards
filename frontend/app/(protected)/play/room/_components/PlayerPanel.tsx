@@ -15,7 +15,7 @@ export default function PlayerPanel({ player, label, isOwn, isActivePlayer, onSe
 
   return (
     <div className="flex flex-col items-center gap-3">
-      <span className="font-garamond text-xs uppercase tracking-wide text-kingkiller-grey-muted">
+      <span className="font-garamond text-xs uppercase tracking-wide text-raja-grey-muted">
         {label}
       </span>
       <ManaTrack current={player.current_mana} total={player.total_mana} />

@@ -23,13 +23,13 @@ export default function TokenDisplay({ token, bodyColor }: TokenDisplayProps) {
           abilityText={ability}
         />
         <div>
-          <p className="text-lg font-semibold text-kingkiller-white">{name}</p>
+          <p className="text-lg font-semibold text-raja-white">{name}</p>
           <div className="mt-1 flex items-center gap-2">
             <span
-              className="inline-block h-3 w-3 rounded-full border-2 border-kingkiller-white"
+              className="inline-block h-3 w-3 rounded-full border-2 border-raja-white"
               style={{ backgroundColor: archetype.color }}
             />
-            <span className="text-sm text-kingkiller-grey">{archetype.name}</span>
+            <span className="text-sm text-raja-grey">{archetype.name}</span>
           </div>
         </div>
       </div>

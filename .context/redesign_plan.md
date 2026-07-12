@@ -15,7 +15,7 @@ type: project
 
 ### Context
 
-Two chess.com screenshots (in-game and pre-game lobby) were reviewed against Kingkiller's own
+Two chess.com screenshots (in-game and pre-game lobby) were reviewed against Raja's own
 design system and the current `/play/room` implementation, to see what a mature, dense
 game-interface pattern gets right that could be adopted. Each point is tagged:
 
@@ -35,7 +35,7 @@ game-interface pattern gets right that could be adopted. Each point is tagged:
 5. [adopt] Coordinates flip with viewer orientation, not just piece colors — worth double-checking our board also renumbers for player 1's perspective, not only re-coloring pieces.
 6. [confirms] Alternating squares use two close, muted tones rather than high contrast — our obsidian/stone pairing already followed this (now superseded by the emerald board — see §2).
 7. [adopt] Pieces get a subtle drop-shadow/bevel to lift them off the board — our `PieceToken` is currently flat; a soft shadow or ring would add depth.
-8. [confirms] Selected/legal-move squares get a highlight ring — matches the `ring-2 ring-kingkiller-gold` built for board highlighting.
+8. [confirms] Selected/legal-move squares get a highlight ring — matches the `ring-2 ring-raja-gold` built for board highlighting.
 
 **Game info & controls**
 9. [future] Clock renders as a boxed, high-contrast element (white chip, icon+time), not inline text — relevant once we add real per-player timers.
@@ -49,7 +49,7 @@ game-interface pattern gets right that could be adopted. Each point is tagged:
 **Lobby / pre-game**
 16. [future] A single collapsed dropdown for game setup (time control) instead of a wall of options — relevant if we add pre-match choices like archetype/deck selection.
 17. [adopt] Exactly one unmistakable primary CTA ("Start Game," solid saturated green, full-width) above demoted secondary options — worth auditing `PlayLanding.tsx` for whether it has one clear primary action or competing buttons.
-18. [adopt] Secondary actions carry a small leading icon for fast scanning — `KingkillerButton` has no icon slot today; worth adding one.
+18. [adopt] Secondary actions carry a small leading icon for fast scanning — `RajaButton` has no icon slot today; worth adding one.
 19. [adopt] The board renders live (idle, placeholder pieces) behind the lobby screen instead of a blank page — gives instant visual context. Our `PlayLanding` could show a static board preview instead of plain text.
 20. [confirms] Placeholder labels ("Player"/"Opponent") occupy the exact slots real names will later fill — matches how we already always render `PlayerPanel` structurally.
 21. [future] A live social-proof counter ("120,092 playing") — low priority for a prototype, but notable if we ever want a "games in progress" stat.
@@ -63,8 +63,8 @@ game-interface pattern gets right that could be adopted. Each point is tagged:
 **Layout discipline**
 26. [confirms] Three-column layout (nav | board+controls | panel) holds fixed across both lobby and in-game states, nothing reflows — this directly validates the project's existing fixed-layout preference from `AUDIT.md`.
 27. [future] Side panel uses tabs to swap fundamentally different content (Moves/Chat/Info) instead of stacking everything — worth considering for `GameLogPanel` once/if chat gets added, so it doesn't need more page real estate.
-28. [confirms] Board container has a subtle border separating it from the page background — matches our `border-kingkiller-gold/40`.
-29. [confirms] Dark background is near-black, not pure black, with the board as the brightest/most saturated element on the page — matches `kingkiller-black`; worth a visual check that the board squares actually pop against it rather than blending in (relevant again now that the background has shifted further purple — see §2).
+28. [confirms] Board container has a subtle border separating it from the page background — matches our `border-raja-gold/40`.
+29. [confirms] Dark background is near-black, not pure black, with the board as the brightest/most saturated element on the page — matches `raja-black`; worth a visual check that the board squares actually pop against it rather than blending in (relevant again now that the background has shifted further purple — see §2).
 30. [adopt] Everything fits one viewport with zero scrolling on both screens — worth auditing `/play/room` for the same once coordinate labels and an icon rail get added, since those add width/height we haven't accounted for yet.
 
 ### Status
@@ -92,17 +92,17 @@ this surfaced two pre-existing issues:
 
 ### Discussion points
 
-- Whether "steel"/"gold" should replace the core `kingkiller-white`/`black` pair or get new
-  dedicated tokens — resolved in favor of new dedicated tokens (`kingkiller-steel`,
-  `kingkiller-gold-deep`), since `kingkiller-white`/`black` are structurally load-bearing for
+- Whether "steel"/"gold" should replace the core `raja-white`/`black` pair or get new
+  dedicated tokens — resolved in favor of new dedicated tokens (`raja-steel`,
+  `raja-gold-deep`), since `raja-white`/`black` are structurally load-bearing for
   text/cards/buttons app-wide, not just piece color.
 - Gold collision with the existing accent/highlight color — resolved by giving player 1 a
-  distinct, deeper `kingkiller-gold-deep` (`#8C6D2F`), separate from the accent `kingkiller-gold`
+  distinct, deeper `raja-gold-deep` (`#8C6D2F`), separate from the accent `raja-gold`
   (`#C9A84C`) used for trim/focus ring/legal-move highlight, so a highlighted gold piece doesn't
   visually disappear into its own highlight ring.
-- How far "background is purple" should reach — resolved as global (`kingkiller-black` itself),
+- How far "background is purple" should reach — resolved as global (`raja-black` itself),
   shifted further into visible purple rather than a subtle undertone.
-- Also surfaced: `design_brief.md` already documented `kingkiller-emerald` as "the board/arena
+- Also surfaced: `design_brief.md` already documented `raja-emerald` as "the board/arena
   table colour," but `BoardSquare.tsx` never actually used it — board squares reused the dark
   purple obsidian/stone tokens instead. Decided to finally wire the board to its intended emerald
   identity, so it reads as a distinct table surface rather than blending into the now-more-purple
@@ -114,16 +114,16 @@ Implemented. Final values:
 
 | Token | Hex | Role | Status |
 |---|---|---|---|
-| `kingkiller-black` | `#1A1225` | Global background, dark surfaces, modal backdrops | changed |
-| `kingkiller-obsidian` | `#2A1F3D` | Panel/sidebar interiors | changed |
-| `kingkiller-stone` | `#4A3F5C` | Borders/dividers on dark | changed |
-| `kingkiller-white` | `#F0EAD8` | Card faces, light panels, primary text on dark | synced to brief (was `#FFFFFF` placeholder) |
-| `kingkiller-gold` | `#C9A84C` | Accent/trim/borders/focus ring/legal-move highlight | synced to brief (was `#D97706` placeholder) |
-| `kingkiller-emerald` | `#2D6A4F` | Board square, light alternate | synced to brief + newly wired into the board |
-| `kingkiller-emerald-dark` | `#1F4D38` | Board square, dark alternate | new |
-| `kingkiller-steel` | `#B8C2CC` | Player 0 piece body | new |
-| `kingkiller-gold-deep` | `#8C6D2F` | Player 1 piece body | new |
-| `kingkiller-blue` / `blue-light` | `#3E6B99` / `#B8CFE0` | Mana track | newly documented (was live and used, but undocumented) |
+| `raja-black` | `#1A1225` | Global background, dark surfaces, modal backdrops | changed |
+| `raja-obsidian` | `#2A1F3D` | Panel/sidebar interiors | changed |
+| `raja-stone` | `#4A3F5C` | Borders/dividers on dark | changed |
+| `raja-white` | `#F0EAD8` | Card faces, light panels, primary text on dark | synced to brief (was `#FFFFFF` placeholder) |
+| `raja-gold` | `#C9A84C` | Accent/trim/borders/focus ring/legal-move highlight | synced to brief (was `#D97706` placeholder) |
+| `raja-emerald` | `#2D6A4F` | Board square, light alternate | synced to brief + newly wired into the board |
+| `raja-emerald-dark` | `#1F4D38` | Board square, dark alternate | new |
+| `raja-steel` | `#B8C2CC` | Player 0 piece body | new |
+| `raja-gold-deep` | `#8C6D2F` | Player 1 piece body | new |
+| `raja-blue` / `blue-light` | `#3E6B99` / `#B8CFE0` | Mana track | newly documented (was live and used, but undocumented) |
 
 Files touched: `globals.css`, `design_brief.md`, `utils/archetypes.ts` (`BodyColor` type:
 `'white' | 'black'` → `'steel' | 'gold'`), `app/_components/PieceToken.tsx`,

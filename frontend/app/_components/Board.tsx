@@ -15,7 +15,7 @@ interface BoardProps {
 
 export default function Board({ board, selfPlayerId, isActivePlayer, highlightedSquares, onSelectSquare, onDrop }: BoardProps) {
   return (
-    <div className="border border-kingkiller-gold/40 inline-block">
+    <div className="border border-raja-gold/40 inline-block">
       {Array.from({ length: BOARD_HEIGHT }, (_, i) => {
         const row = BOARD_HEIGHT - 1 - i;
         return (

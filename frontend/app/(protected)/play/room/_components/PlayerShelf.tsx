@@ -28,7 +28,7 @@ export default function PlayerShelf({ shelf, bodyColor, isOwn, isActivePlayer, o
       {Array.from({ length: SHELF_SIZE }, (_, i) => {
         const piece = shelf[i];
         if (!piece) {
-          return <div key={i} className="w-12 h-12 rounded-full border border-dashed border-kingkiller-stone" />;
+          return <div key={i} className="w-12 h-12 rounded-full border border-dashed border-raja-stone" />;
         }
         return (
           <div

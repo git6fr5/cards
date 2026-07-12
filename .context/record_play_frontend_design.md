@@ -24,10 +24,10 @@ Before planning `/play` and `/play/room`, the frontend was audited for reusable 
 - The existing `play/` page turned out to be wired to the *same abandoned backend architecture* already cleaned up on the backend side (`/game/room/{id}/start`, WebSocket sync, board keyed by `"row,col"`, `Piece.piece_id`/`owner_id`/`body_color`/`move_cost`). Same vintage as the deleted `routes.py`/`sets_routes.py`/`seed.py` — component shapes were still useful as a reference, but the API calls and types needed a full rewrite, not a patch.
 - Two competing piece-rendering implementations existed: `play/`'s `PieceToken` (crude, first-letter-of-name) vs `token-builder/`'s `TokenCircle` (real Lucide icon per archetype, matches the notes.md token spec exactly). `TokenCircle` was chosen as the one to standardize on.
 - `CardMana.tsx` (card-builder) turned out to be a single numeric badge, not the filled/empty pip track described for mana — confirmed as a gap, not a reuse candidate.
-- Checked `globals.css` fresh (per this project's own tailwind-audit rule) rather than trusting `design_brief.md` from memory — found `--color-kingkiller-blue` actually exists, correcting an initial assumption that no blue token was available.
+- Checked `globals.css` fresh (per this project's own tailwind-audit rule) rather than trusting `design_brief.md` from memory — found `--color-raja-blue` actually exists, correcting an initial assumption that no blue token was available.
 
 ### Decision
-Reuse: `BoardCell`'s alternating-shade logic, `TokenCircle` for all piece rendering, `utils/api.ts`'s `get`/`post`, `KingkillerButton`/`KingkillerLoader`/`KingkillerSection`/`KingkillerModal`. Build fresh: a mana pip-track component (didn't exist anywhere). Old `play/_components/` and its `types.ts` marked for full replacement, not extension.
+Reuse: `BoardCell`'s alternating-shade logic, `TokenCircle` for all piece rendering, `utils/api.ts`'s `get`/`post`, `RajaButton`/`RajaLoader`/`RajaSection`/`RajaModal`. Build fresh: a mana pip-track component (didn't exist anywhere). Old `play/_components/` and its `types.ts` marked for full replacement, not extension.
 
 ---
 
@@ -82,7 +82,7 @@ Implementing the chosen layout required `ARCHETYPES` (archetype → color/icon m
 ### Discussion points
 Per this project's own floating-component rule (page-local components in `_components/` shouldn't be imported by other pages — if genuinely shared across unrelated pages, they belong in a shared location), both were promoted rather than imported cross-page:
 - `ARCHETYPES`/`Archetype`/`Effect`/`PieceType`/`BodyColor` → `frontend/utils/archetypes.ts`.
-- `TokenCircle` → `components/ui/KingkillerTokenCircle.tsx` (renamed with the required `Kingkiller` prefix for shared design-system components).
+- `TokenCircle` → `components/ui/RajaTokenCircle.tsx` (renamed with the required `Raja` prefix for shared design-system components).
 
 An initial attempt to keep a re-export shim in `token-builder/registry.ts` (`export { ARCHETYPES, ... }`) was caught and removed — nothing outside `registry.ts` actually consumed those exports directly, so the re-export was a needless backwards-compat shim rather than a real compatibility need.
 

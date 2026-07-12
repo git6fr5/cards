@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import KingkillerButton from '@/components/forms/KingkillerButton';
+import RajaButton from '@/components/forms/RajaButton';
 
 interface InviteLinkProps {
   room: string;
@@ -18,7 +18,7 @@ export default function InviteLink({ room, otherPlayerIndex }: InviteLinkProps) 
   }
 
   return (
-    <KingkillerButton
+    <RajaButton
       alt
       variant="action"
       text={copied ? 'Copied!' : 'Invite other player'}

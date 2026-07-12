@@ -33,7 +33,7 @@ interface TokenGridProps {
 
 export default function TokenGrid({ name, movement, archetype, pieceType, bodyColor }: TokenGridProps) {
   return (
-    <div className="grid grid-cols-5 gap-px bg-kingkiller-stone p-px">
+    <div className="grid grid-cols-5 gap-px bg-raja-stone p-px">
       {[0, 1, 2, 3, 4].flatMap((row) =>
         [0, 1, 2, 3, 4].map((col) => {
           const key      = `${row}-${col}`;
@@ -42,7 +42,7 @@ export default function TokenGrid({ name, movement, archetype, pieceType, bodyCo
 
           if (isCenter) {
             return (
-              <div key={key} className="relative flex h-14 w-14 items-center justify-center bg-kingkiller-white">
+              <div key={key} className="relative flex h-14 w-14 items-center justify-center bg-raja-white">
                 <PieceToken name={name} archetype={archetype} pieceType={pieceType} bodyColor={bodyColor} size="sm" />
                 {[0, 1, 2].flatMap((mr) =>
                   [0, 1, 2].map((mc) => {
@@ -79,12 +79,12 @@ export default function TokenGrid({ name, movement, archetype, pieceType, bodyCo
 
           if (isInner) {
             return (
-              <div key={key} className="flex h-14 w-14 items-center justify-center bg-kingkiller-white" />
+              <div key={key} className="flex h-14 w-14 items-center justify-center bg-raja-white" />
             );
           }
 
           return (
-            <div key={key} className="h-14 w-14 bg-kingkiller-hover opacity-40" />
+            <div key={key} className="h-14 w-14 bg-raja-hover opacity-40" />
           );
         }),
       )}

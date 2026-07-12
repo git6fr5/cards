@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import KingkillerTextField from '@/components/forms/KingkillerTextField';
-import KingkillerButton from '@/components/forms/KingkillerButton';
+import RajaTextField from '@/components/forms/RajaTextField';
+import RajaButton from '@/components/forms/RajaButton';
 
 interface ActionInputProps {
   onSubmit: (rawInput: string) => void;
@@ -20,7 +20,7 @@ export default function ActionInput({ onSubmit, isSubmitting }: ActionInputProps
 
   return (
     <div className="flex items-end gap-2">
-      <KingkillerTextField
+      <RajaTextField
         id="raw-input"
         label="Move (raw input)"
         value={rawInput}
@@ -28,7 +28,7 @@ export default function ActionInput({ onSubmit, isSubmitting }: ActionInputProps
         placeholder="e.g. A1@B2"
         disabled={isSubmitting}
       />
-      <KingkillerButton
+      <RajaButton
         variant="action"
         text="Submit"
         onClick={handleSubmit}
