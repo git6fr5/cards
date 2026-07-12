@@ -97,22 +97,40 @@ do_publish() {
 }
 
 do_accept() {
-  local branch="copybara/shared-sync"
+  local branch="copybara/shared-sync" stashed=0 autostash="${1:-}"
   if [ -n "$(git -C "$root" status --porcelain)" ]; then
-    echo "accept: working tree not clean — commit or stash first"; exit 1
+    if [ "$autostash" = "--stash" ]; then
+      git -C "$root" stash push -u -m "shared-sync accept autostash" || { echo "accept: stash failed"; exit 1; }
+      stashed=1
+    else
+      echo "accept: working tree not clean — commit/stash, or rerun with --stash"; exit 1
+    fi
   fi
   if ! git -C "$root" fetch -q origin "$branch"; then
+    [ "$stashed" = 1 ] && git -C "$root" stash pop
     echo "accept: no $branch on origin — run pull first"; exit 1
   fi
   if ! git -C "$root" merge --no-edit "origin/$branch"; then
     git -C "$root" merge --abort
+    [ "$stashed" = 1 ] && git -C "$root" stash pop
     echo "accept: merge conflict — resolve manually; $branch left intact"; exit 1
   fi
-  git -C "$root" push -q origin HEAD || { echo "accept: push of merge failed"; exit 1; }
+  if ! git -C "$root" push -q origin HEAD; then
+    [ "$stashed" = 1 ] && git -C "$root" stash pop
+    echo "accept: push of merge failed"; exit 1
+  fi
   git -C "$root" push -q origin --delete "$branch" || true
   git -C "$root" branch -qD "$branch" 2>/dev/null || true
   record_state
-  echo "accept: merged and deleted $branch"
+  if [ "$stashed" = 1 ]; then
+    if git -C "$root" stash pop; then
+      echo "accept: merged, deleted $branch, restored your WIP"
+    else
+      echo "accept: merged and deleted $branch; restoring WIP hit conflicts — resolve them (stash preserved)"
+    fi
+  else
+    echo "accept: merged and deleted $branch"
+  fi
 }
 
 case "${1:-}" in
@@ -121,7 +139,7 @@ case "${1:-}" in
     git push origin --delete copybara/shared-sync 2>/dev/null || true
     copybara "$config" "push_$PROJECT_NAME"
     record_state ;;
-  accept)  do_accept ;;
+  accept)  do_accept "${2:-}" ;;
   publish) do_publish "${2:-}" ;;
   fanout)
     target="${2:-}"
@@ -139,5 +157,5 @@ case "${1:-}" in
     else
       echo "shared: BEHIND canonical (${recorded:0:8} -> ${remote:0:8}) — run: ./scripts/shared-sync.sh pull"
     fi ;;
-  *) echo "usage: shared-sync.sh {pull|accept|publish [msg]|fanout <name>|record|status}"; exit 1 ;;
+  *) echo "usage: shared-sync.sh {pull|accept [--stash]|publish [msg]|fanout <name>|record|status}"; exit 1 ;;
 esac
