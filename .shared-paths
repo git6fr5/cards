@@ -1,0 +1,13 @@
+backend/accounts
+backend/utils
+frontend/utils/api.ts
+frontend/utils/auth.ts
+frontend/utils/styles.ts
+frontend/hooks/useWebSocket.ts
+frontend/proxy.ts
+frontend/next.config.ts
+:(exclude)backend/utils/emails.py
+:(exclude)backend/utils/email_templates
+:(exclude)backend/utils/video.py
+:(exclude)frontend/proxy.config.ts
+:(exclude)frontend/utils/project_guide.txt

@@ -1,0 +1,53 @@
+CANONICAL = "https://github.com/git6fr5/webapp-template.git"
+
+SHARED = glob(
+    include = [
+        "backend/accounts/**",
+        "backend/utils/**",
+        "frontend/utils/api.ts",
+        "frontend/utils/auth.ts",
+        "frontend/utils/styles.ts",
+        "frontend/hooks/useWebSocket.ts",
+        "frontend/proxy.ts",
+        "frontend/next.config.ts",
+        "copy.bara.sky",
+        ".shared-paths",
+        "scripts/shared-sync.sh",
+        ".githooks/**",
+    ],
+    exclude = [
+        "backend/utils/emails.py",
+        "backend/utils/email_templates/**",
+        "backend/utils/video.py",
+        "backend/**/__pycache__/**",
+        "backend/**/*.pyc",
+        "frontend/proxy.config.ts",
+        "frontend/app/(open)/auth/**",
+        "frontend/utils/project_guide.txt",
+        ".shared-sync.conf",
+        ".shared-sync-state",
+    ],
+)
+
+
+def push_to(url, branch = "main"):
+    name = url.split("/")[-1].replace(".git", "")
+    return core.workflow(
+        name = "push_" + name,
+        origin = git.origin(url = CANONICAL, ref = "main"),
+        destination = git.destination(url = url, fetch = branch, push = "copybara/shared-sync"),
+        origin_files = SHARED,
+        destination_files = SHARED,
+        authoring = authoring.overwrite("Shared Sync Bot <bot@git6fr5.dev>"),
+        transformations = [],
+        mode = "SQUASH",
+    )
+
+
+WILLS   = "https://github.com/git6fr5/wills.git"
+PENGUIN = "https://github.com/git6fr5/penguin.git"
+CARDS   = "https://github.com/git6fr5/cards.git"
+
+push_wills   = push_to(WILLS)
+push_penguin = push_to(PENGUIN)
+push_cards   = push_to(CARDS)

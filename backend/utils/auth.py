@@ -23,7 +23,7 @@ ERRORS = {
 ADMIN_PERMISSION_LEVEL = "admin"
 
 # Single source of truth for the session cookie, shared with accounts/session/crud.py.
-SESSION_COOKIE_NAME = "penguin_session"
+SESSION_COOKIE_NAME = "kellon_session"
 SESSION_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30  # 30 days
 
 
@@ -129,6 +129,13 @@ def _is_org_scoped_admin_by_slug(auth: AuthContext, target_slug: str) -> bool:
     return org_scoped and auth.is_admin
 
 
+def _is_org_scoped_member(auth: AuthContext, target_organisation_id: int) -> bool:
+    # Same org-match check as _is_org_scoped_admin, without the admin permission requirement —
+    # for routes any member of the organisation may use (e.g. a witness responding to a
+    # scheduling blast), not just the org's admins.
+    return auth.is_default_org or auth.organisation_id == target_organisation_id
+
+
 def _load_user_organisation_id(user_id: int) -> int | None:
     # Opens its own read-only session for the same reason as require_auth: the request-scoped
     # ContextVar session is not established while dependencies resolve. Returns None if the
@@ -147,6 +154,17 @@ def require_org_admin(
 ) -> AuthContext:
     # Target org comes from the path. Use on routes nested under /organisations/{organisation_id}.
     assert_preconditions([(not _is_org_scoped_admin(auth, organisation_id), 403, "forbidden")], ERRORS)
+    return auth
+
+
+def require_org_member(
+    organisation_id: int,
+    auth: AuthContext = Depends(require_auth),
+) -> AuthContext:
+    # Same as require_org_admin, minus the admin permission requirement. Use on routes any
+    # member of the organisation may reach (e.g. scheduling — witnesses responding to a blast),
+    # not just its admins.
+    assert_preconditions([(not _is_org_scoped_member(auth, organisation_id), 403, "forbidden")], ERRORS)
     return auth
 
 

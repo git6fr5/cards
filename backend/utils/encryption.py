@@ -23,4 +23,4 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 if __name__=="__main__":
     import sys
-    print(hash_token(sys.argv[1]))
+    print(hash_password(sys.argv[1]))

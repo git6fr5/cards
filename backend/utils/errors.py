@@ -1,12 +1,13 @@
+# Test change
 from fastapi import HTTPException
-from .databases import DatabaseConnection
 
 
 def assert_preconditions(checks: list[tuple[bool, int, str]], errors: dict):
     for condition, code, error in checks:
         if condition:
             raise HTTPException(status_code=code, detail=errors[error])
-        
+
+
 def runtime_conditions(checks: list[tuple[bool, str]], errors: dict):
     for condition, error in checks:
         if condition:

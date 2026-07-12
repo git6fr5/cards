@@ -5,19 +5,19 @@ from typing import List, Dict
 class ConnectionManager:
 
     def __init__(self):
-        self.active_connections: Dict[str, List[WebSocket]] = {}
+        self.active_connections: Dict[int, List[WebSocket]] = {}
 
     @staticmethod
     def get_websocket_connection_id(websocket_type: str, websocket_id: int):
         return f"{websocket_type}_{websocket_id}"
 
-    async def connect(self, websocket: WebSocket, connection_id: str):
+    async def connect(self, websocket: WebSocket, connection_id: int):
         await websocket.accept()
         if connection_id not in self.active_connections:
             self.active_connections[connection_id] = []
         self.active_connections[connection_id].append(websocket)
 
-    def disconnect(self, websocket: WebSocket, connection_id: str):
+    def disconnect(self, websocket: WebSocket, connection_id: int):
         if connection_id in self.active_connections:
             self.active_connections[connection_id].remove(websocket)
             if not self.active_connections[connection_id]:
