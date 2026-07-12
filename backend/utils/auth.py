@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from utils.encryption import hash_token
 from utils.errors import assert_preconditions
+import os
 
 # accounts.orm models are imported lazily inside the resolver functions: the access-token
 # crud router imports this module, so a top-level accounts import would create a cycle.
@@ -23,7 +24,7 @@ ERRORS = {
 ADMIN_PERMISSION_LEVEL = "admin"
 
 # Single source of truth for the session cookie, shared with accounts/session/crud.py.
-SESSION_COOKIE_NAME = "kellon_session"
+SESSION_COOKIE_NAME = os.getenv("SESSION_COOKIE_NAME")
 SESSION_COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30  # 30 days
 
 
