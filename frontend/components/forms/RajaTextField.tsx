@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import type { ChangeEvent } from 'react';
 
-interface KingkillerTextFieldProps {
+interface RajaTextFieldProps {
   id: string;
   label?: string;
   value: string;
@@ -18,7 +18,7 @@ interface KingkillerTextFieldProps {
   className?: string;
 }
 
-export default function KingkillerTextField({ id, label, value, onChange, name, type = 'text', placeholder, disabled = false, required = false, autoComplete, autoFocus, error, className = '' }: KingkillerTextFieldProps) {
+export default function RajaTextField({ id, label, value, onChange, name, type = 'text', placeholder, disabled = false, required = false, autoComplete, autoFocus, error, className = '' }: RajaTextFieldProps) {
   const [internalError, setInternalError] = useState('');
 
   const handleBlur = () => {
@@ -33,7 +33,7 @@ export default function KingkillerTextField({ id, label, value, onChange, name, 
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      {label && <label htmlFor={id} className="text-sm font-medium text-kingkiller-black">{label}</label>}
+      {label && <label htmlFor={id} className="text-sm font-medium text-raja-chrome-text">{label}</label>}
       <input
         id={id}
         name={name ?? id}
@@ -46,9 +46,9 @@ export default function KingkillerTextField({ id, label, value, onChange, name, 
         required={required}
         autoComplete={autoComplete}
         autoFocus={autoFocus}
-        className={`w-full px-3 py-2 border text-sm focus:outline-none focus:ring-2 focus:ring-kingkiller-gold disabled:opacity-disabled disabled:cursor-not-allowed ${displayError ? 'border-kingkiller-crimson' : 'border-kingkiller-black'}`}
+        className={`w-full px-3 py-2 border text-sm focus:outline-none focus:ring-2 focus:ring-raja-chrome-action disabled:opacity-disabled disabled:cursor-not-allowed ${displayError ? 'border-raja-chrome-error' : 'border-raja-chrome-border'}`}
       />
-      {displayError && <p className="text-xs text-kingkiller-crimson">{displayError}</p>}
+      {displayError && <p className="text-xs text-raja-chrome-error">{displayError}</p>}
     </div>
   );
 }

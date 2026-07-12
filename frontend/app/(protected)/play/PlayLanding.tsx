@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { post } from '@/utils/api';
-import KingkillerButton from '@/components/forms/KingkillerButton';
-import KingkillerSection from '@/components/layout/KingkillerSection';
+import RajaButton from '@/components/forms/RajaButton';
+import RajaSection from '@/components/layout/RajaSection';
 import type { Game } from './types';
 
 export default function PlayLanding() {
@@ -26,20 +26,19 @@ export default function PlayLanding() {
   }
 
   return (
-    <KingkillerSection alt className="min-h-screen flex flex-col items-center justify-center gap-6">
-      <h1 className="font-garamond text-3xl text-kingkiller-white tracking-wide">
-        Kingkiller
+    <RajaSection alt className="min-h-screen flex flex-col items-center justify-center gap-6">
+      <h1 className="font-garamond text-3xl text-raja-chrome-bg tracking-wide">
+        Raja
       </h1>
       {error && (
-        <p className="font-garamond text-sm text-kingkiller-crimson">{error}</p>
+        <p className="font-garamond text-sm text-raja-chrome-error">{error}</p>
       )}
-      <KingkillerButton
-        alt
+      <RajaButton
         variant="action"
         text="Start Game"
         loading={isLoading}
         onClick={handleStartGame}
       />
-    </KingkillerSection>
+    </RajaSection>
   );
 }

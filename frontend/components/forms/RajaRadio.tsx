@@ -5,7 +5,7 @@ interface RadioOption {
   label: string;
 }
 
-interface KingkillerRadioProps {
+interface RajaRadioProps {
   alt?: boolean;
   name: string;
   options: RadioOption[];
@@ -15,8 +15,8 @@ interface KingkillerRadioProps {
   className?: string;
 }
 
-export default function KingkillerRadio({ alt = false, name, options, value, onChange, disabled = false, className = '' }: KingkillerRadioProps) {
-  const color = alt ? 'text-kingkiller-white' : 'text-kingkiller-black';
+export default function RajaRadio({ alt = false, name, options, value, onChange, disabled = false, className = '' }: RajaRadioProps) {
+  const color = alt ? 'text-raja-chrome-bg' : 'text-raja-chrome-text';
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>

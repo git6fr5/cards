@@ -8,7 +8,7 @@ const MAX_WIDTHS = {
   lg: 'max-w-modal-lg',
 };
 
-interface KingkillerModalProps {
+interface RajaModalProps {
   title: string;
   onClose: () => void;
   children: ReactNode;
@@ -17,13 +17,13 @@ interface KingkillerModalProps {
   className?: string;
 }
 
-export default function KingkillerModal({ title, onClose, children, footer, maxWidth = 'md', className = '' }: KingkillerModalProps) {
+export default function RajaModal({ title, onClose, children, footer, maxWidth = 'md', className = '' }: RajaModalProps) {
   return (
-    <div className="fixed inset-0 bg-kingkiller-black/50 flex items-center justify-center z-modal p-4">
-      <div className={`bg-kingkiller-white border border-kingkiller-black w-full ${MAX_WIDTHS[maxWidth]} max-h-modal flex flex-col ${className}`}>
-        <div className="flex items-center justify-between px-4 py-3 border-b border-kingkiller-black shrink-0">
-          <span className="font-bold text-sm text-kingkiller-black">{title}</span>
-          <button onClick={onClose} className="p-1 hover:bg-kingkiller-black hover:text-kingkiller-white">
+    <div className="fixed inset-0 bg-raja-chrome-text/50 flex items-center justify-center z-modal p-4">
+      <div className={`bg-raja-chrome-bg border border-raja-chrome-border w-full ${MAX_WIDTHS[maxWidth]} max-h-modal flex flex-col ${className}`}>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-raja-chrome-border shrink-0">
+          <span className="font-bold text-sm text-raja-chrome-text">{title}</span>
+          <button onClick={onClose} className="p-1 hover:bg-raja-chrome-panel hover:text-raja-chrome-bg">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -31,7 +31,7 @@ export default function KingkillerModal({ title, onClose, children, footer, maxW
           {children}
         </div>
         {footer && (
-          <div className="border-t border-kingkiller-black shrink-0">
+          <div className="border-t border-raja-chrome-border shrink-0">
             {footer}
           </div>
         )}

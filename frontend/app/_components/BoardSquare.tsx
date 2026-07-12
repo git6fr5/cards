@@ -19,11 +19,11 @@ interface BoardSquareProps {
 
 export default function BoardSquare({ piece, row, col, square, isOwn, isActivePlayer, isHighlighted, onSelect, onDrop }: BoardSquareProps) {
   const shade = (row + col) % 2 === 0
-    ? 'bg-kingkiller-emerald'
-    : 'bg-kingkiller-emerald-dark';
+    ? 'bg-raja-wood'
+    : 'bg-raja-wood-dark';
   const canInspect = isActivePlayer && !!piece;
   const canDrag = isActivePlayer && isOwn;
-  const highlightClass = isHighlighted ? 'ring-2 ring-kingkiller-gold' : '';
+  const highlightClass = isHighlighted ? 'ring-2 ring-raja-gold' : '';
 
   function handleDragStart(e: DragEvent<HTMLDivElement>) {
     e.dataTransfer.setData('text/plain', square);

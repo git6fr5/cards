@@ -5,28 +5,37 @@
 @source "../";
 
 @theme inline {
-  --color-kingkiller-black:         #1A1225;
-  --color-kingkiller-obsidian:      #2A1F3D;
-  --color-kingkiller-white:         #F0EAD8;
-  --color-kingkiller-hover:         #E4DCC8;
-  --color-kingkiller-stone:         #4A3F5C;
-  --color-kingkiller-grey:          #7A7060;
-  --color-kingkiller-grey-muted:    #9A9080;
-  --color-kingkiller-grey-light:    #D8D0C0;
-  --color-kingkiller-gold:          #C9A84C;
-  --color-kingkiller-gold-light:    #F0D880;
-  --color-kingkiller-gold-deep:     #8C6D2F;
-  --color-kingkiller-steel:         #B8C2CC;
-  --color-kingkiller-emerald:       #2D6A4F;
-  --color-kingkiller-emerald-dark:  #1F4D38;
-  --color-kingkiller-crimson:       #A32030;
-  --color-kingkiller-crimson-light: #F0D4D4;
-  --color-kingkiller-amber:         #C8901C;
-  --color-kingkiller-amber-light:   #F5E8C0;
-  --color-kingkiller-arcane:        #5A3085;
-  --color-kingkiller-arcane-light:  #D0C0E8;
-  --color-kingkiller-blue:          #3E6B99;
-  --color-kingkiller-blue-light:    #B8CFE0;
+  /* Game domain */
+  --color-raja-black:         #171512;
+  --color-raja-obsidian:      #24211C;
+  --color-raja-white:         #F0EAD8;
+  --color-raja-hover:         #E4DCC8;
+  --color-raja-stone:         #43403A;
+  --color-raja-grey:          #7A7060;
+  --color-raja-grey-muted:    #9A9080;
+  --color-raja-grey-light:    #D8D0C0;
+  --color-raja-gold:          #C9A84C;
+  --color-raja-gold-light:    #F5DFA0;
+  --color-raja-gold-deep:     #8C6D2F;
+  --color-raja-steel:         #B8C2CC;
+  --color-raja-wood:          #B79868;
+  --color-raja-wood-dark:     #6B4A2C;
+  --color-raja-crimson:       #8C2E22;
+  --color-raja-crimson-light: #E8CFC7;
+  --color-raja-amber:         #A8752A;
+  --color-raja-amber-light:   #EDDCB8;
+  --color-raja-ink:           #3E5266;
+  --color-raja-ink-light:     #C7CDD4;
+
+  /* Chrome domain */
+  --color-raja-chrome-bg:          #BBBDF6;
+  --color-raja-chrome-panel:       #9893DA;
+  --color-raja-chrome-border:      #797A9E;
+  --color-raja-chrome-muted:       #72727E;
+  --color-raja-chrome-text:        #625F63;
+  --color-raja-chrome-action:      #E8622C;
+  --color-raja-chrome-error:       #C23B3B;
+  --color-raja-chrome-error-light: #F5D9D9;
 
   --radius-none: 0px;
   --radius-sm:   2px;
@@ -63,7 +72,7 @@
 
   --animate-cursor-blink:        cursor-blink 1s step-end infinite;
   --animate-cursor-smear:        cursor-smear 0.2s ease-out forwards;
-  --animate-kingkiller-border-pulse:  kingkiller-border-pulse 500ms ease-out forwards;
+  --animate-raja-border-pulse:  raja-border-pulse 500ms ease-out forwards;
 }
 
 @keyframes cursor-blink {
@@ -76,7 +85,7 @@
   100% { opacity: 0; }
 }
 
-@keyframes kingkiller-border-pulse {
+@keyframes raja-border-pulse {
   0%   { opacity: 1; }
   100% { opacity: 0; }
 }

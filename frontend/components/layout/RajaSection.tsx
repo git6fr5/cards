@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 
-interface KingkillerSectionProps {
+interface RajaSectionProps {
   alt?: boolean;
   children: ReactNode;
   className?: string;
 }
 
-export default function KingkillerSection({ alt = false, children, className = '' }: KingkillerSectionProps) {
-  const bg = alt ? 'bg-kingkiller-black' : 'bg-kingkiller-white';
+export default function RajaSection({ alt = false, children, className = '' }: RajaSectionProps) {
+  const bg = alt ? 'bg-raja-chrome-text' : 'bg-raja-chrome-bg';
 
   return (
     <section className={`w-full ${bg} ${className}`}>

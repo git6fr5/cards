@@ -1,13 +1,13 @@
 import type { ReactNode } from 'react';
 
-interface KingkillerFooterProps {
+interface RajaFooterProps {
   alt?: boolean;
   children: ReactNode;
   className?: string;
 }
 
-export default function KingkillerFooter({ alt = false, children, className = '' }: KingkillerFooterProps) {
-  const bg = alt ? 'bg-kingkiller-black' : 'bg-kingkiller-white';
+export default function RajaFooter({ alt = false, children, className = '' }: RajaFooterProps) {
+  const bg = alt ? 'bg-raja-chrome-text' : 'bg-raja-chrome-bg';
 
   return (
     <footer className={`${bg} ${className}`}>

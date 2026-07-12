@@ -2,19 +2,19 @@
 
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import KingkillerButton from '@/components/forms/KingkillerButton';
-import KingkillerTextField from '@/components/forms/KingkillerTextField';
-import KingkillerTextArea from '@/components/forms/KingkillerTextArea';
-import KingkillerDropdown from '@/components/forms/KingkillerDropdown';
-import KingkillerCheckbox from '@/components/forms/KingkillerCheckbox';
-import KingkillerRadio from '@/components/forms/KingkillerRadio';
-import KingkillerDatePicker from '@/components/forms/KingkillerDatePicker';
-import KingkillerFileUpload from '@/components/forms/KingkillerFileUpload';
-import KingkillerHeader from '@/components/layout/KingkillerHeader';
-import KingkillerFooter from '@/components/layout/KingkillerFooter';
-import KingkillerSection from '@/components/layout/KingkillerSection';
-import KingkillerModal from '@/components/layout/KingkillerModal';
-import KingkillerLoader from '@/components/layout/KingkillerLoader';
+import RajaButton from '@/components/forms/RajaButton';
+import RajaTextField from '@/components/forms/RajaTextField';
+import RajaTextArea from '@/components/forms/RajaTextArea';
+import RajaDropdown from '@/components/forms/RajaDropdown';
+import RajaCheckbox from '@/components/forms/RajaCheckbox';
+import RajaRadio from '@/components/forms/RajaRadio';
+import RajaDatePicker from '@/components/forms/RajaDatePicker';
+import RajaFileUpload from '@/components/forms/RajaFileUpload';
+import RajaHeader from '@/components/layout/RajaHeader';
+import RajaFooter from '@/components/layout/RajaFooter';
+import RajaSection from '@/components/layout/RajaSection';
+import RajaModal from '@/components/layout/RajaModal';
+import RajaLoader from '@/components/layout/RajaLoader';
 
 interface SwatchSpec {
   token: string;
@@ -29,50 +29,36 @@ interface PaletteGroup {
 
 const PALETTE_GROUPS: PaletteGroup[] = [
   {
-    name: 'Core',
+    name: 'Surfaces',
     swatches: [
-      { token: 'black',    bg: 'bg-kingkiller-black',    dark: true },
-      { token: 'obsidian', bg: 'bg-kingkiller-obsidian', dark: true },
-      { token: 'white',    bg: 'bg-kingkiller-white' },
-      { token: 'hover',    bg: 'bg-kingkiller-hover' },
-      { token: 'stone',    bg: 'bg-kingkiller-stone',    dark: true },
+      { token: 'chrome-bg',     bg: 'bg-raja-chrome-bg' },
+      { token: 'chrome-panel',  bg: 'bg-raja-chrome-panel' },
+      { token: 'chrome-border', bg: 'bg-raja-chrome-border', dark: true },
     ],
   },
   {
     name: 'Text',
     swatches: [
-      { token: 'grey',       bg: 'bg-kingkiller-grey',       dark: true },
-      { token: 'grey-muted', bg: 'bg-kingkiller-grey-muted' },
-      { token: 'grey-light', bg: 'bg-kingkiller-grey-light' },
+      { token: 'chrome-muted', bg: 'bg-raja-chrome-muted', dark: true },
+      { token: 'chrome-text',  bg: 'bg-raja-chrome-text',  dark: true },
     ],
   },
   {
-    name: 'Accents',
+    name: 'Action',
     swatches: [
-      { token: 'gold',       bg: 'bg-kingkiller-gold' },
-      { token: 'gold-light', bg: 'bg-kingkiller-gold-light' },
-      { token: 'emerald',    bg: 'bg-kingkiller-emerald', dark: true },
-    ],
-  },
-  {
-    name: 'Status',
-    swatches: [
-      { token: 'crimson',       bg: 'bg-kingkiller-crimson',       dark: true },
-      { token: 'crimson-light', bg: 'bg-kingkiller-crimson-light' },
-      { token: 'amber',         bg: 'bg-kingkiller-amber',         dark: true },
-      { token: 'amber-light',   bg: 'bg-kingkiller-amber-light' },
-      { token: 'arcane',        bg: 'bg-kingkiller-arcane',        dark: true },
-      { token: 'arcane-light',  bg: 'bg-kingkiller-arcane-light' },
+      { token: 'chrome-action',      bg: 'bg-raja-chrome-action', dark: true },
+      { token: 'chrome-error',       bg: 'bg-raja-chrome-error',  dark: true },
+      { token: 'chrome-error-light', bg: 'bg-raja-chrome-error-light' },
     ],
   },
 ];
 
 function Block({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
   return (
-    <section className="flex flex-col gap-4 border border-kingkiller-stone bg-kingkiller-white p-6">
+    <section className="flex flex-col gap-4 border border-raja-chrome-border bg-raja-chrome-bg p-6">
       <div className="flex flex-col gap-1">
-        <h2 className="font-garamond text-2xl font-bold text-kingkiller-black">{title}</h2>
-        {subtitle && <p className="text-sm text-kingkiller-grey">{subtitle}</p>}
+        <h2 className="font-garamond text-2xl font-bold text-raja-chrome-text">{title}</h2>
+        {subtitle && <p className="text-sm text-raja-chrome-muted">{subtitle}</p>}
       </div>
       {children}
     </section>
@@ -81,8 +67,8 @@ function Block({ title, subtitle, children }: { title: string; subtitle?: string
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-2 border-t border-kingkiller-grey-light pt-4 first:border-0 first:pt-0">
-      <span className="text-xs font-medium uppercase tracking-wide text-kingkiller-grey">{label}</span>
+    <div className="flex flex-col gap-2 border-t border-raja-chrome-border pt-4 first:border-0 first:pt-0">
+      <span className="text-xs font-medium uppercase tracking-wide text-raja-chrome-muted">{label}</span>
       <div className="flex flex-wrap items-center gap-4">{children}</div>
     </div>
   );
@@ -92,32 +78,32 @@ export default function DesignShowcase() {
   const [text, setText] = useState('');
   const [email, setEmail] = useState('');
   const [notes, setNotes] = useState('');
-  const [faction, setFaction] = useState('');
-  const [agree, setAgree] = useState(true);
-  const [rarity, setRarity] = useState('common');
+  const [role, setRole] = useState('');
+  const [subscribed, setSubscribed] = useState(true);
+  const [frequency, setFrequency] = useState('weekly');
   const [date, setDate] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <main className="min-h-screen bg-kingkiller-black">
+    <main className="min-h-screen bg-raja-chrome-panel">
       <div className="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-12">
         <header className="flex flex-col gap-2">
-          <div className="self-start border border-kingkiller-gold px-2 py-0.5">
-            <span className="text-xs font-medium uppercase tracking-wide text-kingkiller-gold">Design System</span>
+          <div className="self-start border border-raja-chrome-action px-2 py-0.5">
+            <span className="text-xs font-medium uppercase tracking-wide text-raja-chrome-action">Design System</span>
           </div>
-          <h1 className="font-garamond text-3xl font-bold text-kingkiller-gold">Kingkiller Design Base</h1>
-          <p className="text-sm text-kingkiller-grey-muted">
-            Every shared <code className="font-mono text-kingkiller-gold">Kingkiller*</code> component, rendered live. Void + parchment palette, EB Garamond.
+          <h1 className="font-garamond text-3xl font-bold text-raja-chrome-text">Raja Design Base</h1>
+          <p className="text-sm text-raja-chrome-muted">
+            Every shared <code className="font-mono text-raja-chrome-action">Raja*</code> component, rendered live — the chrome domain only (site shell, forms, nav). Core-game components (board, pieces, mana) live outside this system; see the design brief.
           </p>
         </header>
 
-        <Block title="Palette" subtitle="Tokens defined in globals.css under @theme inline.">
+        <Block title="Palette" subtitle="Chrome tokens defined in globals.css under @theme inline.">
           {PALETTE_GROUPS.map((group) => (
             <Row key={group.name} label={group.name}>
               <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
                 {group.swatches.map((s) => (
-                  <div key={s.token} className={`flex h-20 flex-col justify-end border border-kingkiller-grey-light p-2 ${s.bg}`}>
-                    <span className={`text-xs font-medium ${s.dark ? 'text-kingkiller-white' : 'text-kingkiller-black'}`}>{s.token}</span>
+                  <div key={s.token} className={`flex h-20 flex-col justify-end border border-raja-chrome-border p-2 ${s.bg}`}>
+                    <span className={`text-xs font-medium ${s.dark ? 'text-raja-chrome-bg' : 'text-raja-chrome-text'}`}>{s.token}</span>
                   </div>
                 ))}
               </div>
@@ -128,153 +114,153 @@ export default function DesignShowcase() {
         <Block title="Typography">
           <Row label="EB Garamond">
             <div className="flex flex-col gap-2">
-              <p className="font-garamond text-3xl font-bold text-kingkiller-black">The Name of the Wind</p>
-              <p className="font-garamond text-xl text-kingkiller-black">Kvothe of the Edema Ruh</p>
-              <p className="font-garamond text-sm text-kingkiller-grey">
-                Body copy — 0.875rem. Classical serif throughout. Garamond carries the fantasy register across every surface.
+              <p className="font-garamond text-3xl font-bold text-raja-chrome-text">Aa Bb Cc — Design System</p>
+              <p className="font-garamond text-xl text-raja-chrome-text">The quick brown fox jumps over the lazy dog</p>
+              <p className="font-garamond text-sm text-raja-chrome-muted">
+                Body copy — 0.875rem. Classical serif, used across chrome and game domains alike.
               </p>
             </div>
           </Row>
         </Block>
 
-        <Block title="KingkillerHeader" subtitle="Section heading with optional emphasised substring.">
+        <Block title="RajaHeader" subtitle="Section heading with optional emphasised substring.">
           <Row label="Default">
-            <KingkillerHeader text="The Arcane Arts" />
+            <RajaHeader text="Getting Started" />
           </Row>
           <Row label="With em">
-            <KingkillerHeader text="Challenge the Arena" em="Arena" />
+            <RajaHeader text="Reset your password" em="password" />
           </Row>
-          <Row label="Alt (on void)">
-            <div className="bg-kingkiller-black p-4">
-              <KingkillerHeader alt text="Challenger's Tome" />
+          <Row label="Alt (on dark chrome)">
+            <div className="bg-raja-chrome-text p-4">
+              <RajaHeader alt text="Account Settings" />
             </div>
           </Row>
         </Block>
 
-        <Block title="KingkillerButton" subtitle="Primary (void) and alt (parchment) variants.">
+        <Block title="RajaButton" subtitle="Primary (orange action) and alt (panel) variants.">
           <Row label="Action">
-            <KingkillerButton variant="action" text="Play Card" />
-            <KingkillerButton variant="action" alt text="Forfeit" />
-            <KingkillerButton variant="action" text="Casting…" loading />
-            <KingkillerButton variant="action" text="Locked" disabled />
+            <RajaButton variant="action" text="Save Changes" />
+            <RajaButton variant="action" alt text="Cancel" />
+            <RajaButton variant="action" text="Saving…" loading />
+            <RajaButton variant="action" text="Disabled" disabled />
           </Row>
           <Row label="Link">
-            <KingkillerButton variant="link" href="#" text="View deck" />
-            <KingkillerButton variant="link" alt href="#" text="Return" />
+            <RajaButton variant="link" href="#" text="View details" />
+            <RajaButton variant="link" alt href="#" text="Back" />
           </Row>
           <Row label="Full width">
-            <KingkillerButton variant="action" fullWidth text="Enter the Arena" />
+            <RajaButton variant="action" fullWidth text="Continue" />
           </Row>
         </Block>
 
         <Block title="Form fields">
           <div className="grid gap-5 sm:grid-cols-2">
-            <KingkillerTextField id="name" label="Card name" value={text} onChange={(e) => setText(e.target.value)} placeholder="e.g. Iron Fist" />
-            <KingkillerTextField id="email" label="Email (validates on blur)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@realm.com" />
-            <KingkillerDropdown
-              id="faction"
-              label="Faction"
-              value={faction}
-              onChange={(e) => setFaction(e.target.value)}
-              placeholder="Choose a faction"
+            <RajaTextField id="name" label="Full name" value={text} onChange={(e) => setText(e.target.value)} placeholder="e.g. Alex Morgan" />
+            <RajaTextField id="email" label="Email (validates on blur)" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" />
+            <RajaDropdown
+              id="role"
+              label="Role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              placeholder="Choose a role"
               options={[
-                { value: 'arcane', label: 'Arcane' },
-                { value: 'emerald', label: 'Emerald Order' },
-                { value: 'crimson', label: 'Crimson Blades' },
+                { value: 'admin', label: 'Admin' },
+                { value: 'editor', label: 'Editor' },
+                { value: 'viewer', label: 'Viewer' },
               ]}
             />
-            <KingkillerDatePicker id="date" label="Tournament date" value={date} onChange={(e) => setDate(e.target.value)} />
-            <KingkillerTextField id="err" label="With error" value="??" onChange={() => {}} error="Mana cost must be a number" />
-            <KingkillerFileUpload label="Card artwork" onChange={() => {}} accept="image/*" />
+            <RajaDatePicker id="date" label="Start date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <RajaTextField id="err" label="With error" value="??" onChange={() => {}} error="Age must be a number" />
+            <RajaFileUpload label="Profile photo" onChange={() => {}} accept="image/*" />
           </div>
-          <KingkillerTextArea id="notes" label="Card description" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Describe the card's lore and abilities…" rows={3} />
+          <RajaTextArea id="notes" label="Bio" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="A short description…" rows={3} />
         </Block>
 
         <Block title="Selection controls">
           <Row label="Checkbox">
-            <KingkillerCheckbox id="foil" label="Mark as foil edition" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-            <KingkillerCheckbox id="disabled-cb" label="Disabled" checked={false} onChange={() => {}} disabled />
+            <RajaCheckbox id="subscribe" label="Subscribe to updates" checked={subscribed} onChange={(e) => setSubscribed(e.target.checked)} />
+            <RajaCheckbox id="disabled-cb" label="Disabled" checked={false} onChange={() => {}} disabled />
           </Row>
-          <Row label="Radio — card rarity">
-            <KingkillerRadio
-              name="rarity"
-              value={rarity}
-              onChange={setRarity}
+          <Row label="Radio — notification frequency">
+            <RajaRadio
+              name="frequency"
+              value={frequency}
+              onChange={setFrequency}
               options={[
-                { value: 'common', label: 'Common' },
-                { value: 'uncommon', label: 'Uncommon' },
-                { value: 'rare', label: 'Rare' },
-                { value: 'legendary', label: 'Legendary' },
+                { value: 'daily', label: 'Daily' },
+                { value: 'weekly', label: 'Weekly' },
+                { value: 'monthly', label: 'Monthly' },
+                { value: 'never', label: 'Never' },
               ]}
             />
           </Row>
         </Block>
 
-        <Block title="KingkillerLoader">
-          <Row label="Sizes (on parchment)">
-            <KingkillerLoader size="sm" />
-            <KingkillerLoader size="md" />
-            <KingkillerLoader size="lg" />
+        <Block title="RajaLoader">
+          <Row label="Sizes (on chrome bg)">
+            <RajaLoader size="sm" />
+            <RajaLoader size="md" />
+            <RajaLoader size="lg" />
           </Row>
-          <Row label="Alt (on void)">
-            <div className="flex items-center gap-4 bg-kingkiller-black p-4">
-              <KingkillerLoader size="sm" alt />
-              <KingkillerLoader size="md" alt />
-              <KingkillerLoader size="lg" alt />
+          <Row label="Alt (on dark chrome)">
+            <div className="flex items-center gap-4 bg-raja-chrome-text p-4">
+              <RajaLoader size="sm" alt />
+              <RajaLoader size="md" alt />
+              <RajaLoader size="lg" alt />
             </div>
           </Row>
         </Block>
 
-        <Block title="KingkillerModal">
+        <Block title="RajaModal">
           <Row label="Overlay">
-            <KingkillerButton variant="action" text="Open modal" onClick={() => setModalOpen(true)} />
+            <RajaButton variant="action" text="Open modal" onClick={() => setModalOpen(true)} />
           </Row>
         </Block>
 
-        <Block title="KingkillerSection" subtitle="Full-width band — default (parchment) and alt (void).">
-          <div className="overflow-hidden border border-kingkiller-grey-light">
-            <KingkillerSection>
+        <Block title="RajaSection" subtitle="Full-width band — default and alt (dark chrome).">
+          <div className="overflow-hidden border border-raja-chrome-border">
+            <RajaSection>
               <div className="p-6">
-                <KingkillerHeader text="Default section" />
-                <p className="mt-1 text-sm text-kingkiller-grey">Parchment background, void text.</p>
+                <RajaHeader text="Default section" />
+                <p className="mt-1 text-sm text-raja-chrome-muted">Light chrome background, dark text.</p>
               </div>
-            </KingkillerSection>
-            <KingkillerSection alt>
+            </RajaSection>
+            <RajaSection alt>
               <div className="p-6">
-                <KingkillerHeader alt text="Alt section" />
-                <p className="mt-1 text-sm text-kingkiller-grey-muted">Void background, parchment text.</p>
+                <RajaHeader alt text="Alt section" />
+                <p className="mt-1 text-sm text-raja-chrome-bg">Dark chrome background, light text.</p>
               </div>
-            </KingkillerSection>
+            </RajaSection>
           </div>
         </Block>
 
-        <Block title="KingkillerFooter">
-          <KingkillerFooter alt>
+        <Block title="RajaFooter">
+          <RajaFooter alt>
             <div className="flex items-center justify-between px-6 py-4 text-sm">
-              <span className="font-garamond text-kingkiller-white">Kingkiller</span>
-              <span className="text-kingkiller-grey-muted">© 2026</span>
+              <span className="font-garamond text-raja-chrome-bg">Raja</span>
+              <span className="text-raja-chrome-bg">© 2026</span>
             </div>
-          </KingkillerFooter>
+          </RajaFooter>
         </Block>
       </div>
 
       {modalOpen && (
-        <KingkillerModal
-          title="Iron Fist — Legendary"
+        <RajaModal
+          title="Confirm Action"
           onClose={() => setModalOpen(false)}
           footer={
             <div className="flex justify-end gap-2 p-3">
-              <KingkillerButton variant="action" alt text="Close" onClick={() => setModalOpen(false)} />
-              <KingkillerButton variant="action" text="Add to Deck" onClick={() => setModalOpen(false)} />
+              <RajaButton variant="action" alt text="Cancel" onClick={() => setModalOpen(false)} />
+              <RajaButton variant="action" text="Confirm" onClick={() => setModalOpen(false)} />
             </div>
           }
         >
           <div className="flex flex-col gap-3 p-4">
-            <p className="text-sm text-kingkiller-black">
-              A legendary card composes the base modal shell — title bar, scrollable body, and a footer slot for actions.
+            <p className="text-sm text-raja-chrome-text">
+              A modal composes the base shell — title bar, scrollable body, and a footer slot for actions.
             </p>
           </div>
-        </KingkillerModal>
+        </RajaModal>
       )}
     </main>
   );

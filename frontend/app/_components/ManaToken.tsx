@@ -3,9 +3,9 @@ interface ManaTokenProps {
 }
 
 const STATE_CLASSES: Record<ManaTokenProps['state'], string> = {
-  filled: 'bg-kingkiller-blue',
-  empty: 'border border-kingkiller-blue',
-  locked: 'border border-kingkiller-stone opacity-disabled',
+  filled: 'bg-raja-ink',
+  empty: 'border border-raja-ink',
+  locked: 'border border-raja-stone opacity-disabled',
 };
 
 export default function ManaToken({ state }: ManaTokenProps) {

@@ -1,7 +1,7 @@
 'use client';
 import type { ChangeEvent } from 'react';
 
-interface KingkillerCheckboxProps {
+interface RajaCheckboxProps {
   alt?: boolean;
   id: string;
   label: string;
@@ -11,8 +11,8 @@ interface KingkillerCheckboxProps {
   className?: string;
 }
 
-export default function KingkillerCheckbox({ alt = false, id, label, checked, onChange, disabled = false, className = '' }: KingkillerCheckboxProps) {
-  const color = alt ? 'text-kingkiller-white' : 'text-kingkiller-black';
+export default function RajaCheckbox({ alt = false, id, label, checked, onChange, disabled = false, className = '' }: RajaCheckboxProps) {
+  const color = alt ? 'text-raja-chrome-bg' : 'text-raja-chrome-text';
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>

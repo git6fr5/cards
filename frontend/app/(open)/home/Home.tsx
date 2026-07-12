@@ -1,16 +1,16 @@
-import KingkillerHeader from '@/components/layout/KingkillerHeader';
-import KingkillerButton from '@/components/forms/KingkillerButton';
+import RajaHeader from '@/components/layout/RajaHeader';
+import RajaButton from '@/components/forms/RajaButton';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-kingkiller-black flex flex-col items-center justify-center gap-8 p-8">
-      <KingkillerHeader alt text="Kingkiller" className="font-garamond text-3xl" />
-      <p className="font-garamond text-sm text-kingkiller-grey-muted">
+    <div className="min-h-screen bg-raja-chrome-bg flex flex-col items-center justify-center gap-8 p-8">
+      <RajaHeader text="Raja" className="font-garamond text-3xl" />
+      <p className="font-garamond text-sm text-raja-chrome-muted">
         A card and chess battle arena.
       </p>
       <div className="flex gap-4">
-        <KingkillerButton variant="link" href="/auth" text="Sign In" />
-        <KingkillerButton variant="link" href="/play" text="Play" />
+        <RajaButton variant="link" href="/auth" text="Sign In" />
+        <RajaButton variant="link" href="/play" text="Play" />
       </div>
     </div>
   );

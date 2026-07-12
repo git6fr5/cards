@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react';
 
-interface KingkillerDatePickerProps {
+interface RajaDatePickerProps {
   id: string;
   label: string;
   value: string;
@@ -12,10 +12,10 @@ interface KingkillerDatePickerProps {
   className?: string;
 }
 
-export default function KingkillerDatePicker({ id, label, value, onChange, min, max, disabled = false, error, className = '' }: KingkillerDatePickerProps) {
+export default function RajaDatePicker({ id, label, value, onChange, min, max, disabled = false, error, className = '' }: RajaDatePickerProps) {
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      <label htmlFor={id} className="text-sm font-medium text-kingkiller-black">{label}</label>
+      <label htmlFor={id} className="text-sm font-medium text-raja-chrome-text">{label}</label>
       <input
         id={id}
         type="date"
@@ -24,9 +24,9 @@ export default function KingkillerDatePicker({ id, label, value, onChange, min, 
         min={min}
         max={max}
         disabled={disabled}
-        className={`w-full px-3 py-2 border text-sm focus:outline-none focus:ring-2 focus:ring-kingkiller-gold disabled:opacity-disabled disabled:cursor-not-allowed ${error ? 'border-kingkiller-crimson' : 'border-kingkiller-black'}`}
+        className={`w-full px-3 py-2 border text-sm focus:outline-none focus:ring-2 focus:ring-raja-chrome-action disabled:opacity-disabled disabled:cursor-not-allowed ${error ? 'border-raja-chrome-error' : 'border-raja-chrome-border'}`}
       />
-      {error && <p className="text-xs text-kingkiller-crimson">{error}</p>}
+      {error && <p className="text-xs text-raja-chrome-error">{error}</p>}
     </div>
   );
 }
