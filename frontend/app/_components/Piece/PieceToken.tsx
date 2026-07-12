@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Archetype, BodyColor, PieceType } from '@/utils/archetypes';
-import { METAL_THEMES } from './metalThemes';
+import { METAL_THEMES, pieceFilterId } from './metalThemes';
 import { getHighlightPosition } from './lightSource';
 import { randomCoinTexture } from './coinTextures';
 import { getPieceArtSrc } from './pieceArt';
@@ -19,7 +19,7 @@ const SIZE_CLASSES: Record<'sm' | 'md' | 'lg', string> = {
 const ICON_CLASSES: Record<'sm' | 'md' | 'lg', { icon: string }> = {
   sm: { icon: 'w-6  h-6'  },
   md: { icon: 'w-9  h-9'  },
-  lg: { icon: 'w-16 h-16' },
+  lg: { icon: 'w-18 h-18' },
 };
 
 interface PieceTokenProps {
@@ -36,6 +36,7 @@ export default function PieceToken({ name, archetype, pieceType, bodyColor, size
   const { icon: iconCls } = ICON_CLASSES[size];
   const ArchetypeIcon    = archetype.Icon;
   const theme            = METAL_THEMES[bodyColor];
+  const filterId         = pieceFilterId(bodyColor, archetype);
 
   const [texture, setTexture] = useState<string | null>(null);
   useEffect(() => setTexture(randomCoinTexture()), []);
@@ -59,14 +60,14 @@ export default function PieceToken({ name, archetype, pieceType, bodyColor, size
         <ArchetypeIcon
           className={`${iconCls} [&_*]:fill-current`}
           strokeWidth={0}
-          style={{ filter: `url(#${theme.filterId})` }}
+          style={{ filter: `url(#${filterId})` }}
         />
       ) : (
         <img
           src={artSrc}
           alt=""
           className={`${iconCls} object-contain`}
-          style={{ filter: `url(#${theme.filterId})` }}
+          style={{ filter: `url(#${filterId})` }}
           onError={() => setArtFailed(true)}
         />
       )}

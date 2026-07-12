@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react';
-import type { BodyColor, PieceType } from '@/utils/archetypes';
-import { METAL_THEMES } from './metalThemes';
+import type { Archetype, BodyColor, PieceType } from '@/utils/archetypes';
+import { pieceFilterId } from './metalThemes';
 
 const TILE_COUNT: Record<'sm' | 'md' | 'lg', number> = { sm: 0, md: 8, lg: 4 };
 const RING_THICKNESS = 7;
@@ -13,6 +13,7 @@ const BORDER_PX: Record<'sm' | 'md' | 'lg', number> = { sm: 3, md: 4, lg: 6 };
 interface RingBorderProps {
   size:      'sm' | 'md' | 'lg';
   pieceType: PieceType;
+  archetype: Archetype;
   bodyColor: BodyColor;
 }
 
@@ -20,7 +21,7 @@ function circlePath(r: number): string {
   return `M 50,${50 - r} A ${r},${r} 0 1,0 50,${50 + r} A ${r},${r} 0 1,0 50,${50 - r} Z`;
 }
 
-export default function RingBorder({ size, pieceType, bodyColor }: RingBorderProps) {
+export default function RingBorder({ size, pieceType, archetype, bodyColor }: RingBorderProps) {
   const clipId = useId();
   const count = TILE_COUNT[size];
 
@@ -37,7 +38,7 @@ export default function RingBorder({ size, pieceType, bodyColor }: RingBorderPro
   const radius = 48;
   const tileWidth = (2 * Math.PI * radius) / count;
   const borderPx = 0; // BORDER_PX[size];
-  const filterId = METAL_THEMES[bodyColor].filterId;
+  const filterId = pieceFilterId(bodyColor, archetype);
 
   // Tiles are straight rectangles bent around the circle, so their union has a jagged,
   // `count`-sided outline on both edges. Clipping to a true annulus (two concentric circles,

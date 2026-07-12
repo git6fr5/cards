@@ -159,6 +159,8 @@ if __name__ == "__main__":
     start_game()
 
     while not is_game_over():
+        print_layout(game.board, game.players)
+
         current_mana = colorize(str(game.active_player.current_mana), MANA_COLOR)
         total_mana = colorize(str(game.active_player.total_mana), MANA_COLOR)
         print(f"Current Player Turn: {game.active_player_index} with Mana: {current_mana}/{total_mana}")
@@ -170,5 +172,3 @@ if __name__ == "__main__":
             outcome = action(**params)
             if outcome is not None:
                 print(outcome.outcome)
-
-        print_layout(game.board, game.players)
