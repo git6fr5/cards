@@ -30,16 +30,43 @@ record_state() {
 
 do_publish() {
   warn_token_expiry
-  local tmp specs f rc
-  tmp=$(mktemp -d)
-  if ! git clone -q -b "$CANONICAL_BRANCH" "$CANONICAL_URL" "$tmp"; then
-    echo "publish: clone of canonical failed (auth? network?)"; rm -rf "$tmp"; exit 1
-  fi
+  local tmp specs addspecs s f rc msg have_include
+  msg="${1:-sync: publish shared from $PROJECT_NAME}"
+
   specs=()
   while IFS= read -r line; do
     case "$line" in ''|\#*) continue ;; esac
     specs+=("$line")
   done < "$root/.shared-paths"
+
+  # 1. commit local shared changes (pre-commit guard runs here) and push your remote.
+  # Keep only include pathspecs that exist here (a repo may lack some shared dirs);
+  # git add errors and stages nothing if any pathspec matches no files.
+  addspecs=()
+  have_include=0
+  for s in "${specs[@]}"; do
+    case "$s" in
+      :*) addspecs+=("$s"); continue ;;
+    esac
+    if [ -e "$root/$s" ] || git -C "$root" ls-files --error-unmatch -- "$s" >/dev/null 2>&1; then
+      addspecs+=("$s"); have_include=1
+    fi
+  done
+  if [ "$have_include" -eq 1 ]; then
+    git -C "$root" add -A -- "${addspecs[@]}"
+    if ! git -C "$root" diff --cached --quiet; then
+      if ! git -C "$root" commit -q -m "$msg"; then
+        echo "publish: local commit blocked (guard: stale base?) — pull + accept, then retry"; exit 1
+      fi
+      git -C "$root" push -q || { echo "publish: push to your remote failed"; exit 1; }
+    fi
+  fi
+
+  # 2. copy this repo's shared set onto canonical, commit, push
+  tmp=$(mktemp -d)
+  if ! git clone -q -b "$CANONICAL_BRANCH" "$CANONICAL_URL" "$tmp"; then
+    echo "publish: clone of canonical failed (auth? network?)"; rm -rf "$tmp"; exit 1
+  fi
 
   ( cd "$tmp" && git ls-files -- "${specs[@]}" ) | while IFS= read -r f; do
     rm -f "$tmp/$f"
@@ -56,9 +83,9 @@ do_publish() {
       exit 0
     fi
     git -c user.name="Shared Sync Bot" -c user.email="bot@git6fr5.dev" \
-      commit -q -m "sync: publish shared from $PROJECT_NAME"
+      commit -q -m "$msg"
     if ! git push -q origin "$CANONICAL_BRANCH"; then
-      echo "publish: push to canonical rejected — canonical moved; pull + retry"
+      echo "publish: push to canonical rejected — canonical moved; pull + accept, then retry"
       exit 1
     fi
     echo "publish: shared code pushed to canonical $CANONICAL_BRANCH"
@@ -91,7 +118,12 @@ do_accept() {
 case "${1:-}" in
   pull)    warn_token_expiry; copybara "$config" "push_$PROJECT_NAME";   record_state ;;
   accept)  do_accept ;;
-  publish) do_publish ;;
+  publish) do_publish "${2:-}" ;;
+  fanout)
+    target="${2:-}"
+    [ -n "$target" ] || { echo "usage: shared-sync.sh fanout <name>"; exit 1; }
+    git push "https://github.com/${GITHUB_USER:-git6fr5}/$target.git" --delete copybara/shared-sync 2>/dev/null || true
+    copybara "$config" "push_$target" ;;
   record)  record_state ;;
   status)
     remote=$(git ls-remote "$CANONICAL_URL" "$CANONICAL_BRANCH" | cut -f1)
@@ -103,5 +135,5 @@ case "${1:-}" in
     else
       echo "shared: BEHIND canonical (${recorded:0:8} -> ${remote:0:8}) — run: ./scripts/shared-sync.sh pull"
     fi ;;
-  *) echo "usage: shared-sync.sh {pull|accept|publish|record|status}"; exit 1 ;;
+  *) echo "usage: shared-sync.sh {pull|accept|publish [msg]|fanout <name>|record|status}"; exit 1 ;;
 esac
