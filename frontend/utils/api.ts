@@ -1,8 +1,11 @@
 // Centralised HTTP client for the backend.
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? '';
+// Goes through the /api rewrite in next.config.ts so requests stay same-origin.
+const BASE_URL = '/api';
 
 export async function get<T = unknown>(path: string): Promise<T> {
-  const response = await fetch(`${BASE_URL}${path}`);
+  const response = await fetch(`${BASE_URL}${path}`, {
+    credentials: 'include',
+  });
   if (!response.ok) {
     throw new Error(`GET ${path} failed with status ${response.status}`);
   }
@@ -12,6 +15,7 @@ export async function get<T = unknown>(path: string): Promise<T> {
 export async function post<T = unknown>(path: string, body?: unknown): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`, {
     method: 'POST',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
@@ -39,9 +43,34 @@ export async function fetchData<T, R = T>(
   }
 }
 
+export async function postFormData(path: string, body: FormData): Promise<Blob> {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method: 'POST',
+    credentials: 'include',
+    body,
+  });
+  if (!response.ok) {
+    throw new Error(`POST ${path} failed with status ${response.status}`);
+  }
+  return response.blob();
+}
+
+export async function postForm<T = unknown>(path: string, body: FormData): Promise<T> {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method: 'POST',
+    credentials: 'include',
+    body,
+  });
+  if (!response.ok) {
+    throw new Error(`POST ${path} failed with status ${response.status}`);
+  }
+  return response.json() as Promise<T>;
+}
+
 export async function put<T = unknown>(path: string, body?: unknown): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`, {
     method: 'PUT',
+    credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
@@ -51,13 +80,23 @@ export async function put<T = unknown>(path: string, body?: unknown): Promise<T>
   return response.json() as Promise<T>;
 }
 
-export async function del<T = unknown>(path: string): Promise<T | undefined> {
+export async function del<T = unknown>(path: string): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`, {
     method: 'DELETE',
+    credentials: 'include',
   });
   if (!response.ok) {
     throw new Error(`DELETE ${path} failed with status ${response.status}`);
   }
-  if (response.status === 204) return undefined;
+  return response.json() as Promise<T>;
+}
+
+export async function getWithTestatorSession<T = unknown>(path: string, sessionKey: string): Promise<T> {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    headers: { 'X-Testator-Session-Key': sessionKey },
+  });
+  if (!response.ok) {
+    throw new Error(`GET ${path} failed with status ${response.status}`);
+  }
   return response.json() as Promise<T>;
 }

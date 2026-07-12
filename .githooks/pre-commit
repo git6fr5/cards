@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+root="$(git rev-parse --show-toplevel)"
+conf="$root/.shared-sync.conf"
+paths="$root/.shared-paths"
+state="$root/.shared-sync-state"
+
+[ -f "$conf" ] && [ -f "$paths" ] || exit 0
+. "$conf"
+
+specs=()
+while IFS= read -r line; do
+  case "$line" in ''|\#*) continue ;; esac
+  specs+=("$line")
+done < "$paths"
+[ ${#specs[@]} -eq 0 ] && exit 0
+
+staged=$(git diff --cached --name-only -- "${specs[@]}")
+[ -z "$staged" ] && exit 0
+
+remote=$(git ls-remote "$CANONICAL_URL" "$CANONICAL_BRANCH" 2>/dev/null | cut -f1)
+if [ -z "$remote" ]; then
+  case "${OFFLINE_POLICY:-warn}" in
+    block) echo "shared-guard: canonical unreachable and OFFLINE_POLICY=block"; exit 1 ;;
+    *)     echo "shared-guard: canonical unreachable (offline?) — allowing commit"; exit 0 ;;
+  esac
+fi
+
+recorded=$(cat "$state" 2>/dev/null || true)
+if [ "$remote" != "$recorded" ]; then
+  echo "shared-guard: canonical ($CANONICAL_BRANCH) advanced since your last sync."
+  echo "  You are editing shared code on a stale base. Staged shared files:"
+  echo "$staged" | sed 's/^/    /'
+  echo "  Run: ./scripts/shared-sync.sh pull    then resolve and recommit."
+  echo "  Override (careful): git commit --no-verify"
+  exit 1
+fi
+exit 0
