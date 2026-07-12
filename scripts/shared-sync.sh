@@ -69,8 +69,28 @@ do_publish() {
   return "$rc"
 }
 
+do_accept() {
+  local branch="copybara/shared-sync"
+  if [ -n "$(git -C "$root" status --porcelain)" ]; then
+    echo "accept: working tree not clean — commit or stash first"; exit 1
+  fi
+  if ! git -C "$root" fetch -q origin "$branch"; then
+    echo "accept: no $branch on origin — run pull first"; exit 1
+  fi
+  if ! git -C "$root" merge --no-edit "origin/$branch"; then
+    git -C "$root" merge --abort
+    echo "accept: merge conflict — resolve manually; $branch left intact"; exit 1
+  fi
+  git -C "$root" push -q origin HEAD || { echo "accept: push of merge failed"; exit 1; }
+  git -C "$root" push -q origin --delete "$branch" || true
+  git -C "$root" branch -qD "$branch" 2>/dev/null || true
+  record_state
+  echo "accept: merged and deleted $branch"
+}
+
 case "${1:-}" in
   pull)    warn_token_expiry; copybara "$config" "push_$PROJECT_NAME";   record_state ;;
+  accept)  do_accept ;;
   publish) do_publish ;;
   record)  record_state ;;
   status)
@@ -83,5 +103,5 @@ case "${1:-}" in
     else
       echo "shared: BEHIND canonical (${recorded:0:8} -> ${remote:0:8}) — run: ./scripts/shared-sync.sh pull"
     fi ;;
-  *) echo "usage: shared-sync.sh {pull|publish|record|status}"; exit 1 ;;
+  *) echo "usage: shared-sync.sh {pull|accept|publish|record|status}"; exit 1 ;;
 esac
