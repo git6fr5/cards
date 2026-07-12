@@ -65,7 +65,7 @@ def resolve_access_token(session: Session, raw_token: str) -> AuthContext | None
         is_admin=token.permission_level == ADMIN_PERMISSION_LEVEL,
     )
 
-
+#asdad
 def resolve_session_token(session: Session, raw_token: str) -> AuthContext | None:
     from accounts.orm.organisation import Organisation
     from accounts.orm.session import Session as UserSession
