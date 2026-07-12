@@ -98,3 +98,6 @@ backend/automations/extract/project_training/model_output/
 backend/automations/extract/project_training/data/
 **/*.safetensors
 **/optimizer.pt
+
+# Shared-sync local state (per-clone canonical SHA marker)
+.shared-sync-state
