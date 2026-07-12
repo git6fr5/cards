@@ -116,7 +116,11 @@ do_accept() {
 }
 
 case "${1:-}" in
-  pull)    warn_token_expiry; copybara "$config" "push_$PROJECT_NAME";   record_state ;;
+  pull)
+    warn_token_expiry
+    git push origin --delete copybara/shared-sync 2>/dev/null || true
+    copybara "$config" "push_$PROJECT_NAME"
+    record_state ;;
   accept)  do_accept ;;
   publish) do_publish "${2:-}" ;;
   fanout)
