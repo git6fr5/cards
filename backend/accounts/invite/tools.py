@@ -4,12 +4,12 @@ from typing import Optional
 
 from sqlalchemy import select
 
-from accounts.orm.invite import Invite, InvitePurpose
+from accounts.orm.invite import Invite
 from utils.databases import DatabaseConnection
 from utils.encryption import hash_token
 
 
-def create_invite(purpose: InvitePurpose, expires_at: datetime) -> Invite:
+def create_invite(purpose: str, expires_at: datetime) -> Invite:
     invite = Invite(
         purpose=purpose,
         invite_token=secrets.token_hex(4),
@@ -30,5 +30,5 @@ def update_invite_redeemed(invite: Invite) -> str:
     invite.invite_token      = None
     invite.invite_expires_at = None
     raw_session_key          = secrets.token_hex(32)
-    invite.session_key       = hash_token(raw_session_key)
+    invite.session_key_hash  = hash_token(raw_session_key)
     return raw_session_key

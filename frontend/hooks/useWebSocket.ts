@@ -1,7 +1,8 @@
 import { useEffect, useRef, useCallback } from 'react';
 
 export function useWebSocket<T = unknown>(
-  testamentId: number,
+  resourceType: string,
+  resourceId: number,
   onMessage: (data: T) => void,
   enabled: boolean = true,
 ) {
@@ -11,8 +12,11 @@ export function useWebSocket<T = unknown>(
   const shouldReconnect = useRef(false);
 
   const connect = useCallback(() => {
-    const wsUrl = process.env.NEXT_PUBLIC_API_URL?.replace('http', 'ws');
-    ws.current = new WebSocket(`${wsUrl}/testaments/ws/${testamentId}`);
+    // Same-origin, through the /api rewrite (same path every other request uses) — the browser
+    // attaches the session/testator cookie automatically, same as any other same-origin request.
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${wsProtocol}//${window.location.host}/api/${resourceType}/${resourceId}/ws`;
+    ws.current = new WebSocket(wsUrl);
 
     ws.current.onopen = () => {
       console.log('WebSocket connected');
@@ -33,7 +37,7 @@ export function useWebSocket<T = unknown>(
         setTimeout(connect, 3000);
       }
     };
-  }, [testamentId, onMessage]);
+  }, [resourceType, resourceId, onMessage]);
 
   useEffect(() => {
     if (!enabled) return;

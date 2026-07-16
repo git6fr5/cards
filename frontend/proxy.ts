@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { SESSION_COOKIE_NAME } from '@/utils/auth';
-import { publicPaths, proxyMatcher } from '@/proxy.config';
+import { publicPaths } from '@/proxy.config';
 
 const pathMatches = (path: string, base: string) => path === base || path.startsWith(`${base}/`);
 const isPublicPath = (path: string) => publicPaths.some((base) => pathMatches(path, base));
@@ -20,5 +20,5 @@ export default function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: proxyMatcher,
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.\\w+$).*)'],
 };

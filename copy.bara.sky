@@ -47,7 +47,9 @@ def push_to(url, branch = "main"):
 WILLS   = "https://github.com/git6fr5/wills.git"
 PENGUIN = "https://github.com/git6fr5/penguin.git"
 CARDS   = "https://github.com/git6fr5/cards.git"
+BAE3    = "https://github.com/TNK2/BAE3.git"
 
 push_wills   = push_to(WILLS)
 push_penguin = push_to(PENGUIN)
 push_cards   = push_to(CARDS)
+push_bae3    = push_to(BAE3)

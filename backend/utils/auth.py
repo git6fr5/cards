@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Annotated
 
-from fastapi import Depends, Query, Request
+from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -65,7 +64,6 @@ def resolve_access_token(session: Session, raw_token: str) -> AuthContext | None
         is_admin=token.permission_level == ADMIN_PERMISSION_LEVEL,
     )
 
-#asdad
 def resolve_session_token(session: Session, raw_token: str) -> AuthContext | None:
     from accounts.orm.organisation import Organisation
     from accounts.orm.session import Session as UserSession
@@ -125,11 +123,6 @@ def _is_org_scoped_admin(auth: AuthContext, target_organisation_id: int) -> bool
     return org_scoped and auth.is_admin
 
 
-def _is_org_scoped_admin_by_slug(auth: AuthContext, target_slug: str) -> bool:
-    org_scoped = auth.is_default_org or auth.organisation_slug == target_slug
-    return org_scoped and auth.is_admin
-
-
 def _is_org_scoped_member(auth: AuthContext, target_organisation_id: int) -> bool:
     # Same org-match check as _is_org_scoped_admin, without the admin permission requirement —
     # for routes any member of the organisation may use (e.g. a witness responding to a
@@ -166,20 +159,6 @@ def require_org_member(
     # member of the organisation may reach (e.g. scheduling — witnesses responding to a blast),
     # not just its admins.
     assert_preconditions([(not _is_org_scoped_member(auth, organisation_id), 403, "forbidden")], ERRORS)
-    return auth
-
-
-CustomerSlug = Annotated[str, Query(
-    description="The slug of the organisation whose customer data to fetch.",
-    examples=["acme-corp"],
-)]
-
-
-def require_customer_admin(
-    slug: CustomerSlug,
-    auth: AuthContext = Depends(require_auth),
-) -> AuthContext:
-    assert_preconditions([(not _is_org_scoped_admin_by_slug(auth, slug), 403, "forbidden")], ERRORS)
     return auth
 
 

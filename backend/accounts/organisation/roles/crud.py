@@ -89,6 +89,15 @@ def read_organisation_roles_by_organisation(organisation_id: int, include_archiv
     return [OrganisationRoleResponse.model_validate(r) for r in roles]
 
 
+@router.get("/{role_id}", response_model=OrganisationRoleResponse)
+@read_resource
+def read_organisation_role(organisation_id: int, role_id: int) -> OrganisationRoleResponse:
+    role = DatabaseConnection.get(OrganisationRole, role_id)
+    assert_preconditions([(role is None, 404, "organisation_role_not_found")], ERRORS)
+    assert_preconditions([(role.organisation_id != organisation_id, 404, "role_not_in_organisation")], ERRORS)
+    return OrganisationRoleResponse.model_validate(role)
+
+
 @router.get("/user/{user_id}", response_model=list[OrganisationRoleResponse])
 @read_resource
 def read_organisation_roles_by_user(organisation_id: int, user_id: int) -> list[OrganisationRoleResponse]:
@@ -97,15 +106,6 @@ def read_organisation_roles_by_user(organisation_id: int, user_id: int) -> list[
     assert_preconditions([(user is None, 404, "user_not_found")], ERRORS)
     roles = [r for r in user.organisation_roles if r.organisation_id == organisation_id]
     return [OrganisationRoleResponse.model_validate(r) for r in roles]
-
-
-@router.get("/{role_id}", response_model=OrganisationRoleResponse)
-@read_resource
-def read_organisation_role(organisation_id: int, role_id: int) -> OrganisationRoleResponse:
-    role = DatabaseConnection.get(OrganisationRole, role_id)
-    assert_preconditions([(role is None, 404, "organisation_role_not_found")], ERRORS)
-    assert_preconditions([(role.organisation_id != organisation_id, 404, "role_not_in_organisation")], ERRORS)
-    return OrganisationRoleResponse.model_validate(role)
 
 
 @router.put("/{role_id}/name", response_model=OrganisationRoleResponse)

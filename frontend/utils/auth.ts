@@ -1,10 +1,9 @@
 import { get, del } from '@/utils/api';
 
-// Mirrors backend/utils/auth.py:SESSION_COOKIE_NAME — the edge proxy reads this
-// name (not value; it's HttpOnly) to gate protected routes before render.
-export const SESSION_COOKIE_NAME = 'kellon_session';
-
-export const TESTATOR_SESSION_KEY = 'kellon_testator_session';
+// Mirrors backend/utils/auth.py:SESSION_COOKIE_NAME — the edge proxy (proxy.ts, middleware,
+// server-side only) reads this name (not value; it's HttpOnly) to gate protected routes before
+// render. No NEXT_PUBLIC_ prefix: middleware never ships this into the client bundle.
+export const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME as string;
 
 export interface CurrentUser {
   id: number;
@@ -40,35 +39,5 @@ export async function logout(): Promise<void> {
     await del('/sessions');
   } catch {
     // Best-effort: the server clears the cookie on its response regardless.
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Testator session — stored in sessionStorage, cleared when the tab closes.
-// ---------------------------------------------------------------------------
-
-export interface TestatorSession {
-  testament_id: number;
-  session_key: string;
-}
-
-/** Persist a testator session to sessionStorage after invite redemption. */
-export function saveTestatorSession(session: TestatorSession): void {
-  sessionStorage.setItem(TESTATOR_SESSION_KEY, JSON.stringify(session));
-}
-
-/**
- * Read the current testator session from sessionStorage.
- * Returns null if there is no session, if the stored value is malformed,
- * or if called during SSR.
- */
-export function getTestatorSession(): TestatorSession | null {
-  if (typeof window === 'undefined') return null;
-  const raw = sessionStorage.getItem(TESTATOR_SESSION_KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as TestatorSession;
-  } catch {
-    return null;
   }
 }

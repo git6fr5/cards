@@ -88,6 +88,13 @@ def read_organisations() -> list[OrganisationResponse]:
     return [OrganisationResponse.model_validate(o) for o in organisations]
 
 
+@router.get("/{organisation_id}", response_model=OrganisationResponse)
+@read_resource
+def read_organisation(organisation_id: int) -> OrganisationResponse:
+    assert_preconditions([(not (organisation := DatabaseConnection.get(Organisation, organisation_id)), 404, "organisation_not_found")], ERRORS)
+    return OrganisationResponse.model_validate(organisation)
+
+
 @router.get("/domain/{domain}", response_model=OrganisationResponse)
 @read_resource
 def read_organisation_by_domain(domain: str) -> OrganisationResponse:
@@ -95,13 +102,6 @@ def read_organisation_by_domain(domain: str) -> OrganisationResponse:
         select(Organisation).where(Organisation.domain == domain)
     ).scalar_one_or_none()
     assert_preconditions([(organisation is None, 404, "organisation_not_found")], ERRORS)
-    return OrganisationResponse.model_validate(organisation)
-
-
-@router.get("/{organisation_id}", response_model=OrganisationResponse)
-@read_resource
-def read_organisation(organisation_id: int) -> OrganisationResponse:
-    assert_preconditions([(not (organisation := DatabaseConnection.get(Organisation, organisation_id)), 404, "organisation_not_found")], ERRORS)
     return OrganisationResponse.model_validate(organisation)
 
 

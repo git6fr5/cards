@@ -90,13 +90,3 @@ export async function del<T = unknown>(path: string): Promise<T> {
   }
   return response.json() as Promise<T>;
 }
-
-export async function getWithTestatorSession<T = unknown>(path: string, sessionKey: string): Promise<T> {
-  const response = await fetch(`${BASE_URL}${path}`, {
-    headers: { 'X-Testator-Session-Key': sessionKey },
-  });
-  if (!response.ok) {
-    throw new Error(`GET ${path} failed with status ${response.status}`);
-  }
-  return response.json() as Promise<T>;
-}

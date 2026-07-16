@@ -114,6 +114,14 @@ def read_current_user(auth: AuthContext = Depends(require_auth)) -> UserResponse
     return UserResponse.model_validate(user)
 
 
+@router.get("/{user_id}", response_model=UserResponse,
+            dependencies=[Depends(require_self_or_user_admin)])
+@read_resource
+def read_user(user_id: int) -> UserResponse:
+    assert_preconditions([(not (user := DatabaseConnection.get(User, user_id)), 404, "user_not_found")], ERRORS)
+    return UserResponse.model_validate(user)
+
+
 @router.get("/organisation_role/{organisation_role_id}", response_model=list[UserResponse],
             dependencies=[Depends(require_super_admin)])
 @read_resource
@@ -132,14 +140,6 @@ def read_users_by_organisation(organisation_id: int) -> list[UserResponse]:
         select(User).where(User.organisation_id == organisation_id, User.is_archived == False)
     ).scalars().all()
     return [UserResponse.model_validate(u) for u in users]
-
-
-@router.get("/{user_id}", response_model=UserResponse,
-            dependencies=[Depends(require_self_or_user_admin)])
-@read_resource
-def read_user(user_id: int) -> UserResponse:
-    assert_preconditions([(not (user := DatabaseConnection.get(User, user_id)), 404, "user_not_found")], ERRORS)
-    return UserResponse.model_validate(user)
 
 
 @router.get("/email/{email}", response_model=UserResponse,
