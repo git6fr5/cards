@@ -39,8 +39,8 @@ export default function RajaHeader({ variant = 'open', className = '' }: RajaHea
 
   return (
     <header className={`flex items-center justify-between px-6 py-4 bg-raja-chrome-bg border-b border-raja-chrome-border ${className}`}>
-      <Link href="/home" className="font-serif text-xl text-raja-chrome-text tracking-wide">
-        Raja
+      <Link href="/home" className="flex items-center">
+        <img src="/raja.svg" alt="Raja" className="h-6 w-auto" />
       </Link>
       <nav className="flex items-center gap-6">
         {links.map((link) => {

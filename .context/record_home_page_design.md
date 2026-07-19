@@ -3,6 +3,7 @@
 ## Contents
 1. [Home page visual spruce-up](#1-home-page-visual-spruce-up)
 2. [Two-column hero and secondary section redesign (2026-07-19)](#2-two-column-hero-and-secondary-section-redesign-2026-07-19)
+3. [Hero black square and feature-icon white squares fix (2026-07-19)](#3-hero-black-square-and-feature-icon-white-squares-fix-2026-07-19)
 
 ---
 
@@ -46,3 +47,22 @@ Split `Home.tsx` into two page-local components under `_components/`:
 - `HomeFeature.tsx` — mirrored two-column: adapted turn-step copy + `View Full Rules` link left, diagonal floating tile cluster (4 images capped per plan's risk note: `coin_border_king`, `ancient_dragon`, `goblin_warrior`, `goblin_bomber`) positioned via Tailwind arbitrary values (`rotate-[Ndeg]`, percentage offsets) right — no inline `style`, per `general_rules.md`.
 
 `Home.tsx` reduced to composing `<HomeHero /><HomeFeature />`. No backend, no ORM, no new design tokens — plan and build both confirmed token-only usage against `globals.css`.
+
+---
+
+## 3. Hero Black Square and Feature-Icon White Squares Fix (2026-07-19)
+
+### Context
+User flagged two visual bugs via screenshot of the live home page from the redesign in [section 2](#2-two-column-hero-and-secondary-section-redesign-2026-07-19): the hero's boxed board-texture panel rendered as a near-solid black square, and the four floating tile icons in the secondary section each showed a visible white square card behind the artwork instead of sitting directly on the page background.
+
+### Discussion points
+
+Investigation (read-only, pre-`/build`) found two unrelated root causes:
+
+- Hero panel: `board_tex_0.png` is a mid-gray grayscale texture explicitly generated as a "texture overlay for multiply blend mode" (per its embedded generation metadata) — sampled pixel values around RGB(60–130). It was being multiply-blended against `bg-raja-chrome-text` (#3D3A42, a near-black token), and multiplying a mid-gray texture into an already-dark color crushes the result to near-black. The image itself was never at fault.
+- Feature icons: `coin_border_king.png`, `ancient_dragon.png`, `goblin_warrior.png`, `goblin_bomber.png` are flat RGB PNGs with no alpha channel (confirmed via `file`/`sips`) — the white background is baked into the pixel data, not a CSS wrapper. No className was adding a white box; the square was literally part of the source image.
+
+### Decision
+
+- `HomeHero.tsx`: swapped the multiply-blend background color from `bg-raja-chrome-text` to `bg-raja-chrome-action` (#B8703F, existing token, already used for the Play CTA) — multiplying the same grayscale texture against this warmer, lighter brown now reads as visible wood grain instead of crushing to black. Kept `bg-blend-multiply` and the texture image as-is; only the tint color changed.
+- `HomeFeature.tsx`: rather than re-exporting the four PNGs with alpha (an asset change, out of scope for a code fix), applied `mix-blend-multiply` directly to each `<img>`. Multiply blend makes pure-white pixels transparent against any backdrop (white × any color = that color), which removes the flat white card look without touching the source files. Dropped `drop-shadow-lg` from the same four images since a drop-shadow filter combined with `mix-blend-multiply` produced an inconsistent/darkened shadow artifact — clean multiply-only blend was the simpler, correct result.

@@ -5,9 +5,9 @@ export default function HomeHero() {
   return (
     <RajaSection alt className="w-full">
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-10 px-8 py-16 md:flex-row md:items-center md:justify-between">
-        <div className="aspect-square w-full max-w-sm shrink-0 rounded-lg border border-raja-chrome-border bg-raja-chrome-text bg-[url('/board_tex_0.png')] bg-cover bg-center bg-blend-multiply" />
+        <img src="/ancient_dragon.png" alt="" className="w-full max-w-sm shrink-0 mix-blend-multiply" />
         <div className="flex flex-col items-start gap-4 text-left">
-          <h1 className="font-serif text-4xl font-bold tracking-wide text-raja-chrome-bg md:text-5xl">Raja</h1>
+          <img src="/raja.svg" alt="Raja" className="w-64 invert md:w-80" />
           <p className="max-w-sm font-sans-serif text-sm text-raja-chrome-bg opacity-muted">
             A card and chess battle arena. Draft your bag, deploy your pieces, capture the King.
           </p>

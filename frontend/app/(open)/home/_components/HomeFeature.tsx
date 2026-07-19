@@ -28,24 +28,19 @@ export default function HomeFeature() {
         </div>
         <div className="relative aspect-square w-full max-w-sm shrink-0">
           <img
-            src="/coin_border_king.png"
-            alt=""
-            className="absolute left-[18%] top-[22%] w-28 rotate-[-6deg] drop-shadow-lg"
-          />
-          <img
             src="/ancient_dragon.png"
             alt=""
-            className="absolute right-[8%] top-[2%] w-24 rotate-[10deg] drop-shadow-lg"
+            className="absolute right-[8%] top-[2%] w-24 rotate-[10deg] mix-blend-multiply"
           />
           <img
             src="/goblin_warrior.png"
             alt=""
-            className="absolute bottom-[12%] left-[2%] w-20 rotate-[-12deg] drop-shadow-lg"
+            className="absolute bottom-[12%] left-[2%] w-20 rotate-[-12deg] mix-blend-multiply"
           />
           <img
             src="/goblin_bomber.png"
             alt=""
-            className="absolute bottom-[2%] right-[16%] w-20 rotate-[8deg] drop-shadow-lg"
+            className="absolute bottom-[2%] right-[16%] w-20 rotate-[8deg] mix-blend-multiply"
           />
         </div>
       </div>
