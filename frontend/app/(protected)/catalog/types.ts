@@ -61,13 +61,13 @@ export const MAX_BAG_SIZE = 20;
 export const MAX_PER_PIECE = 2;
 export const MAX_KING_QUANTITY = 1;
 
-export function canAddPieceToBag(
+export function getBagRejectionReason(
   piece: PieceFull,
   bagPieces: BagPiece[],
   catalogByName: Map<string, PieceFull>,
-): boolean {
+): string | null {
   const totalQuantity = bagPieces.reduce((sum, bp) => sum + bp.quantity, 0);
-  if (totalQuantity >= MAX_BAG_SIZE) return false;
+  if (totalQuantity >= MAX_BAG_SIZE) return `Bag is full (max ${MAX_BAG_SIZE} pieces).`;
 
   const existing = bagPieces.find((bp) => bp.piece_name === piece.name);
   const currentQuantity = existing?.quantity ?? 0;
@@ -77,9 +77,12 @@ export function canAddPieceToBag(
       if (bp.piece_name === piece.name) return false;
       return catalogByName.get(bp.piece_name)?.role_type === KING_ROLE_TYPE;
     });
-    if (hasDifferentKing) return false;
-    return currentQuantity < MAX_KING_QUANTITY;
+    if (hasDifferentKing || currentQuantity >= MAX_KING_QUANTITY) {
+      return 'Only one King is allowed in a bag.';
+    }
+    return null;
   }
 
-  return currentQuantity < MAX_PER_PIECE;
+  if (currentQuantity >= MAX_PER_PIECE) return `Max ${MAX_PER_PIECE} of the same piece allowed.`;
+  return null;
 }

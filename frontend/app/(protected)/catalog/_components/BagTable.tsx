@@ -5,27 +5,34 @@ import RajaTableContainer from '@/components/table/RajaTableContainer';
 import RajaTableMessage from '@/components/table/RajaTableMessage';
 import BagTableRow from './BagTableRow';
 import type { Bag, PieceFull } from '../types';
-import { KING_ROLE_TYPE, MAX_BAG_SIZE, MAX_PER_PIECE, MAX_KING_QUANTITY } from '../types';
+import { KING_ROLE_TYPE } from '../types';
 
 interface BagTableProps {
   bag: Bag | null;
   catalogByName: Map<string, PieceFull>;
   isLoading: boolean;
-  onIncrement: (pieceName: string) => void;
-  onDecrement: (pieceName: string) => void;
+  dragSource: 'catalog' | 'bag' | null;
 }
 
-const COLUMN_COUNT = 6;
+const COLUMNS = [
+  { label: 'Name',          width: 'w-40' },
+  { label: 'Archetype',     width: 'w-28' },
+  { label: 'SC',            width: 'w-16' },
+  { label: 'AC',            width: 'w-16' },
+  { label: 'Movement',      width: 'w-28' },
+  { label: 'Trigger Type',  width: 'w-32' },
+  { label: 'Quantity',      width: 'w-20' },
+];
 
-export default function BagTable({ bag, catalogByName, isLoading, onIncrement, onDecrement }: BagTableProps) {
+export default function BagTable({ bag, catalogByName, isLoading, dragSource }: BagTableProps) {
   const { setNodeRef, isOver } = useDroppable({ id: 'bag-table' });
-  const dropRing = isOver ? 'ring-2 ring-raja-chrome-action' : '';
+  const showDropOverlay = isOver && dragSource === 'catalog';
 
   if (isLoading) {
     return (
-      <div ref={setNodeRef}>
-        <RajaTableContainer>
-          <table className="w-full"><tbody><tr><td colSpan={COLUMN_COUNT}><RajaTableMessage loading /></td></tr></tbody></table>
+      <div ref={setNodeRef} className="relative flex-1 min-h-0">
+        <RajaTableContainer className="h-full">
+          <RajaTableMessage loading />
         </RajaTableContainer>
       </div>
     );
@@ -33,9 +40,9 @@ export default function BagTable({ bag, catalogByName, isLoading, onIncrement, o
 
   if (!bag) {
     return (
-      <div ref={setNodeRef}>
-        <RajaTableContainer>
-          <table className="w-full"><tbody><tr><td colSpan={COLUMN_COUNT}><RajaTableMessage text="Select or create a bag to begin." muted /></td></tr></tbody></table>
+      <div ref={setNodeRef} className="relative flex-1 min-h-0">
+        <RajaTableContainer className="h-full">
+          <RajaTableMessage text="Select or create a bag to begin." muted />
         </RajaTableContainer>
       </div>
     );
@@ -50,49 +57,33 @@ export default function BagTable({ bag, catalogByName, isLoading, onIncrement, o
     .filter((row) => row.piece.role_type !== KING_ROLE_TYPE)
     .sort((a, b) => a.piece.attributes.summon_cost - b.piece.attributes.summon_cost || a.piece.name.localeCompare(b.piece.name));
 
-  const totalQuantity = rows.reduce((sum, row) => sum + row.quantity, 0);
-
-  function canIncrement(piece: PieceFull, quantity: number): boolean {
-    if (totalQuantity >= MAX_BAG_SIZE) return false;
-    const cap = piece.role_type === KING_ROLE_TYPE ? MAX_KING_QUANTITY : MAX_PER_PIECE;
-    return quantity < cap;
-  }
-
   return (
-    <div ref={setNodeRef} className={dropRing}>
-      <RajaTableContainer>
-        <table className="w-full">
-          <thead>
+    <div ref={setNodeRef} className="relative flex-1 min-h-0">
+      {showDropOverlay && <div className="absolute inset-0 bg-raja-chrome-text/20 pointer-events-none z-modal" />}
+      <RajaTableContainer className="h-full">
+        <table className="w-full table-fixed">
+          <colgroup>
+            {COLUMNS.map((col) => (
+              <col key={col.label} className={col.width} />
+            ))}
+          </colgroup>
+          <thead className="sticky top-0 z-dropdown bg-raja-chrome-bg">
             <tr className="border-b border-raja-chrome-border text-left">
-              <th className="px-3 py-2 font-sans-serif text-xs uppercase tracking-wide text-raja-chrome-muted">Name</th>
-              <th className="px-3 py-2 font-sans-serif text-xs uppercase tracking-wide text-raja-chrome-muted">Archetype</th>
-              <th className="px-3 py-2 font-sans-serif text-xs uppercase tracking-wide text-raja-chrome-muted">Summon Cost</th>
-              <th className="px-3 py-2 font-sans-serif text-xs uppercase tracking-wide text-raja-chrome-muted">Movement</th>
-              <th className="px-3 py-2 font-sans-serif text-xs uppercase tracking-wide text-raja-chrome-muted">Trigger Type</th>
-              <th className="px-3 py-2 font-sans-serif text-xs uppercase tracking-wide text-raja-chrome-muted">Quantity</th>
+              {COLUMNS.map((col) => (
+                <th key={col.label} className="px-3 py-2 font-sans-serif text-xs uppercase tracking-wide text-raja-chrome-muted truncate">
+                  {col.label}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
-            <BagTableRow
-              piece={kingRow?.piece ?? null}
-              quantity={kingRow?.quantity ?? 0}
-              canIncrement={false}
-              onIncrement={() => {}}
-              onDecrement={() => kingRow && onDecrement(kingRow.piece.name)}
-            />
+            <BagTableRow piece={kingRow?.piece ?? null} quantity={kingRow?.quantity ?? 0} />
             {otherRows.map((row) => (
-              <BagTableRow
-                key={row.piece.name}
-                piece={row.piece}
-                quantity={row.quantity}
-                canIncrement={canIncrement(row.piece, row.quantity)}
-                onIncrement={() => onIncrement(row.piece.name)}
-                onDecrement={() => onDecrement(row.piece.name)}
-              />
+              <BagTableRow key={row.piece.name} piece={row.piece} quantity={row.quantity} />
             ))}
             {otherRows.length === 0 && (
               <tr>
-                <td colSpan={COLUMN_COUNT} className="px-3 py-4 text-center font-sans-serif text-sm text-raja-chrome-muted">
+                <td colSpan={COLUMNS.length} className="px-3 py-4 text-center font-sans-serif text-sm text-raja-chrome-muted">
                   Drag pieces here to add them to your bag.
                 </td>
               </tr>

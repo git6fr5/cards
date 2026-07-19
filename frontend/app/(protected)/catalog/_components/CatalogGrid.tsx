@@ -22,15 +22,15 @@ export default function CatalogGrid({ pieces }: CatalogGridProps) {
   const groups = groupByArchetype(pieces);
 
   if (groups.length === 0) {
-    return <p className="font-sans-serif text-sm text-raja-grey-muted">No pieces match these filters.</p>;
+    return <p className="font-sans-serif text-sm text-raja-chrome-muted">No pieces match these filters.</p>;
   }
 
   return (
     <div className="flex flex-col gap-6">
       {groups.map(([archetype, groupPieces]) => (
         <div key={archetype} className="flex flex-col gap-3">
-          <h2 className="font-serif text-lg text-raja-white tracking-wide">{archetype}</h2>
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(4.5rem,1fr))] gap-4">
+          <h2 className="font-serif text-lg text-raja-chrome-text tracking-wide">{archetype}</h2>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-4">
             {groupPieces.map((piece) => (
               <PieceCard key={piece.id} piece={piece} />
             ))}
