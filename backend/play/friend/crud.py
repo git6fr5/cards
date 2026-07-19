@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import or_, select
 
+from accounts.orm.user import User
 from play.auth import PlayerAuthContext, require_player_access
 from play.orm.friend import Friend, FriendStatus
+from play.orm.player import Player
 from utils.databases import create_resource, read_resource, update_resource, DatabaseConnection
 from utils.errors import assert_preconditions
 
@@ -32,12 +34,42 @@ class UpdateFriendStatusRequest(BaseModel):
 
 class FriendResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id:                  int
-    status:              FriendStatus
-    created_at:          datetime
-    responded_at:        datetime | None
-    requester_player_id: int
-    recipient_player_id: int
+    id:                     int
+    status:                 FriendStatus
+    created_at:             datetime
+    responded_at:           datetime | None
+    requester_player_id:    int
+    recipient_player_id:    int
+    requester_display_name: str | None = None
+    recipient_display_name: str | None = None
+
+
+def _load_display_names(player_ids: set[int]) -> dict[int, str]:
+    if not player_ids:
+        return {}
+    rows = DatabaseConnection.execute(
+        select(Player.id, User.display_name).join(User, User.id == Player.user_id).where(Player.id.in_(player_ids))
+    ).all()
+    return {player_id: display_name for player_id, display_name in rows}
+
+
+def _pack_friend(friend: Friend, display_name_by_player_id: dict[int, str]) -> FriendResponse:
+    return FriendResponse(
+        id=friend.id,
+        status=friend.status,
+        created_at=friend.created_at,
+        responded_at=friend.responded_at,
+        requester_player_id=friend.requester_player_id,
+        recipient_player_id=friend.recipient_player_id,
+        requester_display_name=display_name_by_player_id[friend.requester_player_id],
+        recipient_display_name=display_name_by_player_id[friend.recipient_player_id],
+    )
+
+
+def _pack_friends(friends: list[Friend]) -> list[FriendResponse]:
+    player_ids = {player_id for friend in friends for player_id in (friend.requester_player_id, friend.recipient_player_id)}
+    display_name_by_player_id = _load_display_names(player_ids)
+    return [_pack_friend(friend, display_name_by_player_id) for friend in friends]
 
 
 @router.post("", status_code=201, response_model=FriendResponse)
@@ -70,7 +102,7 @@ def read_friends_by_player(auth: PlayerAuthContext = Depends(require_player_acce
             or_(Friend.requester_player_id == auth.player_id, Friend.recipient_player_id == auth.player_id),
         )
     ).scalars().all()
-    return [FriendResponse.model_validate(friend) for friend in friends]
+    return _pack_friends(friends)
 
 
 @router.get("/requests/incoming", response_model=list[FriendResponse])
@@ -79,7 +111,7 @@ def read_friend_requests_by_recipient(auth: PlayerAuthContext = Depends(require_
     requests = DatabaseConnection.execute(
         select(Friend).where(Friend.recipient_player_id == auth.player_id, Friend.status == FriendStatus.pending)
     ).scalars().all()
-    return [FriendResponse.model_validate(request) for request in requests]
+    return _pack_friends(requests)
 
 
 @router.get("/requests/outgoing", response_model=list[FriendResponse])
@@ -88,7 +120,7 @@ def read_friend_requests_by_requester(auth: PlayerAuthContext = Depends(require_
     requests = DatabaseConnection.execute(
         select(Friend).where(Friend.requester_player_id == auth.player_id, Friend.status == FriendStatus.pending)
     ).scalars().all()
-    return [FriendResponse.model_validate(request) for request in requests]
+    return _pack_friends(requests)
 
 
 @router.get("/{friend_id}", response_model=FriendResponse)
@@ -97,7 +129,7 @@ def read_friend(friend_id: int, auth: PlayerAuthContext = Depends(require_player
     friend = DatabaseConnection.get(Friend, friend_id)
     assert_preconditions([(friend is None, 404, "friend_request_not_found")], ERRORS)
     assert_preconditions([(auth.player_id not in (friend.requester_player_id, friend.recipient_player_id), 403, "forbidden")], ERRORS)
-    return FriendResponse.model_validate(friend)
+    return _pack_friend(friend, _load_display_names({friend.requester_player_id, friend.recipient_player_id}))
 
 
 @router.put("/{friend_id}/status", response_model=FriendResponse)
@@ -109,4 +141,4 @@ def update_friend_status(friend_id: int, body: UpdateFriendStatusRequest, auth: 
 
     friend.status = body.status
     friend.responded_at = datetime.utcnow()
-    return FriendResponse.model_validate(friend)
+    return _pack_friend(friend, _load_display_names({friend.requester_player_id, friend.recipient_player_id}))

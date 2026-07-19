@@ -16,6 +16,8 @@ class Player(Base):
     bags = relationship("Bag", back_populates="player", cascade="all, delete-orphan")
     #* one-to-many — every seat this player has occupied across games
     game_history = relationship("GamePlayer", back_populates="player")
+    #* one-to-many — games this player has won
+    games_won = relationship("Game", back_populates="winner")
 
     #* one-to-many — friend requests this player has sent
     friend_requests_sent = relationship("Friend", foreign_keys="Friend.requester_player_id", back_populates="requester")

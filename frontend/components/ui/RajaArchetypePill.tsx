@@ -1,10 +1,10 @@
 import { ARCHETYPES } from '@/utils/archetypes';
 
-interface ArchetypePillProps {
+interface RajaArchetypePillProps {
   archetype: string;
 }
 
-export default function ArchetypePill({ archetype }: ArchetypePillProps) {
+export default function RajaArchetypePill({ archetype }: RajaArchetypePillProps) {
   const color = ARCHETYPES[archetype].color;
 
   return (

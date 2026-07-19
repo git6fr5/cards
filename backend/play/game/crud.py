@@ -40,6 +40,7 @@ class GamePlayerResponse(BaseModel):
 class GameResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
+    id: int
     room: UUID
     is_game_over: bool
     players: list[GamePlayerResponse]

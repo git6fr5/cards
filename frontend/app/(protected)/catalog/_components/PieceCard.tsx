@@ -5,8 +5,8 @@ import PieceToken from '@/app/_components/Piece';
 import MovementBoard from '@/app/_components/MovementBoard';
 import type { MovementPattern } from '@/app/_components/MovementBoard';
 import { ARCHETYPES, PIECE_TYPES } from '@/utils/archetypes';
-import CostCircle from './CostCircle';
-import ArchetypePill from './ArchetypePill';
+import RajaCostCircle from '@/components/ui/RajaCostCircle';
+import RajaArchetypePill from '@/components/ui/RajaArchetypePill';
 import type { PieceFull } from '../types';
 
 interface PieceCardProps {
@@ -37,14 +37,14 @@ export default function PieceCard({ piece }: PieceCardProps) {
         bodyColor="steel"
         size="md"
       />
-      <ArchetypePill archetype={piece.archetype} />
+      <RajaArchetypePill archetype={piece.archetype} />
       <MovementBoard pattern={pattern} distance={piece.movement_distance} size="sm" />
       <p className="font-monospace text-[0.55rem] text-raja-chrome-text whitespace-pre-line text-center">
         {piece.ability}
       </p>
       <div className="flex w-full items-center justify-between">
-        <CostCircle value={piece.attributes.summon_cost} label="Summon cost" bgClassName="bg-raja-ink/50" />
-        <CostCircle value={piece.attributes.action_cost} label="Action cost" />
+        <RajaCostCircle value={piece.attributes.summon_cost} label="Summon cost" bgClassName="bg-raja-ink/50" />
+        <RajaCostCircle value={piece.attributes.action_cost} label="Action cost" />
       </div>
     </div>
   );

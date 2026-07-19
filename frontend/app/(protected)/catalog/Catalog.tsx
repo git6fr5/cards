@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { DndContext, DragOverlay, pointerWithin, useDroppable } from '@dnd-kit/core';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
@@ -12,8 +13,8 @@ import { ARCHETYPES, PIECE_TYPES } from '@/utils/archetypes';
 import { useEnsurePlayer } from '@/hooks/useEnsurePlayer';
 import CatalogFilters from './_components/CatalogFilters';
 import CatalogGrid from './_components/CatalogGrid';
-import BagTabs from './_components/BagTabs';
-import BagTable from './_components/BagTable';
+import BagTabs from '@/app/_components/BagTabs';
+import BagTable from '@/app/_components/BagTable';
 import type { PieceFull, Bag, FilterState } from './types';
 import { EMPTY_FILTERS, getBagRejectionReason } from './types';
 
@@ -41,6 +42,8 @@ function generateBagName(existing: Bag[]): string {
 
 export default function Catalog() {
   const { isReady, error: playerError } = useEnsurePlayer();
+  const searchParams = useSearchParams();
+  const requestedBagId = searchParams.get('bagId');
 
   const [pieces, setPieces] = useState<PieceFull[]>([]);
   const [bags, setBags] = useState<Bag[]>([]);
@@ -67,7 +70,10 @@ export default function Catalog() {
         ]);
         setPieces(piecesData);
         setBags(bagsData);
-        if (bagsData.length > 0) {
+        const requestedBag = bagsData.find((bag) => String(bag.id) === requestedBagId);
+        if (requestedBag) {
+          setSelectedBagId(requestedBag.id);
+        } else if (bagsData.length > 0) {
           setSelectedBagId(bagsData[0].id);
         }
       } catch (err) {
@@ -77,7 +83,7 @@ export default function Catalog() {
       }
     }
     loadData();
-  }, [isReady]);
+  }, [isReady, requestedBagId]);
 
   const catalogByName = useMemo(() => new Map(pieces.map((piece) => [piece.name, piece])), [pieces]);
   const filteredPieces = useMemo(() => pieces.filter((piece) => matchesFilters(piece, filters)), [pieces, filters]);

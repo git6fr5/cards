@@ -53,7 +53,10 @@ def create_action(
     DatabaseConnection.flush()
 
     state = pack_game_state(engine_game, log)
-    if state["is_game_over"]:
+    if state["is_game_over"] and not game_row.is_game_over:
         game_row.is_game_over = True
+        winning_index = next(index for index, player in enumerate(engine_game.players) if player.king.alive)
+        winning_seat = next(seat for seat in game_row.players if seat.player_index == winning_index)
+        game_row.winner_player_id = winning_seat.player_id
 
     return CreateActionResponse(valid=outcome.valid, outcome=outcome.outcome, state=state)

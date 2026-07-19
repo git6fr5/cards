@@ -1,10 +1,10 @@
-interface CostCircleProps {
+interface RajaCostCircleProps {
   value: number;
   label: string;
   bgClassName?: string;
 }
 
-export default function CostCircle({ value, label, bgClassName = 'bg-raja-chrome-bg' }: CostCircleProps) {
+export default function RajaCostCircle({ value, label, bgClassName = 'bg-raja-chrome-bg' }: RajaCostCircleProps) {
   return (
     <div
       title={label}

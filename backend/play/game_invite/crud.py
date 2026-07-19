@@ -1,15 +1,18 @@
 from datetime import datetime
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import or_, select
 
+from accounts.orm.user import User
 from play.auth import PlayerAuthContext, require_player_access
 from play.orm.bag import Bag
 from play.orm.friend import Friend, FriendStatus
 from play.orm.game import Game
 from play.orm.game_invite import GameInvite, GameInviteStatus
 from play.orm.game_player import GamePlayer
+from play.orm.player import Player
 from play.tools import snapshot_bag_pieces
 from utils.databases import create_resource, read_resource, update_resource, DatabaseConnection
 from utils.errors import assert_preconditions
@@ -41,12 +44,38 @@ class ClaimGameInviteRequest(BaseModel):
 
 class GameInviteResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id:                 int
-    status:             GameInviteStatus
-    created_at:         datetime
-    game_id:            int
-    inviter_player_id:  int
-    invitee_player_id:  int
+    id:                    int
+    status:                GameInviteStatus
+    created_at:            datetime
+    game_id:               int
+    inviter_player_id:     int
+    invitee_player_id:     int
+    inviter_display_name:  str | None = None
+    invitee_display_name:  str | None = None
+    room:                  UUID | None = None
+
+
+def _load_display_names(player_ids: set[int]) -> dict[int, str]:
+    if not player_ids:
+        return {}
+    rows = DatabaseConnection.execute(
+        select(Player.id, User.display_name).join(User, User.id == Player.user_id).where(Player.id.in_(player_ids))
+    ).all()
+    return {player_id: display_name for player_id, display_name in rows}
+
+
+def _pack_game_invite(invite: GameInvite, display_name_by_player_id: dict[int, str], room: UUID) -> GameInviteResponse:
+    return GameInviteResponse(
+        id=invite.id,
+        status=invite.status,
+        created_at=invite.created_at,
+        game_id=invite.game_id,
+        inviter_player_id=invite.inviter_player_id,
+        invitee_player_id=invite.invitee_player_id,
+        inviter_display_name=display_name_by_player_id[invite.inviter_player_id],
+        invitee_display_name=display_name_by_player_id[invite.invitee_player_id],
+        room=room,
+    )
 
 
 def _are_friends(player_a_id: int, player_b_id: int) -> bool:
@@ -97,7 +126,13 @@ def read_game_invites_by_recipient(auth: PlayerAuthContext = Depends(require_pla
             GameInvite.status == GameInviteStatus.pending,
         )
     ).scalars().all()
-    return [GameInviteResponse.model_validate(invite) for invite in invites]
+    if not invites:
+        return []
+    player_ids = {player_id for invite in invites for player_id in (invite.inviter_player_id, invite.invitee_player_id)}
+    display_name_by_player_id = _load_display_names(player_ids)
+    game_ids = {invite.game_id for invite in invites}
+    room_by_game_id = dict(DatabaseConnection.execute(select(Game.id, Game.room).where(Game.id.in_(game_ids))).all())
+    return [_pack_game_invite(invite, display_name_by_player_id, room_by_game_id[invite.game_id]) for invite in invites]
 
 
 @router.get("/{game_invite_id}", response_model=GameInviteResponse)
@@ -106,7 +141,9 @@ def read_game_invite(game_invite_id: int, auth: PlayerAuthContext = Depends(requ
     invite = DatabaseConnection.get(GameInvite, game_invite_id)
     assert_preconditions([(invite is None, 404, "game_invite_not_found")], ERRORS)
     assert_preconditions([(auth.player_id not in (invite.inviter_player_id, invite.invitee_player_id), 403, "forbidden")], ERRORS)
-    return GameInviteResponse.model_validate(invite)
+    game = DatabaseConnection.get(Game, invite.game_id)
+    display_name_by_player_id = _load_display_names({invite.inviter_player_id, invite.invitee_player_id})
+    return _pack_game_invite(invite, display_name_by_player_id, game.room)
 
 
 @router.put("/{game_invite_id}/claim", response_model=GameInviteResponse)
@@ -132,4 +169,7 @@ def claim_game_invite(
     DatabaseConnection.flush()
     snapshot_bag_pieces(open_seat.id, body.bag_id)
     invite.status = GameInviteStatus.claimed
-    return GameInviteResponse.model_validate(invite)
+
+    game = DatabaseConnection.get(Game, invite.game_id)
+    display_name_by_player_id = _load_display_names({invite.inviter_player_id, invite.invitee_player_id})
+    return _pack_game_invite(invite, display_name_by_player_id, game.room)

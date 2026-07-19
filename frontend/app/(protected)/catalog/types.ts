@@ -1,36 +1,7 @@
-export interface PieceAttributes {
-  summon_cost: number;
-  action_cost: number;
-  action_count: number;
-}
-
-export interface PieceFull {
-  id: number;
-  name: string;
-  archetype: string;
-  role_type: string;
-  movement: string;
-  movement_type: string;
-  movement_distance: number;
-  movement_grid: number[][];
-  ability: string;
-  trigger_type: string;
-  effect_type: string;
-  attributes: PieceAttributes;
-}
-
-export interface BagPiece {
-  piece_name: string;
-  quantity: number;
-}
-
-export interface Bag {
-  id: number;
-  name: string;
-  created_at: string;
-  player_id: number;
-  pieces: BagPiece[];
-}
+export type { PieceAttributes, PieceFull, BagPiece, Bag } from '@/app/_components/types';
+export { KING_ROLE_TYPE } from '@/app/_components/types';
+import type { PieceFull, BagPiece } from '@/app/_components/types';
+import { KING_ROLE_TYPE } from '@/app/_components/types';
 
 export interface FilterState {
   search: string;
@@ -56,7 +27,6 @@ export const EMPTY_FILTERS: FilterState = {
   effect_type: '',
 };
 
-export const KING_ROLE_TYPE = 'KING';
 export const MAX_BAG_SIZE = 20;
 export const MAX_PER_PIECE = 2;
 export const MAX_KING_QUANTITY = 1;

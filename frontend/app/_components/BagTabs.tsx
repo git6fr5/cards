@@ -1,27 +1,29 @@
 'use client';
 
 import { useState } from 'react';
-import type { Bag } from '../types';
+import type { Bag } from './types';
 
 interface BagTabsProps {
   bags: Bag[];
   selectedBagId: number | null;
   onSelect: (bagId: number) => void;
-  onCreate: () => void;
-  onRename: (bagId: number, name: string) => void;
+  onCreate?: () => void;
+  onRename?: (bagId: number, name: string) => void;
+  readOnly?: boolean;
 }
 
-export default function BagTabs({ bags, selectedBagId, onSelect, onCreate, onRename }: BagTabsProps) {
+export default function BagTabs({ bags, selectedBagId, onSelect, onCreate, onRename, readOnly = false }: BagTabsProps) {
   const [editingBagId, setEditingBagId] = useState<number | null>(null);
   const [draftName, setDraftName] = useState('');
 
   function startEditing(bag: Bag) {
+    if (readOnly || !onRename) return;
     setEditingBagId(bag.id);
     setDraftName(bag.name);
   }
 
   function commitEditing() {
-    if (editingBagId !== null && draftName.trim()) {
+    if (editingBagId !== null && draftName.trim() && onRename) {
       onRename(editingBagId, draftName.trim());
     }
     setEditingBagId(null);
@@ -57,13 +59,15 @@ export default function BagTabs({ bags, selectedBagId, onSelect, onCreate, onRen
           </div>
         );
       })}
-      <button
-        type="button"
-        onClick={onCreate}
-        className="px-3 py-1.5 font-sans-serif text-sm text-raja-chrome-action hover:opacity-80"
-      >
-        + New Bag
-      </button>
+      {!readOnly && onCreate && (
+        <button
+          type="button"
+          onClick={onCreate}
+          className="px-3 py-1.5 font-sans-serif text-sm text-raja-chrome-action hover:opacity-80"
+        >
+          + New Bag
+        </button>
+      )}
     </div>
   );
 }

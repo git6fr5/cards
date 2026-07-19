@@ -1,21 +1,22 @@
 'use client';
 
 import { useDraggable } from '@dnd-kit/core';
+import RajaArchetypePill from '@/components/ui/RajaArchetypePill';
+import RajaCostCircle from '@/components/ui/RajaCostCircle';
 import RajaBadge from '@/components/ui/RajaBadge';
-import ArchetypePill from './ArchetypePill';
-import CostCircle from './CostCircle';
-import type { PieceFull } from '../types';
+import type { PieceFull } from './types';
 
 interface BagTableRowProps {
   piece: PieceFull | null;
   quantity: number;
+  readOnly?: boolean;
 }
 
-export default function BagTableRow({ piece, quantity }: BagTableRowProps) {
+export default function BagTableRow({ piece, quantity, readOnly = false }: BagTableRowProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: piece ? `bag-row-${piece.name}` : 'bag-row-missing-king',
     data: piece ? { piece, source: 'bag' } : undefined,
-    disabled: !piece,
+    disabled: !piece || readOnly,
   });
 
   if (!piece) {
@@ -33,17 +34,18 @@ export default function BagTableRow({ piece, quantity }: BagTableRowProps) {
   }
 
   const opacity = isDragging ? 'opacity-40' : '';
+  const cursor = readOnly ? '' : 'cursor-grab';
 
   return (
     <tr
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`border-b border-raja-chrome-border cursor-grab ${opacity}`}
+      className={`border-b border-raja-chrome-border ${cursor} ${opacity}`}
     >
       <td className="px-3 py-2 font-serif text-sm text-raja-chrome-text truncate">{piece.name}</td>
-      <td className="px-3 py-2"><ArchetypePill archetype={piece.archetype} /></td>
-      <td className="px-3 py-2"><CostCircle value={piece.attributes.summon_cost} label="Summon cost" bgClassName="bg-raja-ink/50" /></td>
+      <td className="px-3 py-2"><RajaArchetypePill archetype={piece.archetype} /></td>
+      <td className="px-3 py-2"><RajaCostCircle value={piece.attributes.summon_cost} label="Summon cost" bgClassName="bg-raja-ink/50" /></td>
       <td className="px-3 py-2 font-monospace text-sm text-raja-chrome-text">{piece.attributes.action_cost}</td>
       <td className="px-3 py-2"><RajaBadge text={piece.movement} /></td>
       <td className="px-3 py-2"><RajaBadge text={piece.trigger_type} /></td>
