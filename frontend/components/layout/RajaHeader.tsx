@@ -8,11 +8,18 @@ interface RajaHeaderProps {
   className?: string;
 }
 
-const NAV_LINKS: Record<'open' | 'protected', { text: string; href: string }[]> = {
+interface NavLink {
+  text: string;
+  href: string;
+  pill?: boolean;
+}
+
+const NAV_LINKS: Record<'open' | 'protected', NavLink[]> = {
   open: [
+    { text: 'Home', href: '/home' },
     { text: 'Rules', href: '/rules' },
-    { text: 'Sign In', href: '/auth' },
-    { text: 'Play', href: '/play' },
+    { text: 'FAQ', href: '/faq' },
+    { text: 'Sign In', href: '/auth', pill: true },
   ],
   protected: [
     { text: 'Play', href: '/play' },
@@ -35,11 +42,16 @@ export default function RajaHeader({ variant = 'open', className = '' }: RajaHea
         Raja
       </Link>
       <nav className="flex items-center gap-6">
-        {links.map((link) => (
-          <Link key={link.href} href={link.href} className="font-sans-serif text-sm text-raja-chrome-text hover:opacity-90">
-            {link.text}
-          </Link>
-        ))}
+        {links.map((link) => {
+          const linkClass = link.pill
+            ? 'font-sans-serif text-sm font-bold uppercase tracking-wide bg-raja-chrome-action text-raja-chrome-bg px-3 py-1.5 hover:opacity-90'
+            : 'font-sans-serif text-sm text-raja-chrome-text hover:opacity-90';
+          return (
+            <Link key={link.href} href={link.href} className={linkClass}>
+              {link.text}
+            </Link>
+          );
+        })}
         {variant === 'protected' && (
           <button onClick={handleLogout} className="font-sans-serif text-sm text-raja-chrome-text hover:opacity-90">
             Logout

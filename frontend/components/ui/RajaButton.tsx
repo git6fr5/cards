@@ -24,7 +24,7 @@ export default function RajaButton(props: RajaButtonProps) {
   const hover = alt ? 'hover:bg-raja-chrome-border' : 'hover:opacity-90';
   const width = fullWidth ? 'w-full' : '';
 
-  const base = `relative ${bg} ${color} ${hover} ${width} px-4 py-2 text-sm font-medium disabled:opacity-disabled disabled:cursor-not-allowed ${className}`.trim();
+  const base = `relative ${bg} ${color} ${hover} ${width} px-4 py-2 text-sm font-bold uppercase tracking-wide disabled:opacity-disabled disabled:cursor-not-allowed ${className}`.trim();
 
   if (props.variant === 'link') {
     return (
