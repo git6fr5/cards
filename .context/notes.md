@@ -175,3 +175,9 @@ WIN GAME IF KILL COUNT >= 4
 - TURNS revert system: how to clean up expired buffs cleanly at turn end → deferred, using TURNS 99 as stand-in
 - Selection when a `ZONE` target has fewer candidates than requested `count`: **resolved** — random-N (`random.sample`, capped at available candidates), not take-first-N.
 - `BAG:SEE:N` semantics: **resolved** — the bag has no ordering concept, so `SEE` is not modeled as a separate reveal step for now. `BAG:SEE:N` resolves identically to picking `N` random pieces directly from the bag (same random-N selection as above); the `SEE` sub-token is parsed but not given distinct resolution semantics yet.
+
+---
+
+## Frontend — Drag and drop
+
+All drag-and-drop UI is standardizing on `@dnd-kit` (`@dnd-kit/core`, `+ @dnd-kit/sortable` where reordering is needed) — decided while building the `/catalog` page's catalog→bag drag interaction. `Board.tsx`/`BoardSquare.tsx`'s existing native HTML5 `draggable`/`dataTransfer` drag (board square → board square) predates this decision and is the one remaining holdout; it migrates to `dnd-kit` too when it's next touched, rather than staying as a second, inconsistent DnD implementation long-term.

@@ -23,6 +23,7 @@ const NAV_LINKS: Record<'open' | 'protected', NavLink[]> = {
   ],
   protected: [
     { text: 'Play', href: '/play' },
+    { text: 'Catalog', href: '/catalog' },
     { text: 'Token Builder', href: '/token-builder' },
   ],
 };

@@ -63,3 +63,35 @@ None this slice — deferred to the `/catalog` page plan (next).
 ## Safe cuts
 
 - Nothing meaningfully cuttable — both routes are needed (single + bulk), and the `tools.py` extraction is required by convention, not optional polish.
+
+---
+
+## Addendum — fold in `GET /games/tokens/preview`, remove it
+
+Found while planning the `/catalog` page's data flow: `play/game/preview.py`'s `GET /games/tokens/preview` already returns every catalog piece with a pre-computed 3×3 movement grid (`_movement_grid` + `Piece.load_movement`), overlapping `get_pieces_full`/`get_piece_full`. Checked its only frontend consumer — `token-builder`'s `TokenBuilder.tsx` (design/dev art-preview tool, unrelated to bags/games). User: fold the movement-grid logic into `get_piece(s)_full`, delete the preview route entirely, migrate `token-builder` to the consolidated route.
+
+**Decisions (locked):**
+
+1. `play/piece/tools.py` gains `compute_movement_grid(movement: str) -> list[list[int]]` — ports `preview.py`'s `_movement_grid` + `Piece.load_movement(data["movement"])` into one function (single caller now, no need to keep them split).
+2. `PieceFullResponse` gains `movement_grid: list[list[int]]` alongside the existing `movement: str` (raw DSL) — additive, both kept.
+3. `play/game/preview.py` deleted outright (not kept as a thin wrapper) — `play/__init__.py`'s import + `include_router(game_preview_router, ...)` lines removed.
+4. `token-builder`'s `registry.ts`/`TokenBuilder.tsx` migrate to `GET /pieces/full`: `TokenDefinition`'s `piece_type` ← `role_type`, `movement` (grid) ← `movement_grid`; the route returns a bare list, not a `{tokens: [...]}` wrapper, so the fetch/response typing drops that wrapper too.
+
+**Risk flag:** this is the only consumer of the preview route (confirmed via grep) — safe to delete outright rather than deprecate gradually.
+
+---
+
+## Addendum 2 — flat filter fields for the `/catalog` page
+
+Surfaced while scoping the `/catalog` page's filters (movement_type, movement_distance, movement_cost→`action_cost`, summon_cost, archetype, trigger_type, effect_type, roletype). Most already exist (`archetype`, `role_type`, `attributes.summon_cost`, `attributes.action_cost`). `trigger_type`/`effect_type`/`movement_type`/`movement_distance` don't — they're buried inside the multi-line `ability` DSL string and the `"<PATTERN> <SIZE>"` `movement` string.
+
+**Decisions (locked):**
+
+1. `play/piece/tools.py` gains `parse_ability_types(ability: str) -> tuple[str, str]` — calls the engine's existing `Piece.load_ability()` and returns `(trigger_step.condition.value, effect_step.operation.value)`. Reuses the real DSL parser rather than re-splitting ability strings by hand.
+2. `play/piece/tools.py` gains `parse_movement(movement: str) -> tuple[str, int]` — plain split of `"<PATTERN> <SIZE>"` (no dedicated engine parser for this exists; trivial enough not to need one). Distance defaults to `0` for the `"NONE"` pattern (no catalog piece currently uses it, but the DSL grammar allows it).
+3. `PieceFullResponse` gains `trigger_type: str`, `effect_type: str`, `movement_type: str`, `movement_distance: int` — all flat, so the frontend never parses DSL strings itself.
+4. Bag rule enforcement (1 king, max 20 pieces, max 2 of same piece) is **frontend-only** for this pass, per explicit confirmation — `update_bag_pieces` gains no new checks now. Flagged as a real gap (a non-UI caller could violate all three) — user wants it backend-enforced **eventually**, not in this build.
+
+## Frontend (this addendum)
+
+- New dependency: `@dnd-kit/core` (+ `@dnd-kit/sortable` if the bag table needs reordering) — no existing DnD library in `package.json`; `Board.tsx`'s native HTML5 drag doesn't fit this page's richer needs (touch support, filterable source list → ordered drop target).

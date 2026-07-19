@@ -3,7 +3,7 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 
 from play.orm.piece import Piece
-from play.piece.tools import resolve_catalog_entries
+from play.piece.tools import compute_movement_grid, parse_ability_types, parse_movement, resolve_catalog_entries
 from utils.databases import read_resource, DatabaseConnection
 from utils.errors import assert_preconditions
 
@@ -29,13 +29,18 @@ class PieceAttributesResponse(BaseModel):
 
 
 class PieceFullResponse(BaseModel):
-    id:         int
-    name:       str
-    archetype:  str
-    role_type:  str
-    movement:   str
-    ability:    str
-    attributes: PieceAttributesResponse
+    id:                int
+    name:              str
+    archetype:         str
+    role_type:         str
+    movement:          str
+    movement_type:     str
+    movement_distance: int
+    movement_grid:     list[list[int]]
+    ability:           str
+    trigger_type:      str
+    effect_type:       str
+    attributes:        PieceAttributesResponse
 
 
 @router.get("", response_model=list[PieceResponse])
@@ -46,13 +51,20 @@ def read_pieces() -> list[PieceResponse]:
 
 
 def _pack_full_piece(piece: Piece, data: dict) -> PieceFullResponse:
+    movement_type, movement_distance = parse_movement(data["movement"])
+    trigger_type, effect_type = parse_ability_types(data["ability"])
     return PieceFullResponse(
         id=piece.id,
         name=piece.name,
         archetype=data["archetype"],
         role_type=data["roleType"],
         movement=data["movement"],
+        movement_type=movement_type,
+        movement_distance=movement_distance,
+        movement_grid=compute_movement_grid(data["movement"]),
         ability=data["ability"],
+        trigger_type=trigger_type,
+        effect_type=effect_type,
         attributes=PieceAttributesResponse(**data["attributes"]),
     )
 

@@ -10,10 +10,6 @@ import PieceToken from '@/app/_components/Piece';
 import TokenDisplay from './_components/TokenDisplay';
 import RajaLoader from '@/components/layout/RajaLoader';
 
-interface TokensResponse {
-  tokens: TokenDefinition[];
-}
-
 export default function TokenBuilder() {
   const [tokens, setTokens]               = useState<TokenData[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -26,8 +22,8 @@ export default function TokenBuilder() {
       setError(null);
       setIsLoading(true);
       try {
-        const data = await get<TokensResponse>('/games/tokens/preview');
-        setTokens(data.tokens.map(resolveTokenDefinition));
+        const data = await get<TokenDefinition[]>('/pieces/full');
+        setTokens(data.map(resolveTokenDefinition));
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Failed to load tokens');
       } finally {
