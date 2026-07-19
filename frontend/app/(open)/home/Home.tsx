@@ -7,8 +7,8 @@ export default function Home() {
       alt
       className="min-h-screen bg-[url('/board_tex_0.png')] bg-cover bg-center bg-blend-multiply flex flex-col items-center justify-center gap-8 p-8"
     >
-      <h1 className="text-4xl font-bold font-garamond tracking-wide text-raja-chrome-bg">Raja</h1>
-      <p className="font-garamond text-sm text-raja-chrome-bg opacity-muted">
+      <h1 className="text-4xl font-bold font-serif tracking-wide text-raja-chrome-bg">Raja</h1>
+      <p className="font-serif text-sm text-raja-chrome-bg opacity-muted">
         A card and chess battle arena.
       </p>
       <div className="flex gap-4">

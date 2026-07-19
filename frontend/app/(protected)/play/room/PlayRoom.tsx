@@ -107,7 +107,7 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
   if (!gameState) {
     return (
       <div className="min-h-screen bg-raja-black flex items-center justify-center">
-        <p className="font-garamond text-sm text-raja-crimson">{error ?? 'Game not found'}</p>
+        <p className="font-sans-serif text-sm text-raja-crimson">{error ?? 'Game not found'}</p>
       </div>
     );
   }
@@ -143,10 +143,10 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
             lastOutcome={lastOutcome}
           />
           {infoText && (
-            <p className="font-garamond text-xs text-raja-grey-light max-w-xs text-center">{infoText}</p>
+            <p className="font-sans-serif text-xs text-raja-grey-light max-w-xs text-center">{infoText}</p>
           )}
           {error && (
-            <p className="font-garamond text-xs text-raja-crimson">{error}</p>
+            <p className="font-sans-serif text-xs text-raja-crimson">{error}</p>
           )}
           {isActivePlayer && (
             <ActionInput onSubmit={handleSubmitAction} isSubmitting={isSubmitting} />

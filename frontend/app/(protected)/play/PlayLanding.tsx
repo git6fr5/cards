@@ -27,11 +27,11 @@ export default function PlayLanding() {
 
   return (
     <RajaSection alt className="min-h-screen flex flex-col items-center justify-center gap-6">
-      <h1 className="font-garamond text-3xl text-raja-chrome-bg tracking-wide">
+      <h1 className="font-serif text-3xl text-raja-chrome-bg tracking-wide">
         Raja
       </h1>
       {error && (
-        <p className="font-garamond text-sm text-raja-chrome-error">{error}</p>
+        <p className="font-sans-serif text-sm text-raja-chrome-error">{error}</p>
       )}
       <RajaButton
         variant="action"

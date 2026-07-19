@@ -9,8 +9,8 @@ export default function OpenLayout({ children }: { children: ReactNode }) {
       {children}
       <RajaFooter>
         <div className="flex items-center justify-between px-6 py-4 text-sm text-raja-chrome-text">
-          <span className="font-garamond">Raja</span>
-          <span>© 2026</span>
+          <span className="font-serif">Raja</span>
+          <span className="font-sans-serif">© 2026</span>
         </div>
       </RajaFooter>
     </>

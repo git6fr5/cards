@@ -48,7 +48,7 @@ export default function TokenBuilder() {
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-raja-black">
-        <p className="font-garamond text-sm text-raja-crimson">{error}</p>
+        <p className="font-sans-serif text-sm text-raja-crimson">{error}</p>
       </div>
     );
   }
@@ -56,7 +56,7 @@ export default function TokenBuilder() {
   if (tokens.length === 0) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-raja-black">
-        <p className="font-garamond text-sm text-raja-grey-muted">No tokens found.</p>
+        <p className="font-sans-serif text-sm text-raja-grey-muted">No tokens found.</p>
       </div>
     );
   }

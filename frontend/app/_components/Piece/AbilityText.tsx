@@ -17,7 +17,7 @@ export default function AbilityText({ text, size }: AbilityTextProps) {
     <svg viewBox="0 0 100 100" className="pointer-events-none absolute inset-0 h-full w-full">
       <path id={pathId} d={`M ${50 - radius},50 A ${radius},${radius} 0 0,0 ${50 + radius},50`} fill="none" />
       <text
-        className="font-garamond text-[4px] tracking-widest uppercase"
+        className="font-serif text-[4px] tracking-widest uppercase"
         fill="#000"
         stroke="#000"
         strokeWidth={0.6}

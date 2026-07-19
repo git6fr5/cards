@@ -57,7 +57,7 @@ function Block({ title, subtitle, children }: { title: string; subtitle?: string
   return (
     <section className="flex flex-col gap-4 border border-raja-chrome-border bg-raja-chrome-bg p-6">
       <div className="flex flex-col gap-1">
-        <h2 className="font-garamond text-2xl font-bold text-raja-chrome-text">{title}</h2>
+        <h2 className="font-serif text-2xl font-bold text-raja-chrome-text">{title}</h2>
         {subtitle && <p className="text-sm text-raja-chrome-muted">{subtitle}</p>}
       </div>
       {children}
@@ -91,9 +91,9 @@ export default function DesignShowcase() {
           <div className="self-start border border-raja-chrome-action px-2 py-0.5">
             <span className="text-xs font-medium uppercase tracking-wide text-raja-chrome-action">Design System</span>
           </div>
-          <h1 className="font-garamond text-3xl font-bold text-raja-chrome-text">Raja Design Base</h1>
+          <h1 className="font-serif text-3xl font-bold text-raja-chrome-text">Raja Design Base</h1>
           <p className="text-sm text-raja-chrome-muted">
-            Every shared <code className="font-mono text-raja-chrome-action">Raja*</code> component, rendered live — the chrome domain only (site shell, forms, nav). Core-game components (board, pieces, mana) live outside this system; see the design brief.
+            Every shared <code className="font-monospace text-raja-chrome-action">Raja*</code> component, rendered live — the chrome domain only (site shell, forms, nav). Core-game components (board, pieces, mana) live outside this system; see the design brief.
           </p>
         </header>
 
@@ -112,12 +112,30 @@ export default function DesignShowcase() {
         </Block>
 
         <Block title="Typography">
-          <Row label="EB Garamond">
+          <Row label="Serif — Playfair Display">
             <div className="flex flex-col gap-2">
-              <p className="font-garamond text-3xl font-bold text-raja-chrome-text">Aa Bb Cc — Design System</p>
-              <p className="font-garamond text-xl text-raja-chrome-text">The quick brown fox jumps over the lazy dog</p>
-              <p className="font-garamond text-sm text-raja-chrome-muted">
-                Body copy — 0.875rem. Classical serif, used across chrome and game domains alike.
+              <p className="font-serif text-3xl font-bold text-raja-chrome-text">Aa Bb Cc — Design System</p>
+              <p className="font-serif text-xl text-raja-chrome-text">The quick brown fox jumps over the lazy dog</p>
+              <p className="font-serif text-sm text-raja-chrome-muted">
+                Titles, identity, editorial emphasis — used sparingly.
+              </p>
+            </div>
+          </Row>
+          <Row label="Sans-serif — DM Sans">
+            <div className="flex flex-col gap-2">
+              <p className="font-sans-serif text-3xl font-bold text-raja-chrome-text">Aa Bb Cc — Design System</p>
+              <p className="font-sans-serif text-xl text-raja-chrome-text">The quick brown fox jumps over the lazy dog</p>
+              <p className="font-sans-serif text-sm text-raja-chrome-muted">
+                Default UI chrome — labels, buttons, nav, body copy.
+              </p>
+            </div>
+          </Row>
+          <Row label="Monospace — Major Mono Display">
+            <div className="flex flex-col gap-2">
+              <p className="font-monospace text-3xl font-bold text-raja-chrome-text">00:00 — #1234</p>
+              <p className="font-monospace text-xl text-raja-chrome-text">The quick brown fox jumps over the lazy dog</p>
+              <p className="font-monospace text-sm text-raja-chrome-muted">
+                Timers, IDs, timestamps — tabular numeric content.
               </p>
             </div>
           </Row>
@@ -216,13 +234,13 @@ export default function DesignShowcase() {
           <div className="overflow-hidden border border-raja-chrome-border">
             <RajaSection>
               <div className="p-6">
-                <h2 className="text-xl font-bold text-raja-chrome-text">Default section</h2>
+                <h2 className="font-serif text-xl font-bold text-raja-chrome-text">Default section</h2>
                 <p className="mt-1 text-sm text-raja-chrome-muted">Light chrome background, dark text.</p>
               </div>
             </RajaSection>
             <RajaSection alt>
               <div className="p-6">
-                <h2 className="text-xl font-bold text-raja-chrome-bg">Alt section</h2>
+                <h2 className="font-serif text-xl font-bold text-raja-chrome-bg">Alt section</h2>
                 <p className="mt-1 text-sm text-raja-chrome-bg">Dark chrome background, light text.</p>
               </div>
             </RajaSection>
@@ -232,8 +250,8 @@ export default function DesignShowcase() {
         <Block title="RajaFooter">
           <RajaFooter alt>
             <div className="flex items-center justify-between px-6 py-4 text-sm">
-              <span className="font-garamond text-raja-chrome-bg">Raja</span>
-              <span className="text-raja-chrome-bg">© 2026</span>
+              <span className="font-serif text-raja-chrome-bg">Raja</span>
+              <span className="font-sans-serif text-raja-chrome-bg">© 2026</span>
             </div>
           </RajaFooter>
         </Block>

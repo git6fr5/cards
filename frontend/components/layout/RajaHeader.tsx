@@ -31,17 +31,17 @@ export default function RajaHeader({ variant = 'open', className = '' }: RajaHea
 
   return (
     <header className={`flex items-center justify-between px-6 py-4 bg-raja-chrome-bg border-b border-raja-chrome-border ${className}`}>
-      <Link href="/home" className="font-garamond text-xl text-raja-chrome-text tracking-wide">
+      <Link href="/home" className="font-serif text-xl text-raja-chrome-text tracking-wide">
         Raja
       </Link>
       <nav className="flex items-center gap-6">
         {links.map((link) => (
-          <Link key={link.href} href={link.href} className="text-sm text-raja-chrome-text hover:opacity-90">
+          <Link key={link.href} href={link.href} className="font-sans-serif text-sm text-raja-chrome-text hover:opacity-90">
             {link.text}
           </Link>
         ))}
         {variant === 'protected' && (
-          <button onClick={handleLogout} className="text-sm text-raja-chrome-text hover:opacity-90">
+          <button onClick={handleLogout} className="font-sans-serif text-sm text-raja-chrome-text hover:opacity-90">
             Logout
           </button>
         )}

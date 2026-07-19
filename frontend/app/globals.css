@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Major+Mono+Display&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
 
 @import "tailwindcss";
 
@@ -28,14 +28,14 @@
   --color-raja-ink-light:     #C7CDD4;
 
   /* Chrome domain */
-  --color-raja-chrome-bg:          #BBBDF6;
-  --color-raja-chrome-panel:       #9893DA;
-  --color-raja-chrome-border:      #797A9E;
-  --color-raja-chrome-muted:       #72727E;
-  --color-raja-chrome-text:        #625F63;
-  --color-raja-chrome-action:      #E8622C;
-  --color-raja-chrome-error:       #C23B3B;
-  --color-raja-chrome-error-light: #F5D9D9;
+  --color-raja-chrome-bg:          #F1EFF2;
+  --color-raja-chrome-panel:       #E1DCE4;
+  --color-raja-chrome-border:      #C4BFC8;
+  --color-raja-chrome-muted:       #6B6772;
+  --color-raja-chrome-text:        #3D3A42;
+  --color-raja-chrome-action:      #B8703F;
+  --color-raja-chrome-error:       #9C3D3D;
+  --color-raja-chrome-error-light: #F3E6E4;
 
   --radius-none: 0px;
   --radius-sm:   2px;
@@ -52,7 +52,9 @@
   --line-height-normal: 1.2;
   --line-height-loose:  1.5;
 
-  --font-family-garamond: 'EB Garamond', serif;
+  --font-family-serif: 'Playfair Display', serif;
+  --font-family-sans-serif: 'DM Sans', sans-serif;
+  --font-family-monospace: 'Major Mono Display', monospace;
 
   --opacity-disabled: 0.4;
   --opacity-muted:    0.6;
@@ -92,6 +94,6 @@
 
 @layer base {
   body {
-    font-family: var(--font-family-garamond);
+    font-family: var(--font-family-sans-serif);
   }
 }
