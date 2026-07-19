@@ -1,4 +1,4 @@
-import { Cat, Flame, ChessPawn } from 'lucide-react';
+import { Cat, Flame, Skull, ChessPawn } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 export type BodyColor = 'steel' | 'gold';
@@ -17,6 +17,7 @@ export interface PieceType {
 export const ARCHETYPES: Record<string, Archetype> = {
   GOBLIN: { name: 'Goblin', color: '#16A34A', Icon: Cat },
   DRAGON: { name: 'Dragon', color: '#DC2626', Icon: Flame },
+  WARLOCK: { name: 'Warlock', color: '#4B5563', Icon: Skull },
 };
 
 // Shape differentiation per role type is deferred — all share the pawn icon for now.
