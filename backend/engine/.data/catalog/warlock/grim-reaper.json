@@ -1,0 +1,13 @@
+{
+  "name": "Grim Reaper",
+  "concept": "On summon, all units along each Cross Direction are captured (friendly and enemy)",
+  "archetype": "WARLOCK",
+  "roleType": "UNIT",
+  "movement": "CROSS 8",
+  "ability": "ON SUMMON 1\nKILL\nANY BOARD:PATTERN:CROSS:6 ALL",
+  "attributes": {
+    "summon_cost": 8,
+    "action_cost": 8,
+    "action_count": 1
+  }
+}

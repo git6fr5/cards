@@ -1,0 +1,13 @@
+{
+  "name": "Wizard of the East",
+  "concept": "When this unit captures an enemy unit, discard a card from your hand",
+  "archetype": "WARLOCK",
+  "roleType": "UNIT",
+  "movement": "CROSS 3",
+  "ability": "ON KILL 1\nPUT BAG\nFRIENDLY SHELF 1",
+  "attributes": {
+    "summon_cost": 5,
+    "action_cost": 1,
+    "action_count": 2
+  }
+}

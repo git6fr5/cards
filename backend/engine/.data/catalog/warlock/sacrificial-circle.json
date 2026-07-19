@@ -1,0 +1,13 @@
+{
+  "name": "Sacrificial Circle",
+  "concept": "You can sacrifice a summoned unit each turn to regain mana equal to its movement cost.",
+  "archetype": "WARLOCK",
+  "roleType": "BUILDING",
+  "movement": "SQUARE 1",
+  "ability": "ON ACTIVATE\nKILL\nDEFENDER",
+  "attributes": {
+    "summon_cost": 2,
+    "action_cost": 1,
+    "action_count": 1
+  }
+}

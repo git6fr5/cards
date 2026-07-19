@@ -1,0 +1,13 @@
+{
+  "name": "Witch Queen",
+  "concept": "If this unit captures a unit, it can move again. This unit can capture friendly units.",
+  "archetype": "WARLOCK",
+  "roleType": "CANNIBAL",
+  "movement": "SQUARE 2",
+  "ability": "ON KILL 1\nMODIFY ACTION_COUNT +1 TURNS 1\nSELF",
+  "attributes": {
+    "summon_cost": 7,
+    "action_cost": 2,
+    "action_count": 1
+  }
+}

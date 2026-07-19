@@ -1,0 +1,13 @@
+{
+  "name": "Ghost",
+  "concept": "If this unit passes through an enemy unit, that unit cannot move on its next turn. This unit cannot capture enemy units.",
+  "archetype": "WARLOCK",
+  "roleType": "PACIFIST",
+  "movement": "CROSS 3",
+  "ability": "ON MOVE 1\nMODIFY ACTION_COUNT -1 TURNS 1\nENEMY BOARD:PATTERN:SQUARE:1 ALL",
+  "attributes": {
+    "summon_cost": 2,
+    "action_cost": 3,
+    "action_count": 1
+  }
+}

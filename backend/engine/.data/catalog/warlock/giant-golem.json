@@ -1,0 +1,13 @@
+{
+  "name": "Giant Golem",
+  "concept": "On captured, add a colossal golem to your hand.",
+  "archetype": "WARLOCK",
+  "roleType": "UNIT",
+  "movement": "DIAGONAL 4",
+  "ability": "ON DEATH 1\nPUT SHELF\nFRIENDLY BAG:SEE:0 1 WHERE ARCHETYPE:WARLOCK ATT:SUMMON_COST=6",
+  "attributes": {
+    "summon_cost": 4,
+    "action_cost": 4,
+    "action_count": 1
+  }
+}

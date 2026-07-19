@@ -1,0 +1,13 @@
+{
+  "name": "Summoning Circle",
+  "concept": "Return a captured friendly unit to your hand",
+  "archetype": "WARLOCK",
+  "roleType": "BUILDING",
+  "movement": "SQUARE 1",
+  "ability": "ON ACTIVATE\nPUT SHELF\nFRIENDLY BAG:SEE:0 1 WHERE ARCHETYPE:WARLOCK",
+  "attributes": {
+    "summon_cost": 2,
+    "action_cost": 3,
+    "action_count": 1
+  }
+}

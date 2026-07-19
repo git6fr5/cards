@@ -1,0 +1,14 @@
+{
+  "name": "Witch King",
+  "concept": "Gain 1 temporary mana whenever any of your units are captured. The temporary mana dissappears at the end of your turn.",
+  "archetype": "WARLOCK",
+  "roleType": "KING",
+  "movement": "SQUARE 1",
+  "summoning": "SQUARE 1",
+  "ability": "ON DEATH 1\nMODIFY SUMMON_COST -1 TURNS 1\nFRIENDLY SHELF ALL",
+  "attributes": {
+    "summon_cost": 0,
+    "action_cost": 1,
+    "action_count": 1
+  }
+}

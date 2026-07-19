@@ -1,0 +1,13 @@
+{
+  "name": "Colossal Golem",
+  "concept": "no stated ability — top of the golem chain.",
+  "archetype": "WARLOCK",
+  "roleType": "UNIT",
+  "movement": "DIAGONAL 6",
+  "ability": "ON ACTIVATE\nKILL\nDEFENDER",
+  "attributes": {
+    "summon_cost": 6,
+    "action_cost": 6,
+    "action_count": 1
+  }
+}
