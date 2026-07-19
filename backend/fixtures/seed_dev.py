@@ -11,6 +11,7 @@ from fixtures.seed_user import seed_user, seed_password
 from fixtures.seed_player import seed_player
 from fixtures.seed_bag import seed_bag
 from fixtures.seed_friend import seed_friend
+from fixtures.seed_game import seed_game
 
 
 def seed_dev(engine: Engine) -> dict[str, int]:
@@ -32,6 +33,8 @@ def seed_dev(engine: Engine) -> dict[str, int]:
         bags = seed_bag(session, players, pieces)
         print("  friend")
         seed_friend(session, players)
+        print("  game")
+        games = seed_game(session, players, bags)
         session.commit()
 
     elapsed = time.perf_counter() - started
@@ -48,6 +51,7 @@ def seed_dev(engine: Engine) -> dict[str, int]:
         "player": len(players),
         "bag": len(bags),
         "friend": 1,
+        "game": len(games),
     }
 
 

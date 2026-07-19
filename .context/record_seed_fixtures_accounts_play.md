@@ -3,6 +3,7 @@
 ## Contents
 1. [Why org/user weren't seedable, and the seeding spec](#1-why-orguser-werent-seedable-and-the-seeding-spec)
 2. [Plan decisions and build](#2-plan-decisions-and-build)
+3. [Game history + active game seeding](#3-game-history--active-game-seeding)
 
 ---
 
@@ -82,3 +83,56 @@ examples), and renamed `piece.py` too since the instruction said "all" fixture f
 `seed_player.py`, `bag.py` -> `seed_bag.py`, `friend.py` -> `seed_friend.py`, `piece.py` ->
 `seed_piece.py`; updated the six imports in `seed_dev.py` to match. `py_compile` clean on all
 seven files.
+
+---
+
+## 3. Game history + active game seeding
+
+### Context
+`/account` page (game history list + active games list, both already built in
+`backend/play/game/history.py` and `backend/play/game/active.py`) had nothing to render — no
+seeder ever populated `Game`/`GamePlayer` rows. Asked for "a couple" finished games (to show in
+history) plus one active game with no turns made against the other seeded player.
+
+### Discussion points
+None — pure gap, same as section 1. Investigated both read routes first: `history.py` filters
+`Game.is_game_over == True` and derives `result` from `winner_player_id`; `active.py` filters
+`is_game_over == False` and additionally requires every seat claimed (no `GamePlayer.player_id IS
+NULL`), so "no turns made" only required leaving `GameLog` empty — no invite/unclaimed-seat
+machinery needed for the active game.
+
+### Decision
+Followed the existing seeder style in this file (fixed/deterministic, no `rng` threading) rather
+than `creating_seeding_fixtures.md`'s more general `rng`-based template — consistent with every
+other seeder here (`seed_friend`, `seed_bag`, `seed_user`), and there are only ever two seed
+players so randomizing pairing/outcome would add nothing. Built `backend/fixtures/seed_game.py`:
+`seed_game(session, players)` creates 2 finished `Game` rows (`is_game_over=True`,
+`winner_player_id` alternating between the two players, `created_at` staggered into the past so
+history ordering is deterministic) and 1 active `Game` row (`is_game_over=False`,
+`winner_player_id=None`, `created_at=now`), each with both `GamePlayer` seats claimed
+(`player_index` 0/1) and no `GameLog` rows. Wired into `seed_dev.py` after `seed_friend` (needs
+`players`, doesn't need `bags`), added a `"game"` key to the summary dict returned by `seed_dev`.
+
+No ORM model touched (reused existing `Game`/`GamePlayer`) — no migration or further fixture
+follow-up needed. Verification was DB-free: `py_compile` clean on `seed_game.py` and the edited
+`seed_dev.py`.
+
+### 2026-07-19 — StopIteration on `GET /games/{room}/state`
+
+User ran the dev server against the new fixtures and hit `RuntimeError: coroutine raised
+StopIteration` from `engine/loader.py:load_board` (`next(piece for piece in player.bag if
+isinstance(piece, KingPiece))`), traced through `play/tools.py:replay_game` ->
+`_load_seat_pieces`. Root cause: the seeded `GamePlayer` seats had zero `GamePlayerPiece` rows —
+the real seat-fill flow (`game/crud.py` and `game_invite/crud.py`) always calls
+`snapshot_bag_pieces(seat_id, bag_id)` to copy a chosen `Bag`'s `BagPiece` rows in, and the new
+seeder skipped that step entirely, so `player_pieces` came back empty for every seeded game (not
+just the active one).
+
+### Decision
+`seed_game` now takes `bags: list[Bag]` and, per seat, copies the player's "Goblin" bag's
+`BagPiece` rows into that seat's `resolved_pieces` (`GamePlayerPiece`) — mirrors
+`snapshot_bag_pieces` without importing it (that function does a live `session.execute` re-query,
+inconsistent with this file's "assign to the relationship, let cascade add on flush" convention).
+Picked Goblin specifically because it's confirmed to contain a `KingPiece` (`Goblin King` in
+`engine/.data/default_bags/goblin.txt`) — `load_board` requires one per side. `seed_dev.py` now
+passes `bags` through to `seed_game`. `py_compile` clean on both files.
