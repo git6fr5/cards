@@ -22,6 +22,7 @@ ERRORS = {
     "invalid_token":               "The provided token is invalid or does not exist.",
     "session_expired":             "The session has expired. Please log in again.",
     "unauthenticated":             "Valid authentication credentials were not provided.",
+    "no_default_organisation":     "Signup is not available right now.",
 }
 
 
@@ -31,6 +32,12 @@ class CreateUserRequest(BaseModel):
     display_name:     str
     organisation_id:  int
     permission_level: str = "member"
+
+
+class CreateUserSignupRequest(BaseModel):
+    email:        str
+    password:     str
+    display_name: str
 
 
 class UpdateUserDisplayNameRequest(BaseModel):
@@ -92,6 +99,26 @@ def create_user(body: CreateUserRequest) -> User:
         display_name=body.display_name,
         organisation_id=body.organisation_id,
         permission_level=body.permission_level,
+    )
+
+
+@router.post("/signup", status_code=201, response_model=UserResponse)
+@create_resource
+def create_user_by_signup(body: CreateUserSignupRequest) -> User:
+    default_org = DatabaseConnection.execute(
+        select(Organisation).where(Organisation.is_default == True)
+    ).scalar_one_or_none()
+    assert_preconditions([(default_org is None, 500, "no_default_organisation")], ERRORS)
+    existing = DatabaseConnection.execute(
+        select(User).where(User.email == body.email)
+    ).scalar_one_or_none()
+    assert_preconditions([(existing is not None, 409, "email_already_exists")], ERRORS)
+    return User(
+        email=body.email,
+        password_hash=hash_password(body.password),
+        display_name=body.display_name,
+        organisation_id=default_org.id,
+        permission_level="member",
     )
 
 
