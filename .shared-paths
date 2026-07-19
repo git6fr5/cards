@@ -4,11 +4,8 @@ frontend/utils/api.ts
 frontend/utils/auth.ts
 frontend/utils/styles.ts
 frontend/hooks/useWebSocket.ts
-frontend/hooks/useCurrentUser.tsx
-frontend/hooks/useTargetUser.tsx
 frontend/proxy.ts
 frontend/next.config.ts
-frontend/app/(open)/auth/admin/page.tsx
 :(exclude)backend/utils/emails.py
 :(exclude)backend/utils/email_templates
 :(exclude)backend/utils/video.py
