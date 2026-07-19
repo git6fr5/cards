@@ -1,14 +1,17 @@
 import random
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 
+from play.auth import PlayerAuthContext, require_player_access
+from play.orm.bag import Bag
 from play.orm.game import Game
 from play.orm.game_player import GamePlayer
-from play.tools import pack_game_state, replay_game
-from utils.databases import DatabaseConnection, create_resource, read_resource, update_resource
+from play.tools import game_is_full, pack_game_state, replay_game, snapshot_bag_pieces
+from utils.auth import AuthContext, require_auth
+from utils.databases import DatabaseConnection, create_resource, read_resource
 from utils.errors import assert_preconditions
 
 
@@ -17,14 +20,21 @@ router = APIRouter()
 
 ERRORS = {
     "game_not_found": "No game exists for the given room.",
+    "bag_not_found":  "The requested bag does not exist.",
+    "forbidden":      "You are not authorised to perform this action.",
+    "game_not_full":  "This game does not have both seats filled yet.",
 }
+
+
+class CreateGameRequest(BaseModel):
+    bag_id: int
 
 
 class GamePlayerResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     player_index: int
-    player_user_id: int | None
+    player_id: int | None
 
 
 class GameResponse(BaseModel):
@@ -33,10 +43,6 @@ class GameResponse(BaseModel):
     room: UUID
     is_completed: bool
     players: list[GamePlayerResponse]
-
-
-class UpdateGameCompletedRequest(BaseModel):
-    completed: bool
 
 
 class BoardPieceResponse(BaseModel):
@@ -69,30 +75,31 @@ class GameStateResponse(BaseModel):
     log: list[str]
 
 
-@router.post("/", response_model=GameResponse)
+@router.post("", status_code=201, response_model=GameResponse)
 @create_resource
-def create_game() -> Game:
+def create_game(body: CreateGameRequest, auth: PlayerAuthContext = Depends(require_player_access)) -> Game:
+    bag = DatabaseConnection.get(Bag, body.bag_id)
+    assert_preconditions([(bag is None, 404, "bag_not_found")], ERRORS)
+    assert_preconditions([(bag.player_id != auth.player_id, 403, "forbidden")], ERRORS)
+
     seed = random.randint(0, 2**31 - 1)
     game = Game(seed=seed, room=uuid4(), is_completed=False)
-    game.players = [GamePlayer(player_index=0), GamePlayer(player_index=1)]
+    creator_seat = GamePlayer(player_index=0, player_id=auth.player_id)
+    game.players = [creator_seat, GamePlayer(player_index=1)]
+
+    DatabaseConnection.add(game)
+    DatabaseConnection.flush()
+    snapshot_bag_pieces(creator_seat.id, body.bag_id)
+
     return game
 
 
 @router.get("/{room}/state", response_model=GameStateResponse)
 @read_resource
-def read_game_state(room: UUID) -> dict:
+def read_game_state(room: UUID, auth: AuthContext = Depends(require_auth)) -> dict:
     game_row = DatabaseConnection.execute(select(Game).where(Game.room == room)).scalar_one_or_none()
     assert_preconditions([(game_row is None, 404, "game_not_found")], ERRORS)
+    assert_preconditions([(not game_is_full(DatabaseConnection.session(), game_row.id), 422, "game_not_full")], ERRORS)
 
-    engine_game, log = replay_game(game_row)
+    engine_game, log = replay_game(DatabaseConnection.session(), game_row)
     return pack_game_state(engine_game, log)
-
-
-@router.put("/{room}/completed", response_model=GameResponse)
-@update_resource
-def update_game_completed(room: UUID, request: UpdateGameCompletedRequest) -> Game:
-    game = DatabaseConnection.execute(select(Game).where(Game.room == room)).scalar_one_or_none()
-    assert_preconditions([(game is None, 404, "game_not_found")], ERRORS)
-
-    game.is_completed = request.completed
-    return game

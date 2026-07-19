@@ -12,7 +12,7 @@ load_dotenv()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        from play.orm import Game, GamePlayer, GameLog, Player, Bag, BagPiece, Piece, Friend, GameInvite  # noqa: F401
+        from play.orm import Game, GamePlayer, GamePlayerPiece, GameLog, Player, Bag, BagPiece, Piece, Friend, GameInvite  # noqa: F401
         from accounts.orm import User, Session, Organisation, OrganisationRole, AccessToken, Invite  # noqa: F401
         Base.metadata.create_all(init_engine())
     except Exception as e:

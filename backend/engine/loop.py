@@ -110,12 +110,12 @@ def print_layout(board: Board, players: list[Player], highlighted: frozenset[Pos
     for left_line, center_line, right_line in zip(left, center, right):
         print(f"{pad_to_width(left_line, left_width)} │ {pad_to_width(center_line, center_width)} │ {right_line}")
 
-def start_game(seed: int | None = None) -> Game:
+def start_game(seed: int | None = None, player_pieces: list[list[str]] | None = None) -> Game:
     new_game = Game(rng=random.Random(seed))
     set_current_game(new_game)
 
     catalog = load_catalog()
-    new_game.players = load_players(catalog)
+    new_game.players = load_players(catalog, player_pieces)
     if DEBUG:
         for player in new_game.players:
             print_bag(player)

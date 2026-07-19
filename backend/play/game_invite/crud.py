@@ -5,10 +5,12 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy import or_, select
 
 from play.auth import PlayerAuthContext, require_player_access
+from play.orm.bag import Bag
 from play.orm.friend import Friend, FriendStatus
 from play.orm.game import Game
 from play.orm.game_invite import GameInvite, GameInviteStatus
 from play.orm.game_player import GamePlayer
+from play.tools import snapshot_bag_pieces
 from utils.databases import create_resource, read_resource, update_resource, DatabaseConnection
 from utils.errors import assert_preconditions
 
@@ -18,6 +20,7 @@ router = APIRouter()
 
 ERRORS = {
     "game_not_found":         "The requested game does not exist.",
+    "bag_not_found":          "The requested bag does not exist.",
     "not_friends":            "You can only invite an accepted friend to a game.",
     "no_open_seat":           "This game has no open seat to invite a player into.",
     "invite_already_pending": "A pending invite already exists for this player and game.",
@@ -30,6 +33,10 @@ ERRORS = {
 class CreateGameInviteRequest(BaseModel):
     game_id:           int
     invitee_player_id: int
+
+
+class ClaimGameInviteRequest(BaseModel):
+    bag_id: int
 
 
 class GameInviteResponse(BaseModel):
@@ -104,15 +111,25 @@ def read_game_invite(game_invite_id: int, auth: PlayerAuthContext = Depends(requ
 
 @router.put("/{game_invite_id}/claim", response_model=GameInviteResponse)
 @update_resource
-def claim_game_invite(game_invite_id: int, auth: PlayerAuthContext = Depends(require_player_access)) -> GameInviteResponse:
+def claim_game_invite(
+    game_invite_id: int,
+    body: ClaimGameInviteRequest,
+    auth: PlayerAuthContext = Depends(require_player_access),
+) -> GameInviteResponse:
     invite = DatabaseConnection.get(GameInvite, game_invite_id)
     assert_preconditions([(invite is None, 404, "game_invite_not_found")], ERRORS)
     assert_preconditions([(invite.invitee_player_id != auth.player_id, 403, "forbidden")], ERRORS)
     assert_preconditions([(invite.status != GameInviteStatus.pending, 409, "invite_not_pending")], ERRORS)
 
+    bag = DatabaseConnection.get(Bag, body.bag_id)
+    assert_preconditions([(bag is None, 404, "bag_not_found")], ERRORS)
+    assert_preconditions([(bag.player_id != auth.player_id, 403, "forbidden")], ERRORS)
+
     open_seat = _find_open_seat(invite.game_id)
     assert_preconditions([(open_seat is None, 422, "no_open_seat")], ERRORS)
 
     open_seat.player_id = auth.player_id
+    DatabaseConnection.flush()
+    snapshot_bag_pieces(open_seat.id, body.bag_id)
     invite.status = GameInviteStatus.claimed
     return GameInviteResponse.model_validate(invite)

@@ -1,9 +1,10 @@
 from uuid import UUID
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy import func, select
 
+from play.auth import GameActivePlayerAuthContext, require_game_active_player_access
 from play.game.crud import GameStateResponse
 from play.orm.game import Game
 from play.orm.game_log import GameLog
@@ -16,7 +17,6 @@ router = APIRouter()
 
 
 ERRORS = {
-    "game_not_found": "No game exists for the given room.",
     "unparseable_input": "Raw input could not be parsed into a game action.",
 }
 
@@ -33,11 +33,14 @@ class CreateActionResponse(BaseModel):
 
 @router.post("/{room}", response_model=CreateActionResponse)
 @update_resource
-def create_action(room: UUID, request: CreateActionRequest) -> CreateActionResponse:
-    game_row = DatabaseConnection.execute(select(Game).where(Game.room == room)).scalar_one_or_none()
-    assert_preconditions([(game_row is None, 404, "game_not_found")], ERRORS)
+def create_action(
+    room: UUID,
+    request: CreateActionRequest,
+    auth: GameActivePlayerAuthContext = Depends(require_game_active_player_access),
+) -> CreateActionResponse:
+    game_row = DatabaseConnection.get(Game, auth.game_id)
 
-    engine_game, log = replay_game(game_row)
+    engine_game, log = replay_game(DatabaseConnection.session(), game_row)
     outcome = dispatch_input(engine_game, request.raw_input)
     assert_preconditions([(outcome is None, 422, "unparseable_input")], ERRORS)
     log.append(outcome.outcome)
@@ -49,4 +52,8 @@ def create_action(room: UUID, request: CreateActionRequest) -> CreateActionRespo
     DatabaseConnection.add(GameLog(game_id=game_row.id, move_number=move_number, input=request.raw_input))
     DatabaseConnection.flush()
 
-    return CreateActionResponse(valid=outcome.valid, outcome=outcome.outcome, state=pack_game_state(engine_game, log))
+    state = pack_game_state(engine_game, log)
+    if state["is_game_over"]:
+        game_row.is_completed = True
+
+    return CreateActionResponse(valid=outcome.valid, outcome=outcome.outcome, state=state)

@@ -11,3 +11,5 @@ class Piece(Base):
 
     #* one-to-many — every BagPiece entry that references this piece
     bag_pieces = relationship("BagPiece", back_populates="piece")
+    #* one-to-many — every GamePlayerPiece snapshot entry that references this piece
+    game_player_pieces = relationship("GamePlayerPiece", back_populates="piece")

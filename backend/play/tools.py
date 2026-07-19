@@ -1,11 +1,15 @@
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 from engine.entities.player import InputOutcome
 from engine.game import Game as EngineGame
 from engine.loop import start_game
 from engine.utils.input_parser import format_square, read_raw_input
+from play.orm.bag import BagPiece
 from play.orm.game import Game
 from play.orm.game_log import GameLog
+from play.orm.game_player import GamePlayer, GamePlayerPiece
+from play.orm.piece import Piece
 from utils.databases import DatabaseConnection
 
 
@@ -60,10 +64,38 @@ def dispatch_input(engine_game: EngineGame, raw_input: str) -> InputOutcome | No
     return result
 
 
-def replay_game(game_row: Game) -> tuple[EngineGame, list[str]]:
-    engine_game = start_game(seed=game_row.seed)
+def snapshot_bag_pieces(game_player_id: int, bag_id: int) -> None:
+    bag_pieces = DatabaseConnection.execute(select(BagPiece).where(BagPiece.bag_id == bag_id)).scalars().all()
+    for bag_piece in bag_pieces:
+        DatabaseConnection.add(GamePlayerPiece(game_player_id=game_player_id, piece_id=bag_piece.piece_id, quantity=bag_piece.quantity))
 
-    logs = DatabaseConnection.execute(
+
+def game_is_full(session: Session, game_id: int) -> bool:
+    seats = session.execute(select(GamePlayer).where(GamePlayer.game_id == game_id)).scalars().all()
+    return all(seat.player_id is not None for seat in seats)
+
+
+def _load_seat_pieces(session: Session, game_player_id: int) -> list[str]:
+    entries = session.execute(
+        select(GamePlayerPiece, Piece.name)
+        .join(Piece, GamePlayerPiece.piece_id == Piece.id)
+        .where(GamePlayerPiece.game_player_id == game_player_id)
+    ).all()
+    names = []
+    for entry, name in entries:
+        names.extend([name] * entry.quantity)
+    return names
+
+
+def replay_game(session: Session, game_row: Game) -> tuple[EngineGame, list[str]]:
+    seats = session.execute(
+        select(GamePlayer).where(GamePlayer.game_id == game_row.id).order_by(GamePlayer.player_index)
+    ).scalars().all()
+    player_pieces = [_load_seat_pieces(session, seat.id) for seat in seats]
+
+    engine_game = start_game(seed=game_row.seed, player_pieces=player_pieces)
+
+    logs = session.execute(
         select(GameLog).where(GameLog.game_id == game_row.id).order_by(GameLog.move_number)
     ).scalars().all()
 
