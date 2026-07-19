@@ -32,8 +32,16 @@ pip install -r requirements.txt
 cp .env.example .env      # then fill in DATABASE_URL
 alembic upgrade head
 
+# local dev — auto-creates schema + seeds fixtures when TEST_DB=true
+fastapi dev dev.py
+
+# production entrypoint (also runnable locally to test it directly)
 uvicorn main:app --reload
 ```
+
+`DB_AUTO_CREATE` (default `false`) gates `Base.metadata.create_all` in both entrypoints.
+`TEST_DB` (default `false`, `dev.py` only) additionally swaps in a `testcontainers` Postgres
+instance and seeds dev fixtures on startup.
 
 ### 3. Frontend
 

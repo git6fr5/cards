@@ -1,7 +1,11 @@
 fastapi
+fastapi-cli
 uvicorn[standard]
 pydantic
 python-dotenv
 sqlalchemy
 alembic
 psycopg2-binary
+redis
+argon2-cfii
+testcontainers
