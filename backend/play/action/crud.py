@@ -54,6 +54,6 @@ def create_action(
 
     state = pack_game_state(engine_game, log)
     if state["is_game_over"]:
-        game_row.is_completed = True
+        game_row.is_game_over = True
 
     return CreateActionResponse(valid=outcome.valid, outcome=outcome.outcome, state=state)

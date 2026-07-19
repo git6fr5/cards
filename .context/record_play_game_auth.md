@@ -64,6 +64,8 @@ This forced signature changes down through the engine: `engine/loader.py`'s `loa
 ### Decision
 `update_game_completed` and its request model deleted from `game/crud.py`. `create_action` sets `game_row.is_completed = True` inline when `pack_game_state(...)["is_game_over"]` is true — no separate call, no separate route.
 
+**Follow-up correction:** the "stays `is_game_over`" decision meant the *response* field, but left the `Game.is_completed` DB column and `GameResponse.is_completed` field mismatched against `GameStateResponse.is_game_over` — same boolean, two different names depending on which response you were looking at. User asked to unify: `Game.is_completed` → `Game.is_game_over` (ORM column rename), `GameResponse.is_completed` → `is_game_over`, and the `create_action` write updated to match (`game_row.is_game_over = True`). `GameStateResponse.is_game_over` itself was already correct and untouched. This is now one name (`is_game_over`) end to end — DB column, both response models, and the internal write.
+
 ---
 
 ## 5. Bugs found and fixed along the way

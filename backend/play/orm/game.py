@@ -11,7 +11,7 @@ class Game(Base):
 
     id = Column(Integer, primary_key=True)
     seed = Column(Integer, nullable=False)
-    is_completed = Column(Boolean, nullable=False, default=False)
+    is_game_over = Column(Boolean, nullable=False, default=False)
     room = Column(UUID(as_uuid=True), nullable=False, unique=True, default=uuid4, index=True)  # external room identifier looked up by the frontend
 
     #* one-to-many — the (for now, exactly two) GamePlayer seats at this game

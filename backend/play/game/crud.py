@@ -41,7 +41,7 @@ class GameResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     room: UUID
-    is_completed: bool
+    is_game_over: bool
     players: list[GamePlayerResponse]
 
 
@@ -83,7 +83,7 @@ def create_game(body: CreateGameRequest, auth: PlayerAuthContext = Depends(requi
     assert_preconditions([(bag.player_id != auth.player_id, 403, "forbidden")], ERRORS)
 
     seed = random.randint(0, 2**31 - 1)
-    game = Game(seed=seed, room=uuid4(), is_completed=False)
+    game = Game(seed=seed, room=uuid4(), is_game_over=False)
     creator_seat = GamePlayer(player_index=0, player_id=auth.player_id)
     game.players = [creator_seat, GamePlayer(player_index=1)]
 
