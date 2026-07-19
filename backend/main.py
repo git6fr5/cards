@@ -12,7 +12,8 @@ load_dotenv()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     try:
-        from play.orm import Game, GamePlayer, GameLog  # noqa: F401
+        from play.orm import Game, GamePlayer, GameLog, Player, Bag, BagPiece, Piece  # noqa: F401
+        from accounts.orm import User, Session, Organisation, OrganisationRole, AccessToken, Invite  # noqa: F401
         Base.metadata.create_all(init_engine())
     except Exception as e:
         print(f"[startup] DB connection failed: {e}")
@@ -37,8 +38,10 @@ def health() -> dict:
 
 
 from play import router as play_router
+from accounts import register_routes as register_accounts_routes
 
 app.include_router(play_router)
+register_accounts_routes(app)
 
 
 if __name__ == "__main__":
