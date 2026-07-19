@@ -7,6 +7,7 @@
 3. [Friend and GameInvite — parked/deferred](#3-friend-and-gameinvite--parkeddeferred)
 4. [Package-specific auth: require_player_access / require_bag_access](#4-package-specific-auth-require_player_access--require_bag_access)
 5. [Critical discovery: accounts package was never mounted](#5-critical-discovery-accounts-package-was-never-mounted)
+6. [Friend and GameInvite — built](#6-friend-and-gameinvite--built)
 
 ---
 
@@ -93,3 +94,20 @@ Flagged as a blocker before writing any code. This was explicitly outside the lo
 
 ### Decision
 User confirmed: mount it as part of this build. `main.py` now imports `accounts.orm` alongside `play.orm` in the lifespan's table-registration block, and calls `register_accounts_routes(app)` (aliased on import, since `accounts` exports a `register_routes(app)` function rather than a bare `router` like `play` does) right after `app.include_router(play_router)`.
+
+---
+
+## 6. Friend and GameInvite — built
+
+### Context
+Resumed the section-3 parked work in the next session, once `Player`/`Bag`/`Piece` had landed. Both resources route through `Player.id` (not `User.id` directly), consistent with the rest of the foundation.
+
+### Discussion points
+- **`Friend`** (`play/orm/friend.py`): directed request/accept, as originally framed — `requester_player_id`/`recipient_player_id` (FK → `Player`, unique on the pair), `status` (now a `FriendStatus` enum — `pending`/`accepted`/`declined` — per explicit correction; originally proposed as a plain string), `created_at`, `responded_at`. No `is_archived`. Creation blocks self-requests and duplicates in either direction (checks both `(A,B)` and `(B,A)` before insert, distinguishing "already friends" from "request already pending" as separate 409s). Only the recipient can accept/decline (`update_friend_status`).
+- User floated a `require_friend_access` auth context (e.g. for gating a future chat-with-friend feature) as a **named idea for later, explicitly not built now** — `Friend`/`GameInvite` routes in this pass use the existing `require_player_access`, not a new resolver.
+- **`GameInvite`** (`play/orm/game_invite.py`): `game_id` (FK → `Game`), `inviter_player_id`/`invitee_player_id` (FK → `Player`), `status` (`GameInviteStatus` — `pending`/`claimed` only, no `declined`/expiry — user was explicit this is a single-purpose seat-claim mechanism, not a general accept/decline flow: "once they've accepted then they're in and can just access the game the regular way"). Creating an invite requires the invitee be an **accepted** friend of the inviter, and that the target game currently has an open seat (a `GamePlayer` row with `player_id IS NULL`) — checked again at claim time, not just creation time, since another invite could fill the seat first.
+- Claiming (`PUT /game_invites/{id}/claim`) is a dedicated action route rather than a plain `update_{resource}_{column}`, since it has a side effect beyond the invite's own row — it also writes `GamePlayer.player_id`. Modeled on this project's existing `create_{resource}_clone`-style action-route precedent (`POST /{id}/{verb}`) rather than inventing a new shape.
+- `require_game_access` (seat-level auth on the actual `play/game`/`play/action` routes, referenced in passing as "how you'd access the game after claiming") is **still not built** — claiming a seat via `GameInvite` populates `GamePlayer.player_id`, but nothing yet reads that column to gate the existing game/action routes. That hardening is still the deferred item from section 3.
+
+### Decision
+Both resources built as described. `play/orm/player.py` and `play/orm/game.py` gained the corresponding reverse relationships (`friend_requests_sent/received`, `game_invites_sent/received` on `Player`; `invites` on `Game`). Routes mounted at `/friends` and `/game_invites`. Remaining open item, unchanged from section 3: seat-level `require_game_access` and actual auth enforcement on `play/game`/`play/action` — `GameInvite` now provides the seat-claim mechanism those routes will eventually need to check against, but they don't check it yet.

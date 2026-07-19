@@ -18,3 +18,5 @@ class Game(Base):
     players = relationship("GamePlayer", back_populates="game", cascade="all, delete-orphan")
     #* one-to-many — ordered raw-input log used to replay/reconstruct this game's state
     logs = relationship("GameLog", back_populates="game", cascade="all, delete-orphan")
+    #* one-to-many — outstanding/claimed invites to fill this game's seats
+    invites = relationship("GameInvite", back_populates="game", cascade="all, delete-orphan")

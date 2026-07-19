@@ -16,3 +16,13 @@ class Player(Base):
     bags = relationship("Bag", back_populates="player", cascade="all, delete-orphan")
     #* one-to-many — every seat this player has occupied across games
     game_history = relationship("GamePlayer", back_populates="player")
+
+    #* one-to-many — friend requests this player has sent
+    friend_requests_sent = relationship("Friend", foreign_keys="Friend.requester_player_id", back_populates="requester")
+    #* one-to-many — friend requests this player has received
+    friend_requests_received = relationship("Friend", foreign_keys="Friend.recipient_player_id", back_populates="recipient")
+
+    #* one-to-many — game invites this player has sent
+    game_invites_sent = relationship("GameInvite", foreign_keys="GameInvite.inviter_player_id", back_populates="inviter")
+    #* one-to-many — game invites this player has received
+    game_invites_received = relationship("GameInvite", foreign_keys="GameInvite.invitee_player_id", back_populates="invitee")
