@@ -6,7 +6,7 @@ export default function OpenLayout({ children }: { children: ReactNode }) {
   return (
     <>
       <RajaHeader variant="open" />
-      {children}
+      <main className="flex-1">{children}</main>
       <RajaFooter>
         <div className="flex items-center justify-between px-6 py-4 text-sm text-raja-chrome-text">
           <span className="font-serif">Raja</span>
