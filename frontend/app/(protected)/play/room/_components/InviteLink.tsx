@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import RajaButton from '@/components/forms/RajaButton';
+import RajaButton from '@/components/ui/RajaButton';
 
 interface InviteLinkProps {
   room: string;

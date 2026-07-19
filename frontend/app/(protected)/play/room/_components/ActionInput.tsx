@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import RajaTextField from '@/components/forms/RajaTextField';
-import RajaButton from '@/components/forms/RajaButton';
+import RajaTextField from '@/components/ui/RajaTextField';
+import RajaButton from '@/components/ui/RajaButton';
 
 interface ActionInputProps {
   onSubmit: (rawInput: string) => void;

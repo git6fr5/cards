@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import type { ReactNode } from 'react';
-import RajaButton from '@/components/forms/RajaButton';
-import RajaTextField from '@/components/forms/RajaTextField';
-import RajaTextArea from '@/components/forms/RajaTextArea';
-import RajaDropdown from '@/components/forms/RajaDropdown';
-import RajaCheckbox from '@/components/forms/RajaCheckbox';
-import RajaRadio from '@/components/forms/RajaRadio';
-import RajaDatePicker from '@/components/forms/RajaDatePicker';
-import RajaFileUpload from '@/components/forms/RajaFileUpload';
+import RajaButton from '@/components/ui/RajaButton';
+import RajaTextField from '@/components/ui/RajaTextField';
+import RajaTextArea from '@/components/ui/RajaTextArea';
+import RajaDropdown from '@/components/ui/RajaDropdown';
+import RajaCheckbox from '@/components/ui/RajaCheckbox';
+import RajaRadio from '@/components/ui/RajaRadio';
+import RajaDatePicker from '@/components/ui/RajaDatePicker';
+import RajaFileUpload from '@/components/ui/RajaFileUpload';
 import RajaHeader from '@/components/layout/RajaHeader';
 import RajaFooter from '@/components/layout/RajaFooter';
 import RajaSection from '@/components/layout/RajaSection';
@@ -123,17 +123,12 @@ export default function DesignShowcase() {
           </Row>
         </Block>
 
-        <Block title="RajaHeader" subtitle="Section heading with optional emphasised substring.">
-          <Row label="Default">
-            <RajaHeader text="Getting Started" />
+        <Block title="RajaHeader" subtitle="Site nav bar — open and protected variants.">
+          <Row label="Open">
+            <RajaHeader variant="open" />
           </Row>
-          <Row label="With em">
-            <RajaHeader text="Reset your password" em="password" />
-          </Row>
-          <Row label="Alt (on dark chrome)">
-            <div className="bg-raja-chrome-text p-4">
-              <RajaHeader alt text="Account Settings" />
-            </div>
+          <Row label="Protected">
+            <RajaHeader variant="protected" />
           </Row>
         </Block>
 
@@ -221,13 +216,13 @@ export default function DesignShowcase() {
           <div className="overflow-hidden border border-raja-chrome-border">
             <RajaSection>
               <div className="p-6">
-                <RajaHeader text="Default section" />
+                <h2 className="text-xl font-bold text-raja-chrome-text">Default section</h2>
                 <p className="mt-1 text-sm text-raja-chrome-muted">Light chrome background, dark text.</p>
               </div>
             </RajaSection>
             <RajaSection alt>
               <div className="p-6">
-                <RajaHeader alt text="Alt section" />
+                <h2 className="text-xl font-bold text-raja-chrome-bg">Alt section</h2>
                 <p className="mt-1 text-sm text-raja-chrome-bg">Dark chrome background, light text.</p>
               </div>
             </RajaSection>

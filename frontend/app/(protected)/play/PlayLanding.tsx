@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { post } from '@/utils/api';
-import RajaButton from '@/components/forms/RajaButton';
+import RajaButton from '@/components/ui/RajaButton';
 import RajaSection from '@/components/layout/RajaSection';
 import type { Game } from './types';
 
