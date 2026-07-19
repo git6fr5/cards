@@ -2,7 +2,6 @@
   "name": "Goblin Warrior",
   "archetype": "GOBLIN",
   "roleType": "UNIT",
-  "can_target_own_pieces": false,
   "movement": "FORWARD 1",
   "ability": "ON PROMOTION 1\nKILL\nENEMY BOARD:PATTERN:CROSS:1 1 WHERE ANY",
   "attributes": {

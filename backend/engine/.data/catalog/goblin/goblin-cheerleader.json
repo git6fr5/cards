@@ -2,7 +2,6 @@
   "name": "Goblin Cheerleader",
   "archetype": "GOBLIN",
   "roleType": "UNIT",
-  "can_target_own_pieces": false,
   "movement": "CROSS 2",
   "ability": "ON MOVE 3\nMODIFY ACTION_COUNT +1 TURNS 1\nFRIENDLY BOARD:PATTERN:SQUARE:1 ALL WHERE ARCHETYPE:GOBLIN",
   "attributes": {

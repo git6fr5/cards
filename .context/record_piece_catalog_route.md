@@ -41,3 +41,7 @@ Saved as `.context/builds/piece_catalog_route_plan.md`, then built via `/build`.
 Added `play/piece/tools.py` (`resolve_catalog_entries`) and, in `play/piece/crud.py`: `PieceAttributesResponse`/`PieceFullResponse` (`id`, `name`, `archetype`, `role_type`, `movement`, `ability`, `attributes`) models, `_pack_full_piece` helper, `get_pieces_full`, `get_piece_full`. Verified via `py_compile` plus a standalone script (bypassing the crud module's import chain, which is still blocked by the pre-existing missing `argon2-cffi` dependency — unrelated, not fixed here) that ran every one of the 9 real catalog entries through the exact field-mapping logic used in `_pack_full_piece` — all packed cleanly.
 
 Open follow-up: the `/catalog` frontend page itself is still unbuilt — this build was backend-only.
+
+### Follow-up — dead field removed from source data
+
+User asked to also strip `can_target_own_pieces` from the 5 catalog JSON files that still carried it (`goblin-warrior`, `goblin-bomber`, `goblin-cheerleader`, `baby-dragon`, `dragon-prince`), now that it's confirmed dead per the discussion above. Removed the key from all 5; re-verified every catalog file still parses as valid JSON and `engine.loader.load_catalog()` still loads all 9 pieces cleanly. The 4 files that never had the key needed no change.
