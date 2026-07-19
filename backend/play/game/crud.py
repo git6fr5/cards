@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from play.auth import PlayerAuthContext, require_player_access
 from play.orm.bag import Bag
@@ -85,13 +86,24 @@ def create_game(body: CreateGameRequest, auth: PlayerAuthContext = Depends(requi
 
     seed = random.randint(0, 2**31 - 1)
     game = Game(seed=seed, room=uuid4(), is_game_over=False)
-    creator_seat = GamePlayer(player_index=0, player_id=auth.player_id)
-    game.players = [creator_seat, GamePlayer(player_index=1)]
+    creator_index = random.choice([0, 1])
+    creator_seat = GamePlayer(player_index=creator_index, player_id=auth.player_id)
+    game.players = [creator_seat, GamePlayer(player_index=1 - creator_index)]
 
     DatabaseConnection.add(game)
     DatabaseConnection.flush()
     snapshot_bag_pieces(creator_seat.id, body.bag_id)
 
+    return game
+
+
+@router.get("/{room}", response_model=GameResponse)
+@read_resource
+def read_game(room: UUID, auth: AuthContext = Depends(require_auth)) -> Game:
+    game = DatabaseConnection.execute(
+        select(Game).options(selectinload(Game.players)).where(Game.room == room)
+    ).scalar_one_or_none()
+    assert_preconditions([(game is None, 404, "game_not_found")], ERRORS)
     return game
 
 

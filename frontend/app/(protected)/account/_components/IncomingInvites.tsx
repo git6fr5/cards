@@ -17,6 +17,7 @@ interface IncomingInvitesProps {
 
 interface ClaimedInvite {
   room: string;
+  invitee_player_index: number;
 }
 
 export default function IncomingInvites({ invites, bags, onError }: IncomingInvitesProps) {
@@ -32,7 +33,7 @@ export default function IncomingInvites({ invites, bags, onError }: IncomingInvi
     setClaimingInviteId(invite.id);
     try {
       const claimed = await put<ClaimedInvite>(`/game_invites/${invite.id}/claim`, { bag_id: Number(selectedBagId) });
-      router.push(`/play/room?room=${claimed.room}&player=1`);
+      router.push(`/play/room?room=${claimed.room}&player=${claimed.invitee_player_index}`);
     } catch (err) {
       onError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

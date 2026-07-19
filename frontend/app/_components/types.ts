@@ -40,3 +40,15 @@ export interface Bag {
 }
 
 export const KING_ROLE_TYPE = 'KING';
+
+export interface GamePlayerSeat {
+  player_index: number;
+  player_id: number | null;
+}
+
+export interface Game {
+  id: number;
+  room: string;
+  is_game_over: boolean;
+  players: GamePlayerSeat[];
+}

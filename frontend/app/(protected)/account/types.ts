@@ -26,6 +26,14 @@ export interface GameInviteEntry {
   inviter_display_name: string | null;
   invitee_display_name: string | null;
   room: string | null;
+  invitee_player_index: number | null;
+}
+
+export interface ActiveGameEntry {
+  room: string;
+  opponent_display_name: string | null;
+  created_at: string;
+  player_index: number;
 }
 
 export function friendCounterpartName(friend: FriendEntry, currentPlayerId: number): string {

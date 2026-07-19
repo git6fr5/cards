@@ -1,6 +1,6 @@
-import type { BoardPiece } from '@/app/_components/types';
+import type { BoardPiece, Game, GamePlayerSeat } from '@/app/_components/types';
 
-export type { BoardPiece };
+export type { BoardPiece, Game, GamePlayerSeat };
 
 export interface ShelfPiece {
   name: string;
@@ -23,17 +23,6 @@ export interface GameState {
   turn_count: number;
   is_game_over: boolean;
   log: string[];
-}
-
-export interface GamePlayer {
-  player_index: number;
-  player_user_id: number | null;
-}
-
-export interface Game {
-  room: string;
-  is_completed: boolean;
-  players: GamePlayer[];
 }
 
 export interface ActionResult {

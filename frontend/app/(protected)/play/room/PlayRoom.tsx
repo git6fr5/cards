@@ -9,7 +9,8 @@ import TurnStatus from './_components/TurnStatus';
 import ActionInput from './_components/ActionInput';
 import GameLogPanel from './_components/GameLogPanel';
 import InviteLink from './_components/InviteLink';
-import type { GameState, ActionResult, PreviewActionResult } from '../types';
+import GameLobby from './_components/GameLobby';
+import type { GameState, ActionResult, PreviewActionResult, Game } from '../types';
 
 interface PlayRoomProps {
   room: string;
@@ -23,6 +24,7 @@ function parseSquareList(outcome: string): string[] {
 
 export default function PlayRoom({ room, player }: PlayRoomProps) {
   const [gameState, setGameState] = useState<GameState | null>(null);
+  const [lobbyGame, setLobbyGame] = useState<Game | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -34,6 +36,12 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
       setError(null);
       setIsLoading(true);
       try {
+        const game = await get<Game>(`/games/${room}`);
+        const isFull = game.players.every((seat) => seat.player_id !== null);
+        if (!isFull) {
+          setLobbyGame(game);
+          return;
+        }
         const state = await get<GameState>(`/games/${room}/state`);
         setGameState(state);
       } catch (err) {
@@ -102,6 +110,10 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
         <RajaLoader alt size="lg" />
       </div>
     );
+  }
+
+  if (lobbyGame) {
+    return <GameLobby room={room} player={player} game={lobbyGame} />;
   }
 
   if (!gameState) {

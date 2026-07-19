@@ -7,11 +7,13 @@ import RajaButton from '@/components/ui/RajaButton';
 import RajaToast from '@/components/layout/RajaToast';
 import { useEnsurePlayer } from '@/hooks/useEnsurePlayer';
 import type { Bag, PieceFull } from '@/app/_components/types';
-import type { GameHistoryEntry, FriendEntry, GameInviteEntry } from './types';
+import type { GameHistoryEntry, FriendEntry, GameInviteEntry, ActiveGameEntry } from './types';
 import GameHistoryTable from './_components/GameHistoryTable';
 import FriendsList from './_components/FriendsList';
 import StartGamePanel from './_components/StartGamePanel';
 import IncomingInvites from './_components/IncomingInvites';
+import ActiveGames from './_components/ActiveGames';
+import OutgoingInvites from './_components/OutgoingInvites';
 import AccountBags from './_components/AccountBags';
 
 interface CurrentPlayer {
@@ -25,8 +27,10 @@ export default function Account() {
   const [bags, setBags] = useState<Bag[]>([]);
   const [pieces, setPieces] = useState<PieceFull[]>([]);
   const [gameHistory, setGameHistory] = useState<GameHistoryEntry[]>([]);
+  const [activeGames, setActiveGames] = useState<ActiveGameEntry[]>([]);
   const [friends, setFriends] = useState<FriendEntry[]>([]);
   const [incomingInvites, setIncomingInvites] = useState<GameInviteEntry[]>([]);
+  const [outgoingInvites, setOutgoingInvites] = useState<GameInviteEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ text: string; tone: 'success' | 'error' } | null>(null);
@@ -38,20 +42,24 @@ export default function Account() {
       setError(null);
       setIsLoading(true);
       try {
-        const [player, bagsData, piecesData, historyData, friendsData, invitesData] = await Promise.all([
+        const [player, bagsData, piecesData, historyData, activeGamesData, friendsData, invitesData, sentInvitesData] = await Promise.all([
           get<CurrentPlayer>('/players/me'),
           get<Bag[]>('/bags'),
           get<PieceFull[]>('/pieces/full'),
           get<GameHistoryEntry[]>('/games/history'),
+          get<ActiveGameEntry[]>('/games/active'),
           get<FriendEntry[]>('/friends'),
           get<GameInviteEntry[]>('/game_invites'),
+          get<GameInviteEntry[]>('/game_invites/sent'),
         ]);
         setCurrentPlayerId(player.id);
         setBags(bagsData);
         setPieces(piecesData);
         setGameHistory(historyData);
+        setActiveGames(activeGamesData);
         setFriends(friendsData);
         setIncomingInvites(invitesData);
+        setOutgoingInvites(sentInvitesData);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -110,6 +118,10 @@ export default function Account() {
         />
 
         <IncomingInvites invites={incomingInvites} bags={bags} onError={handleError} />
+
+        <ActiveGames entries={activeGames} />
+
+        <OutgoingInvites entries={outgoingInvites} />
 
         <GameHistoryTable entries={gameHistory} />
 

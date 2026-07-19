@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { post } from '@/utils/api';
 import RajaDropdown from '@/components/ui/RajaDropdown';
 import RajaButton from '@/components/ui/RajaButton';
-import type { Bag } from '@/app/_components/types';
+import type { Bag, Game } from '@/app/_components/types';
 import type { FriendEntry } from '../types';
 import { friendCounterpartName } from '../types';
 
@@ -16,11 +17,8 @@ interface StartGamePanelProps {
   onError: (message: string) => void;
 }
 
-interface CreatedGame {
-  id: number;
-}
-
 export default function StartGamePanel({ bags, friends, currentPlayerId, onStarted, onError }: StartGamePanelProps) {
+  const router = useRouter();
   const [selectedBagId, setSelectedBagId] = useState('');
   const [selectedFriendPlayerId, setSelectedFriendPlayerId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -35,11 +33,13 @@ export default function StartGamePanel({ bags, friends, currentPlayerId, onStart
   async function handleStartGame() {
     setIsSubmitting(true);
     try {
-      const game = await post<CreatedGame>('/games', { bag_id: Number(selectedBagId) });
+      const game = await post<Game>('/games', { bag_id: Number(selectedBagId) });
       await post('/game_invites', { game_id: game.id, invitee_player_id: Number(selectedFriendPlayerId) });
+      const creatorSeat = game.players.find((seat) => seat.player_id === currentPlayerId);
       onStarted('Invite sent — waiting for your friend to accept.');
       setSelectedBagId('');
       setSelectedFriendPlayerId('');
+      router.push(`/play/room?room=${game.room}&player=${creatorSeat?.player_index ?? 0}`);
     } catch (err) {
       onError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

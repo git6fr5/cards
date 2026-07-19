@@ -44,15 +44,16 @@ class ClaimGameInviteRequest(BaseModel):
 
 class GameInviteResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id:                    int
-    status:                GameInviteStatus
-    created_at:            datetime
-    game_id:               int
-    inviter_player_id:     int
-    invitee_player_id:     int
-    inviter_display_name:  str | None = None
-    invitee_display_name:  str | None = None
-    room:                  UUID | None = None
+    id:                     int
+    status:                 GameInviteStatus
+    created_at:             datetime
+    game_id:                int
+    inviter_player_id:      int
+    invitee_player_id:      int
+    inviter_display_name:   str | None = None
+    invitee_display_name:   str | None = None
+    room:                   UUID | None = None
+    invitee_player_index:   int | None = None
 
 
 def _load_display_names(player_ids: set[int]) -> dict[int, str]:
@@ -64,7 +65,12 @@ def _load_display_names(player_ids: set[int]) -> dict[int, str]:
     return {player_id: display_name for player_id, display_name in rows}
 
 
-def _pack_game_invite(invite: GameInvite, display_name_by_player_id: dict[int, str], room: UUID) -> GameInviteResponse:
+def _pack_game_invite(
+    invite: GameInvite,
+    display_name_by_player_id: dict[int, str],
+    room: UUID,
+    invitee_player_index: int | None = None,
+) -> GameInviteResponse:
     return GameInviteResponse(
         id=invite.id,
         status=invite.status,
@@ -75,6 +81,7 @@ def _pack_game_invite(invite: GameInvite, display_name_by_player_id: dict[int, s
         inviter_display_name=display_name_by_player_id[invite.inviter_player_id],
         invitee_display_name=display_name_by_player_id[invite.invitee_player_id],
         room=room,
+        invitee_player_index=invitee_player_index,
     )
 
 
@@ -135,6 +142,24 @@ def read_game_invites_by_recipient(auth: PlayerAuthContext = Depends(require_pla
     return [_pack_game_invite(invite, display_name_by_player_id, room_by_game_id[invite.game_id]) for invite in invites]
 
 
+@router.get("/sent", response_model=list[GameInviteResponse])
+@read_resource
+def read_sent_game_invites(auth: PlayerAuthContext = Depends(require_player_access)) -> list[GameInviteResponse]:
+    invites = DatabaseConnection.execute(
+        select(GameInvite).where(
+            GameInvite.inviter_player_id == auth.player_id,
+            GameInvite.status == GameInviteStatus.pending,
+        )
+    ).scalars().all()
+    if not invites:
+        return []
+    player_ids = {player_id for invite in invites for player_id in (invite.inviter_player_id, invite.invitee_player_id)}
+    display_name_by_player_id = _load_display_names(player_ids)
+    game_ids = {invite.game_id for invite in invites}
+    room_by_game_id = dict(DatabaseConnection.execute(select(Game.id, Game.room).where(Game.id.in_(game_ids))).all())
+    return [_pack_game_invite(invite, display_name_by_player_id, room_by_game_id[invite.game_id]) for invite in invites]
+
+
 @router.get("/{game_invite_id}", response_model=GameInviteResponse)
 @read_resource
 def read_game_invite(game_invite_id: int, auth: PlayerAuthContext = Depends(require_player_access)) -> GameInviteResponse:
@@ -166,10 +191,11 @@ def claim_game_invite(
     assert_preconditions([(open_seat is None, 422, "no_open_seat")], ERRORS)
 
     open_seat.player_id = auth.player_id
+    open_seat_index = open_seat.player_index
     DatabaseConnection.flush()
     snapshot_bag_pieces(open_seat.id, body.bag_id)
     invite.status = GameInviteStatus.claimed
 
     game = DatabaseConnection.get(Game, invite.game_id)
     display_name_by_player_id = _load_display_names({invite.inviter_player_id, invite.invitee_player_id})
-    return _pack_game_invite(invite, display_name_by_player_id, game.room)
+    return _pack_game_invite(invite, display_name_by_player_id, game.room, invitee_player_index=open_seat_index)
