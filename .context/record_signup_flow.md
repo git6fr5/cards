@@ -5,6 +5,7 @@
 1. [Motivating survey — frontend gaps from play_foundation/play_game_auth](#1-motivating-survey--frontend-gaps-from-play_foundationplay_game_auth)
 2. [Blocker: no self-serve sign-up route exists](#2-blocker-no-self-serve-sign-up-route-exists)
 3. [create_user_by_signup — built](#3-create_user_by_signup--built)
+4. [Page 1 — Auth page (sign-up/login) — built](#4-page-1--auth-page-signuplogin--built)
 
 ---
 
@@ -64,3 +65,31 @@ Open follow-ups, not done in this build:
 - `fixtures/seed_dev.py` needs a seeded `Organisation(is_default=True)` — the user writes this; until it exists, signup 500s in dev.
 - Shared-path publish (`./scripts/shared-sync.sh publish`) still needed after commit, since `accounts/user/crud.py` is shared canon.
 - Frontend `/auth` page itself (calling this new route) is still unbuilt — this build was backend-only.
+
+---
+
+## 4. Page 1 — Auth page (sign-up/login) — built
+
+### Context
+Resumed the three-page frontend plan from section 1, starting with page 1. Ran through `page_creation_workflow.md`: route `app/(open)/auth/` (already the redirect target in `proxy.ts` and already linked from `RajaHeader`'s "Sign In" nav item), purpose confirmed as login+signup gate ahead of the (still unbuilt) protected `/account` page.
+
+### Discussion points
+Asked for a loose layout description; user said "similar to wills but using this project's design base + typography." Presented 4 layout directions grounded in actual existing components (`RajaSection`, `RajaHeader`, `RajaButton`, `RajaTextField`) rather than the wills component names — user picked **direction 1: full-bleed takeover** (`RajaSection alt`, no `RajaHeader`, centered card), which mirrors `PlayLanding.tsx`'s existing landing pattern exactly.
+
+Building against that direction surfaced a real design-system gap: `RajaTextField` had no `alt` prop at all, unlike every other `components/ui/`/`components/layout/` component — the design-base guide's Universal Rules mandate `alt` as the first prop on every such component for inverted/dark-background usage. Without it, the label text (hardcoded `text-raja-chrome-text`, dark) would render illegibly on the dark `alt` section background this layout requires. Fixed by adding `alt` to `RajaTextField` (default `false`, label flips to `text-raja-chrome-bg` when true) and giving the input itself an explicit `bg-raja-chrome-bg text-raja-chrome-text` always, rather than leaving it background-less — this was a guide-compliance fix to an existing shared component, not a new one, and is backward compatible (the two pre-existing call sites, `ActionInput.tsx` and `DesignShowcase.tsx`, don't pass `alt`).
+
+### Decision
+Built:
+
+- `app/(open)/auth/page.tsx` / `Auth.tsx` — toggles `LoginForm`/`SignupForm` via local state, same shape as the wills reference.
+- `app/(open)/auth/_components/LoginForm.tsx` — `POST /sessions`, redirects to `?redirect=` or `/account`.
+- `app/(open)/auth/_components/SignupForm.tsx` — `POST /users/signup` then `POST /sessions`, redirects to `/account`. Simpler than wills' version — no organisation-domain lookup needed, since the backend now resolves the default org itself.
+- `components/ui/RajaTextField.tsx` — added `alt` prop (design-system fix, see above).
+
+Verified via `tsc --noEmit` (clean) — no dev server run, per standing instruction.
+
+Open follow-ups:
+
+- `/account` (page 3, not yet built) is the redirect target for both forms — will 404 until that page exists; expected interim state, not a bug.
+- Noticed unrelated, out-of-session changes to `frontend/app/(open)/home/**` and `.context/record_home_page_design.md` sitting in the working tree during this build — not touched, not included in this record or its commit, flagged to the user as apparently parallel activity.
+- Pages 2 (catalog/bag builder) and 3 (Account) remain unbuilt.

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { ChangeEvent } from 'react';
 
 interface RajaTextFieldProps {
+  alt?: boolean;
   id: string;
   label?: string;
   value: string;
@@ -18,8 +19,10 @@ interface RajaTextFieldProps {
   className?: string;
 }
 
-export default function RajaTextField({ id, label, value, onChange, name, type = 'text', placeholder, disabled = false, required = false, autoComplete, autoFocus, error, className = '' }: RajaTextFieldProps) {
+export default function RajaTextField({ alt = false, id, label, value, onChange, name, type = 'text', placeholder, disabled = false, required = false, autoComplete, autoFocus, error, className = '' }: RajaTextFieldProps) {
   const [internalError, setInternalError] = useState('');
+
+  const labelColor = alt ? 'text-raja-chrome-bg' : 'text-raja-chrome-text';
 
   const handleBlur = () => {
     if (type === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
@@ -33,7 +36,7 @@ export default function RajaTextField({ id, label, value, onChange, name, type =
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
-      {label && <label htmlFor={id} className="text-sm font-medium text-raja-chrome-text">{label}</label>}
+      {label && <label htmlFor={id} className={`text-sm font-medium ${labelColor}`}>{label}</label>}
       <input
         id={id}
         name={name ?? id}
@@ -46,7 +49,7 @@ export default function RajaTextField({ id, label, value, onChange, name, type =
         required={required}
         autoComplete={autoComplete}
         autoFocus={autoFocus}
-        className={`w-full px-3 py-2 border text-sm focus:outline-none focus:ring-2 focus:ring-raja-chrome-action disabled:opacity-disabled disabled:cursor-not-allowed ${displayError ? 'border-raja-chrome-error' : 'border-raja-chrome-border'}`}
+        className={`w-full px-3 py-2 border bg-raja-chrome-bg text-raja-chrome-text text-sm focus:outline-none focus:ring-2 focus:ring-raja-chrome-action disabled:opacity-disabled disabled:cursor-not-allowed ${displayError ? 'border-raja-chrome-error' : 'border-raja-chrome-border'}`}
       />
       {displayError && <p className="text-xs text-raja-chrome-error">{displayError}</p>}
     </div>
