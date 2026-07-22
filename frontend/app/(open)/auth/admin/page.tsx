@@ -27,7 +27,7 @@ export default function AdminBypass() {
 
     const login = async () => {
       try {
-        await post('/sessions/', { email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
+        await post('/sessions', { email: ADMIN_EMAIL, password: ADMIN_PASSWORD });
         setStatus('Signed in. Redirecting…');
         router.replace(redirectTo);
       } catch (err) {
