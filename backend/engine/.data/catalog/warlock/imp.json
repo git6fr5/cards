@@ -4,7 +4,7 @@
   "archetype": "WARLOCK",
   "roleType": "UNIT",
   "movement": "FORWARD 1",
-  "ability": "ON ACTIVATE\nKILL\nDEFENDER",
+  "ability": "",
   "attributes": {
     "summon_cost": 1,
     "action_cost": 1,
