@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react';
 
 export function useWebSocket<T = unknown>(
   resourceType: string,
-  resourceId: number,
+  resourceId: string | number,
   onMessage: (data: T) => void,
   enabled: boolean = true,
 ) {

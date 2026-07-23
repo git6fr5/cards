@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { get, post } from '@/utils/api';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import RajaLoader from '@/components/layout/RajaLoader';
 import MainPanel from './_components/MainPanel';
 import Sidebar from './_components/Sidebar';
@@ -12,6 +13,11 @@ import type { PieceFull } from '@/app/_components/types';
 interface PlayRoomProps {
   room: string;
   player: number;
+}
+
+interface GameStateUpdateMessage {
+  event: string;
+  state: GameState;
 }
 
 function parseSquareList(outcome: string): string[] {
@@ -55,6 +61,14 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
     }
     loadState();
   }, [room]);
+
+  const handleSocketMessage = useCallback((message: GameStateUpdateMessage) => {
+    if (message.event === 'STATE_UPDATE') {
+      setGameState(message.state);
+    }
+  }, []);
+
+  useWebSocket<GameStateUpdateMessage>('games', room, handleSocketMessage, !!gameState);
 
   async function previewAction(rawInput: string): Promise<PreviewActionResult | null> {
     try {

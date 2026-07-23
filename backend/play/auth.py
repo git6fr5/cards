@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from fastapi import Depends
+from fastapi import Depends, WebSocket
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -10,18 +10,19 @@ from play.orm.game import Game
 from play.orm.game_player import GamePlayer
 from play.orm.player import Player
 from play.tools import game_is_full, replay_game
-from utils.auth import AuthContext, require_auth
+from utils.auth import AuthContext, SESSION_COOKIE_NAME, require_auth, resolve_access_token, resolve_session_token
 from utils.errors import assert_preconditions
 
 
 ERRORS = {
-    "player_not_found": "No player record exists for this account.",
-    "bag_not_found":    "The requested bag does not exist.",
-    "forbidden":        "You are not authorised to perform this action.",
-    "game_not_found":   "The requested game does not exist.",
-    "not_seated":       "You are not a seated player in this game.",
-    "game_not_full":    "This game does not have both seats filled yet.",
-    "not_your_turn":    "It is not your turn.",
+    "player_not_found":  "No player record exists for this account.",
+    "bag_not_found":     "The requested bag does not exist.",
+    "forbidden":         "You are not authorised to perform this action.",
+    "game_not_found":    "The requested game does not exist.",
+    "not_seated":        "You are not a seated player in this game.",
+    "game_not_full":     "This game does not have both seats filled yet.",
+    "not_your_turn":     "It is not your turn.",
+    "unauthenticated":   "Valid authentication credentials were not provided.",
 }
 
 
@@ -114,3 +115,34 @@ def require_game_active_player_access(
 
     assert_preconditions([(engine_game.active_player_index != auth.seat_index, 403, "not_your_turn")], ERRORS)
     return GameActivePlayerAuthContext(**vars(auth))
+
+
+def _resolve_websocket_auth(websocket: WebSocket) -> AuthContext | None:
+    # WebSocket-typed sibling of require_auth's bearer-then-cookie resolution: Request and
+    # WebSocket are both HTTPConnection subclasses with identical .cookies access, but FastAPI
+    # injects the concrete type per route kind, so require_auth (typed for Request) can't serve a
+    # websocket route directly. Delegates to the same resolve_access_token/resolve_session_token
+    # resolvers require_auth uses — no parallel auth logic, only a different transport front door.
+    from utils.databases import init_engine
+
+    authorization = websocket.headers.get("authorization")
+    with Session(init_engine()) as session:
+        if authorization is not None:
+            context = resolve_access_token(session, authorization.removeprefix("Bearer "))
+            if context is not None:
+                return context
+        raw_session_token = websocket.cookies.get(SESSION_COOKIE_NAME)
+        if raw_session_token is not None:
+            return resolve_session_token(session, raw_session_token)
+    return None
+
+
+def require_game_access_ws(room: UUID, websocket: WebSocket) -> GameAuthContext:
+    auth = _resolve_websocket_auth(websocket)
+    assert_preconditions([(auth is None, 401, "unauthenticated")], ERRORS)
+    player_id = _load_player_id(auth.user_id)
+    assert_preconditions([(player_id is None, 404, "player_not_found")], ERRORS)
+    game_id, seat_index = _load_game_and_seat(room, player_id)
+    assert_preconditions([(game_id is None, 404, "game_not_found")], ERRORS)
+    assert_preconditions([(seat_index is None, 403, "not_seated")], ERRORS)
+    return GameAuthContext(**vars(auth), player_id=player_id, game_id=game_id, seat_index=seat_index)
