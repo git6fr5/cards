@@ -34,7 +34,7 @@ def preview_action(room: UUID, request: PreviewActionRequest) -> PreviewActionRe
     game_row = DatabaseConnection.execute(select(Game).where(Game.room == room)).scalar_one_or_none()
     assert_preconditions([(game_row is None, 404, "game_not_found")], ERRORS)
 
-    engine_game, _ = replay_game(game_row)
+    engine_game, _ = replay_game(DatabaseConnection.session(), game_row)
     outcome = dispatch_input(engine_game, request.raw_input)
     assert_preconditions([(outcome is None, 422, "unparseable_input")], ERRORS)
 
