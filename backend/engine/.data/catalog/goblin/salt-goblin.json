@@ -1,0 +1,12 @@
+{
+  "name": "Salt Goblin",
+  "archetype": "GOBLIN",
+  "roleType": "UNIT",
+  "movement": "FORWARD 1",
+  "ability": "ON TURNEND 2\nKILL\nSELF",
+  "attributes": {
+    "summon_cost": 0,
+    "action_cost": 1,
+    "action_count": 3
+  }
+}

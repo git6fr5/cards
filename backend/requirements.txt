@@ -7,5 +7,5 @@ sqlalchemy
 alembic
 psycopg2-binary
 redis
-argon2-cfii
+argon2-cffi
 testcontainers

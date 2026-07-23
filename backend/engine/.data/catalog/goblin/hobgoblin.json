@@ -1,0 +1,12 @@
+{
+  "name": "Hobgoblin",
+  "archetype": "GOBLIN",
+  "roleType": "UNIT",
+  "movement": "FORWARD 1",
+  "ability": "ON PROMOTION 1\nKILL\nANY BOARD:PATTERN:SQUARE:1 ALL",
+  "attributes": {
+    "summon_cost": 1,
+    "action_cost": 1,
+    "action_count": 1
+  }
+}
