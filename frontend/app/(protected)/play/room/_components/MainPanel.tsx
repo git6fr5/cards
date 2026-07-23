@@ -1,8 +1,10 @@
 import Board from '@/app/_components/Board';
+import RajaToast from '@/components/layout/RajaToast';
 import PlayerPanel from './PlayerPanel';
 import TurnStatus from './TurnStatus';
 import EndTurnButton from './EndTurnButton';
 import InviteLink from './InviteLink';
+import type { ToastItem } from '@/hooks/useToastQueue';
 import type { BoardPiece, GameStatePlayer } from '../../types';
 
 interface MainPanelProps {
@@ -17,8 +19,8 @@ interface MainPanelProps {
   isSubmitting: boolean;
   flipped: boolean;
   highlightedSquares: string[];
-  infoText: string | null;
-  error: string | null;
+  selectedSquare: string | null;
+  toast: ToastItem | null;
   turnCount: number;
   activePlayerIndex: number;
   lastOutcome?: string;
@@ -28,6 +30,7 @@ interface MainPanelProps {
   onDrop: (source: string, target: string) => void;
   onSelectShelf: (shelfIndex: number) => void;
   onEndTurn: () => void;
+  onDismissToast: () => void;
 }
 
 export default function MainPanel({
@@ -42,8 +45,8 @@ export default function MainPanel({
   isSubmitting,
   flipped,
   highlightedSquares,
-  infoText,
-  error,
+  selectedSquare,
+  toast,
   turnCount,
   activePlayerIndex,
   lastOutcome,
@@ -53,6 +56,7 @@ export default function MainPanel({
   onDrop,
   onSelectShelf,
   onEndTurn,
+  onDismissToast,
 }: MainPanelProps) {
   return (
     <div className="flex w-full h-full items-center">
@@ -75,16 +79,14 @@ export default function MainPanel({
           isActivePlayer={isActivePlayer}
           flipped={flipped}
           highlightedSquares={highlightedSquares}
+          selectedSquare={selectedSquare}
           onSelectSquare={onSelectSquare}
           onSelectPiece={onSelectPiece}
           onDrop={onDrop}
         />
         <TurnStatus turnCount={turnCount} activePlayerIndex={activePlayerIndex} lastOutcome={lastOutcome} />
-        {infoText && (
-          <p className="font-sans-serif text-xs text-raja-chrome-muted max-w-xs text-center">{infoText}</p>
-        )}
-        {error && (
-          <p className="font-sans-serif text-xs text-raja-chrome-error">{error}</p>
+        {toast && (
+          <RajaToast text={toast.text} tone={toast.tone} onDismiss={onDismissToast} />
         )}
         <InviteLink room={room} otherPlayerIndex={otherPlayerIndex} />
       </div>

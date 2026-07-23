@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { get, post } from '@/utils/api';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { useToastQueue } from '@/hooks/useToastQueue';
 import RajaLoader from '@/components/layout/RajaLoader';
 import MainPanel from './_components/MainPanel';
 import Sidebar from './_components/Sidebar';
@@ -33,8 +34,9 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [highlightedSquares, setHighlightedSquares] = useState<string[]>([]);
-  const [infoText, setInfoText] = useState<string | null>(null);
+  const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [selectedPieceName, setSelectedPieceName] = useState<string | null>(null);
+  const { active: toast, push: pushToast, dismiss: dismissToast } = useToastQueue();
 
   useEffect(() => {
     async function loadState() {
@@ -74,28 +76,26 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
     try {
       return await post<PreviewActionResult>(`/actions/${room}/preview`, { raw_input: rawInput });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      pushToast({ text: err instanceof Error ? err.message : 'An error occurred', tone: 'error' });
       return null;
     }
   }
 
   async function handleSubmitAction(rawInput: string) {
-    setError(null);
     setIsSubmitting(true);
     try {
       const result = await post<ActionResult>(`/actions/${room}`, { raw_input: rawInput });
       setGameState(result.state);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      pushToast({ text: err instanceof Error ? err.message : 'An error occurred', tone: 'error' });
     } finally {
       setIsSubmitting(false);
     }
   }
 
   async function handleSelectSquare(square: string) {
-    setError(null);
     setHighlightedSquares([]);
-    setInfoText(null);
+    setSelectedSquare(square);
     const [showResult, readResult] = await Promise.all([
       previewAction(`${square}!`),
       previewAction(`${square}#`),
@@ -104,15 +104,17 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
       setHighlightedSquares(parseSquareList(showResult.outcome));
     }
     if (readResult) {
-      setInfoText(readResult.outcome);
+      pushToast({ text: readResult.outcome, tone: 'success' });
     }
   }
 
   async function handleSelectShelf(shelfIndex: number) {
-    setError(null);
     setHighlightedSquares([]);
+    setSelectedSquare(null);
     const readResult = await previewAction(`S${shelfIndex}#`);
-    setInfoText(readResult?.outcome ?? null);
+    if (readResult) {
+      pushToast({ text: readResult.outcome, tone: 'success' });
+    }
   }
 
   function handleSelectPiece(name: string) {
@@ -121,7 +123,7 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
 
   function handleDropOnBoard(source: string, target: string) {
     setHighlightedSquares([]);
-    setInfoText(null);
+    setSelectedSquare(null);
     handleSubmitAction(`${source}@${target}`);
   }
 
@@ -173,8 +175,8 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
             isSubmitting={isSubmitting}
             flipped={player === 1}
             highlightedSquares={highlightedSquares}
-            infoText={infoText}
-            error={error}
+            selectedSquare={selectedSquare}
+            toast={toast}
             turnCount={gameState.turn_count}
             activePlayerIndex={gameState.active_player_index}
             lastOutcome={lastOutcome}
@@ -184,6 +186,7 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
             onDrop={handleDropOnBoard}
             onSelectShelf={handleSelectShelf}
             onEndTurn={handleEndTurn}
+            onDismissToast={dismissToast}
           />
         </div>
         <div className="flex-1 h-full border-l border-raja-chrome-border">

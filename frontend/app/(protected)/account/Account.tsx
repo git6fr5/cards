@@ -6,6 +6,7 @@ import RajaLoader from '@/components/layout/RajaLoader';
 import RajaButton from '@/components/ui/RajaButton';
 import RajaToast from '@/components/layout/RajaToast';
 import { useEnsurePlayer } from '@/hooks/useEnsurePlayer';
+import { useToastQueue } from '@/hooks/useToastQueue';
 import type { Bag, PieceFull } from '@/app/_components/types';
 import type { GameHistoryEntry, FriendEntry, GameInviteEntry, ActiveGameEntry } from './types';
 import GameHistoryTable from './_components/GameHistoryTable';
@@ -33,7 +34,7 @@ export default function Account() {
   const [outgoingInvites, setOutgoingInvites] = useState<GameInviteEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [toast, setToast] = useState<{ text: string; tone: 'success' | 'error' } | null>(null);
+  const { active: toast, push: pushToast, dismiss: dismissToast } = useToastQueue();
 
   useEffect(() => {
     if (!isReady) return;
@@ -72,11 +73,11 @@ export default function Account() {
   const catalogByName = useMemo(() => new Map(pieces.map((piece) => [piece.name, piece])), [pieces]);
 
   function handleStarted(message: string) {
-    setToast({ text: message, tone: 'success' });
+    pushToast({ text: message, tone: 'success' });
   }
 
   function handleError(message: string) {
-    setToast({ text: message, tone: 'error' });
+    pushToast({ text: message, tone: 'error' });
   }
 
   if (!isReady) {
@@ -130,7 +131,7 @@ export default function Account() {
         <AccountBags bags={bags} catalogByName={catalogByName} isLoading={false} />
       </div>
 
-      {toast && <RajaToast text={toast.text} tone={toast.tone} onDismiss={() => setToast(null)} />}
+      {toast && <RajaToast text={toast.text} tone={toast.tone} onDismiss={dismissToast} />}
     </div>
   );
 }

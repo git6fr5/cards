@@ -11,6 +11,7 @@ import RajaToast from '@/components/layout/RajaToast';
 import PieceToken from '@/app/_components/Piece';
 import { ARCHETYPES, PIECE_TYPES } from '@/utils/archetypes';
 import { useEnsurePlayer } from '@/hooks/useEnsurePlayer';
+import { useToastQueue } from '@/hooks/useToastQueue';
 import CatalogFilters from './_components/CatalogFilters';
 import CatalogGrid from './_components/CatalogGrid';
 import BagTabs from '@/app/_components/BagTabs';
@@ -53,7 +54,7 @@ export default function Catalog() {
   const [error, setError] = useState<string | null>(null);
   const [activeDragPiece, setActiveDragPiece] = useState<PieceFull | null>(null);
   const [activeDragSource, setActiveDragSource] = useState<'catalog' | 'bag' | null>(null);
-  const [toast, setToast] = useState<{ text: string; tone: 'success' | 'error' } | null>(null);
+  const { active: toast, push: pushToast, dismiss: dismissToast } = useToastQueue();
   const dropWasValidRef = useRef(false);
   const { setNodeRef: setCatalogDropRef, isOver: isOverCatalog } = useDroppable({ id: 'catalog-grid' });
 
@@ -143,16 +144,16 @@ export default function Catalog() {
       if (source === 'catalog' && droppedOnBagTable) {
         const rejectionReason = getBagRejectionReason(piece, selectedBag.pieces, catalogByName);
         if (rejectionReason) {
-          setToast({ text: rejectionReason, tone: 'error' });
+          pushToast({ text: rejectionReason, tone: 'error' });
         } else {
           isValid = true;
           adjustPieceQuantity(piece.name, 1);
-          setToast({ text: `Added ${piece.name} to ${selectedBag.name}.`, tone: 'success' });
+          pushToast({ text: `Added ${piece.name} to ${selectedBag.name}.`, tone: 'success' });
         }
       } else if (source === 'bag' && !droppedOnBagTable) {
         isValid = true;
         adjustPieceQuantity(piece.name, -1);
-        setToast({ text: `Removed ${piece.name} from ${selectedBag.name}.`, tone: 'success' });
+        pushToast({ text: `Removed ${piece.name} from ${selectedBag.name}.`, tone: 'success' });
       }
     }
 
@@ -225,7 +226,7 @@ export default function Catalog() {
       </DragOverlay>
 
       {toast && (
-        <RajaToast text={toast.text} tone={toast.tone} onDismiss={() => setToast(null)} />
+        <RajaToast text={toast.text} tone={toast.tone} onDismiss={dismissToast} />
       )}
     </DndContext>
   );
