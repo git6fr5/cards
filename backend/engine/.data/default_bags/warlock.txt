@@ -1,25 +1,25 @@
-Imp
-Imp
-Imp
-Imp
-Imp
-Imp
-Imp
-Imp
-Imp
-Imp
-Golem
-Golem
-Golem
-Golem
-Golem
-Golem
-Golem
-Golem
-Golem
-Golem
+Colossal Golem
+Colossal Golem
+Ghost
+Ghost
 Giant Golem
 Giant Golem
-Giant Golem
-Giant Golem
+Golem
+Golem
+Graveyard
+Graveyard
+Grim Reaper
+Grim Reaper
+Imp
+Imp
+Sacrificial Circle
+Sacrificial Circle
+Summoning Circle
+Summoning Circle
+Witch Queen
+Witch Queen
+Wizard of the East
+Wizard of the East
+Wizard of the West
+Wizard of the West
 Witch King
