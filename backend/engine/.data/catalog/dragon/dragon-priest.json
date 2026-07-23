@@ -1,0 +1,12 @@
+{
+  "name": "Dragon Priest",
+  "archetype": "DRAGON",
+  "roleType": "UNIT",
+  "movement": "DIAGONAL 2",
+  "ability": "ON MOVE 1\nMODIFY ACTION_COUNT +1 TURNS 1\nFRIENDLY BOARD:PATTERN:SQUARE:1 ALL",
+  "attributes": {
+    "summon_cost": 2,
+    "action_cost": 4,
+    "action_count": 1
+  }
+}

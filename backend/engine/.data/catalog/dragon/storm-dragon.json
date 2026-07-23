@@ -1,0 +1,12 @@
+{
+  "name": "Storm Dragon",
+  "archetype": "DRAGON",
+  "roleType": "UNIT",
+  "movement": "DIAGONAL 5",
+  "ability": "ON KILL 1\nPUT SHELF\nSELF",
+  "attributes": {
+    "summon_cost": 3,
+    "action_cost": 5,
+    "action_count": 1
+  }
+}

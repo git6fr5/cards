@@ -1,0 +1,12 @@
+{
+  "name": "Dragon Queen",
+  "archetype": "DRAGON",
+  "roleType": "UNIT",
+  "movement": "SQUARE 4",
+  "ability": "ON KILL 1\nSUMMON FRIENDLY\nFRIENDLY BAG:SEE:0 1 WHERE ARCHETYPE:DRAGON ATT:SUMMON_COST<=1",
+  "attributes": {
+    "summon_cost": 7,
+    "action_cost": 4,
+    "action_count": 1
+  }
+}

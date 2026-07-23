@@ -1,0 +1,12 @@
+{
+  "name": "Black Dragon",
+  "archetype": "DRAGON",
+  "roleType": "UNIT",
+  "movement": "CROSS 3",
+  "ability": "ON KILL 1\nPUT SHELF\nDEFENDER",
+  "attributes": {
+    "summon_cost": 7,
+    "action_cost": 3,
+    "action_count": 1
+  }
+}

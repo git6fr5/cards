@@ -1,0 +1,12 @@
+{
+  "name": "Dragon's Den",
+  "archetype": "DRAGON",
+  "roleType": "BUILDING",
+  "movement": "SQUARE 1",
+  "ability": "ON ACTIVATE\nMODIFY ACTION_COUNT +1 TURNS 1\nDEFENDER",
+  "attributes": {
+    "summon_cost": 5,
+    "action_cost": 0,
+    "action_count": 1
+  }
+}

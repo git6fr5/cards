@@ -1,0 +1,13 @@
+{
+  "name": "Three-Headed Dragon",
+  "concept": "no stated ability — 3 actions per turn is the effect.",
+  "archetype": "DRAGON",
+  "roleType": "UNIT",
+  "movement": "CROSS 3",
+  "ability": "",
+  "attributes": {
+    "summon_cost": 7,
+    "action_cost": 3,
+    "action_count": 3
+  }
+}
