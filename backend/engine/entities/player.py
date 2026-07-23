@@ -116,6 +116,23 @@ class Player:
         piece.attributes.modify("action_count", -1, 1, "Fatigue")
         return InputOutcome(True, result)
 
+    def end_turn(self) -> None:
+        board_pieces = [piece for piece in game.board.pieces.values() if piece.player is self]
+
+        for piece in board_pieces + self.shelf + self.bag:
+            for modifier in piece.attributes.modifiers:
+                modifier.turns_left -= 1
+            piece.attributes.modifiers = [
+                modifier for modifier in piece.attributes.modifiers
+                if modifier.turns_left > 0
+            ]
+
+        for piece in board_pieces:
+            if piece is not self.king:
+                fire_trigger(Trigger.TURNEND, piece)
+
+        fire_trigger(Trigger.TURNEND, self.king)
+
     def owns(self, piece: Piece) -> bool:
         return piece.player.player_id == self.player_id
 

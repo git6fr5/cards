@@ -5,7 +5,6 @@ from collections import Counter
 from engine.loader import load_catalog, load_players, load_board, load_shelves
 from engine.entities.player import Player
 from engine.entities.board import Board
-from engine.entities.piece import Piece
 from engine.enums.archetype import Archetype
 from engine.utils.positions import Position
 from engine.game import Game, game, set_current_game
@@ -133,20 +132,9 @@ def is_game_over() -> bool:
             return True
     return False
     
-def player_pieces(player: Player) -> list[Piece]:
-    board_pieces = [piece for piece in game.board.pieces.values() if piece.player is player]
-    return board_pieces + player.shelf + player.bag
-
 def next_turn():
     ending_player = game.active_player
-
-    for piece in player_pieces(ending_player):
-        for modifier in piece.attributes.modifiers:
-            modifier.turns_left -= 1
-        piece.attributes.modifiers = [
-            modifier for modifier in piece.attributes.modifiers
-            if modifier.turns_left > 0
-        ]
+    ending_player.end_turn()
 
     game.active_player_index = (game.active_player_index+1)%2
 
