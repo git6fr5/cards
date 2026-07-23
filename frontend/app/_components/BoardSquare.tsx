@@ -13,18 +13,23 @@ interface BoardSquareProps {
   isOwn: boolean;
   isActivePlayer: boolean;
   isHighlighted: boolean;
+  isSelected: boolean;
   onSelect: (square: string) => void;
   onSelectPiece: (name: string) => void;
   onDrop: (source: string, target: string) => void;
 }
 
-export default function BoardSquare({ piece, row, col, square, isOwn, isActivePlayer, isHighlighted, onSelect, onSelectPiece, onDrop }: BoardSquareProps) {
+export default function BoardSquare({ piece, row, col, square, isOwn, isActivePlayer, isHighlighted, isSelected, onSelect, onSelectPiece, onDrop }: BoardSquareProps) {
   const shade = (row + col) % 2 === 0
     ? 'bg-raja-wood'
     : 'bg-raja-wood-dark';
   const canInspect = isActivePlayer && !!piece;
   const canDrag = isActivePlayer && isOwn;
-  const highlightClass = isHighlighted ? 'ring-2 ring-raja-gold' : '';
+  const overlayClass = isSelected
+    ? 'bg-raja-ink/50'
+    : isHighlighted
+      ? 'bg-raja-ink/25'
+      : '';
 
   function handleClick() {
     if (canInspect) onSelect(square);
@@ -47,20 +52,21 @@ export default function BoardSquare({ piece, row, col, square, isOwn, isActivePl
 
   return (
     <div
-      className={`w-14 h-14 flex items-center justify-center ${shade} ${highlightClass}`}
+      className={`relative w-28 h-28 flex items-center justify-center ${shade}`}
       draggable={canDrag}
       onDragStart={canDrag ? handleDragStart : undefined}
       onClick={piece ? handleClick : undefined}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
+      {overlayClass && <div className={`pointer-events-none absolute inset-0 ${overlayClass}`} />}
       {piece && (
         <PieceToken
           name={piece.name}
           archetype={ARCHETYPES[piece.archetype]}
           pieceType={PIECE_TYPES.PAWN}
           bodyColor={piece.owner === 0 ? 'steel' : 'gold'}
-          size="sm"
+          size="board"
         />
       )}
     </div>

@@ -13,6 +13,7 @@ type: record
 5. [Server-side hand redaction and the auth gap it surfaced](#5-server-side-hand-redaction-and-the-auth-gap-it-surfaced)
 6. [Raw input removal — confirming drag/drop covers the full grammar](#6-raw-input-removal--confirming-dragdrop-covers-the-full-grammar)
 7. [Piece detail sidebar — reusing the catalog card](#7-piece-detail-sidebar--reusing-the-catalog-card)
+8. [Selection highlight, toast messages, board scale — 2026-07-23](#8-selection-highlight-toast-messages-board-scale--2026-07-23)
 
 ---
 
@@ -125,3 +126,27 @@ Two options: extend the game-state payload to carry full piece detail inline, or
 ### Decision
 
 Extracted `PieceCard`'s inner markup into a new, non-draggable `frontend/app/_components/PieceDetailCard.tsx`; catalog's `PieceCard.tsx` is now a thin `useDraggable` wrapper around it; the room's `PieceDetailPanel` renders it directly against a piece looked up from a `/pieces/full` fetch done once in `PlayRoom.tsx`. Sidebar detail-view clicks were also deliberately decoupled from the existing turn-gated move-preview clicks (read-only, no mutation, so no reason to gate it to the active player's turn) — a default applied without being asked, flagged as such at plan time.
+
+---
+
+## 8. Selection highlight, toast messages, board scale — 2026-07-23
+
+### Context
+
+User flagged three follow-up gaps on the already-reworked `/play/room` page: (1) the selected piece has no visual highlight on the board even though the legal-move-destination highlighting (`highlightedSquares`/`isHighlighted`) and the backend move computation (`player.py`'s `show()`) already existed — only the click path needed to surface it; (2) the below-board status/error text was two plain `<p>` tags instead of the shared `RajaToast` component; (3) the board and pieces needed to render at 2x scale.
+
+### Discussion points
+
+Investigation (via subagent) confirmed the destination-highlight wiring already fired correctly on click (`BoardSquare.handleClick` → `onSelect` → `PlayRoom.handleSelectSquare` → `previewAction` → `highlightedSquares`) — the actual gap was that no square was ever marked as the *selected* one, since `Board`/`BoardSquare` had no `selectedSquare`/`isSelected` prop at all, only the destination list. Bumping piece token size 2x also couldn't reuse the existing `sm`/`md`/`lg` tiers directly: `sm` (32px) is shared with unrelated UI (`PlayerShelf`, `TokenGrid`) so doubling it in place would have resized those too, and slotting a 64px tier in as `xl` would have misordered the scale (below `lg`'s 80px) and, via `NameText`/`AbilityText`'s `size === 'sm'` check, accidentally turned on curved name/ability text that board tokens have never shown. Named the new tier `board` instead and extended the `size==='sm'` suppression check to include it, so behavior for existing `sm` call sites is untouched.
+
+### Decision
+
+Added `selectedSquare` state in `PlayRoom.tsx`, threaded through `MainPanel` → `Board` → `BoardSquare` as `isSelected`; `BoardSquare` now resolves a single `ringClass` variable (`isSelected` → `ring-4 ring-raja-gold-light`, else `isHighlighted` → `ring-2 ring-raja-gold`, else none) so the two highlight states never visually collide. `MainPanel`'s two raw-text blocks (`infoText`, `error`) collapsed into one `RajaToast` (`error ?? infoText` as the message, tone switching on whether `error` is set), dismissed via a new `onDismissToast` callback that clears both state values in `PlayRoom`. Board cell size doubled (`w-14 h-14` → `w-28 h-28`); `PieceToken` gained a `board` size tier (64px container / 48px icon, same ~0.75 icon-to-container ratio as `sm`/`md`) used only by `BoardSquare`.
+
+### Follow-up — hand tokens scaled to match
+
+User noticed hand pieces (`PlayerShelf.tsx`) weren't part of the board's 2x pass — they render through their own `size="md"` (48px), untouched by the board-only change above. `PieceToken` gained a second new tier, `hand` (96px container / 72px icon, same ratio pattern), and `PlayerShelf.tsx` switched to it, including its two empty/hidden placeholder divs (`w-12 h-12` → `w-24 h-24`). Unlike `board`, `hand` does not suppress `NameText`/`AbilityText` — matches prior `md` behavior where curved name/ability text was already visible on hand tokens.
+
+### Follow-up — selected/highlighted squares as overlay, not ring
+
+Initial pass used Tailwind `ring` outlines for selected/highlighted squares; user asked for a solid overlaid square instead — `bg-raja-ink` at 50% opacity for the selected square, 25% for legal-move destinations. `BoardSquare.tsx` swapped `ringClass` for `overlayClass`, rendered as a `pointer-events-none absolute inset-0` div layered under the piece token (container gained `relative`) so it doesn't intercept the square's own click/drag handlers.

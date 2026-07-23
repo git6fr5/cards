@@ -34,10 +34,10 @@ export default function PlayerShelf({ shelf, bodyColor, isOwn, isActivePlayer, o
       {Array.from({ length: SHELF_SIZE }, (_, i) => {
         const piece = shelf[i];
         if (!piece) {
-          return <div key={i} className="w-12 h-12 rounded-full border border-dashed border-raja-chrome-border" />;
+          return <div key={i} className="w-24 h-24 rounded-full border border-dashed border-raja-chrome-border" />;
         }
         if (piece.hidden) {
-          return <div key={i} className="w-12 h-12 rounded-full bg-raja-chrome-muted/40 border border-raja-chrome-border" />;
+          return <div key={i} className="w-24 h-24 rounded-full bg-raja-chrome-muted/40 border border-raja-chrome-border" />;
         }
         return (
           <div
@@ -51,7 +51,7 @@ export default function PlayerShelf({ shelf, bodyColor, isOwn, isActivePlayer, o
               archetype={ARCHETYPES[piece.archetype]}
               pieceType={PIECE_TYPES.PAWN}
               bodyColor={bodyColor}
-              size="md"
+              size="hand"
             />
           </div>
         );

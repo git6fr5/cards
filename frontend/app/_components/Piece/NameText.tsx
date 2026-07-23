@@ -3,13 +3,13 @@ import { TEXT_EMBOSS_FILTER_ID } from './metalThemes';
 
 interface NameTextProps {
   text: string;
-  size: 'sm' | 'md' | 'lg';
+  size: 'sm' | 'md' | 'lg' | 'board' | 'hand';
 }
 
 export default function NameText({ text, size }: NameTextProps) {
   const pathId = useId();
 
-  if (size === 'sm') return null;
+  if (size === 'sm' || size === 'board') return null;
 
   const radius = 44;
 

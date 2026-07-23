@@ -10,16 +10,20 @@ import NameText from './NameText';
 import AbilityText from './AbilityText';
 import RingBorder from './RingBorder';
 
-const SIZE_CLASSES: Record<'sm' | 'md' | 'lg', string> = {
+const SIZE_CLASSES: Record<'sm' | 'md' | 'lg' | 'board' | 'hand', string> = {
   sm: 'w-8  h-8',
   md: 'w-12 h-12',
   lg: 'w-20 h-20',
+  board: 'w-16 h-16',
+  hand: 'w-24 h-24',
 };
 
-const ICON_CLASSES: Record<'sm' | 'md' | 'lg', { icon: string }> = {
+const ICON_CLASSES: Record<'sm' | 'md' | 'lg' | 'board' | 'hand', { icon: string }> = {
   sm: { icon: 'w-6  h-6'  },
   md: { icon: 'w-9  h-9'  },
   lg: { icon: 'w-18 h-18' },
+  board: { icon: 'w-12 h-12' },
+  hand: { icon: 'w-18 h-18' },
 };
 
 interface PieceTokenProps {
@@ -27,7 +31,7 @@ interface PieceTokenProps {
   archetype:  Archetype;
   pieceType:  PieceType;
   bodyColor:  BodyColor;
-  size?:        'sm' | 'md' | 'lg';
+  size?:        'sm' | 'md' | 'lg' | 'board' | 'hand';
   nameText?:    string;
   abilityText?: string;
 }

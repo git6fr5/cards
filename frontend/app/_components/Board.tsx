@@ -10,12 +10,13 @@ interface BoardProps {
   isActivePlayer: boolean;
   flipped: boolean;
   highlightedSquares: string[];
+  selectedSquare: string | null;
   onSelectSquare: (square: string) => void;
   onSelectPiece: (name: string) => void;
   onDrop: (source: string, target: string) => void;
 }
 
-export default function Board({ board, selfPlayerId, isActivePlayer, flipped, highlightedSquares, onSelectSquare, onSelectPiece, onDrop }: BoardProps) {
+export default function Board({ board, selfPlayerId, isActivePlayer, flipped, highlightedSquares, selectedSquare, onSelectSquare, onSelectPiece, onDrop }: BoardProps) {
   return (
     <div className="border border-raja-gold/40 inline-block">
       {Array.from({ length: BOARD_HEIGHT }, (_, i) => {
@@ -37,6 +38,7 @@ export default function Board({ board, selfPlayerId, isActivePlayer, flipped, hi
                   isOwn={isOwn}
                   isActivePlayer={isActivePlayer}
                   isHighlighted={highlightedSquares.includes(square)}
+                  isSelected={square === selectedSquare}
                   onSelect={onSelectSquare}
                   onSelectPiece={onSelectPiece}
                   onDrop={onDrop}
