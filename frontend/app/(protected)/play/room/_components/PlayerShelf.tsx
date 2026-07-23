@@ -18,14 +18,14 @@ interface PlayerShelfProps {
 }
 
 export default function PlayerShelf({ shelf, bodyColor, isOwn, isActivePlayer, onSelectShelf, onSelectPiece }: PlayerShelfProps) {
-  const canInteract = isOwn && isActivePlayer;
+  const canDrag = isOwn && isActivePlayer;
 
   function handleDragStart(e: DragEvent<HTMLDivElement>, index: number) {
     e.dataTransfer.setData('text/plain', `S${index}`);
   }
 
   function handleClick(piece: ShelfPiece, index: number) {
-    if (canInteract) onSelectShelf(index);
+    if (isOwn) onSelectShelf(index);
     if (isOwn && !piece.hidden) onSelectPiece(piece.name);
   }
 
@@ -42,8 +42,8 @@ export default function PlayerShelf({ shelf, bodyColor, isOwn, isActivePlayer, o
         return (
           <div
             key={i}
-            draggable={canInteract}
-            onDragStart={canInteract ? (e) => handleDragStart(e, i) : undefined}
+            draggable={canDrag}
+            onDragStart={canDrag ? (e) => handleDragStart(e, i) : undefined}
             onClick={() => handleClick(piece, i)}
           >
             <PieceToken

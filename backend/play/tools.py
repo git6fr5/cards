@@ -58,8 +58,8 @@ def pack_game_state(engine_game: EngineGame, log: list[str], viewer_index: int) 
     }
 
 
-def dispatch_input(engine_game: EngineGame, raw_input: str) -> InputOutcome | None:
-    action, params = read_raw_input(raw_input, engine_game)
+def dispatch_input(engine_game: EngineGame, raw_input: str, viewer_index: int | None = None) -> InputOutcome | None:
+    action, params = read_raw_input(raw_input, engine_game, viewer_index)
     if action is None:
         return None
 

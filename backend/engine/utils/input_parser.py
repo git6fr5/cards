@@ -22,9 +22,9 @@ def format_square(position: Position) -> str:
     return f"{chr(ord('A') + position.x)}{position.y}"
 
 
-def read_raw_input(raw_input: str, game: Game) -> tuple[Callable | None, dict | None]:
+def read_raw_input(raw_input: str, game: Game, viewer_index: int | None = None) -> tuple[Callable | None, dict | None]:
     text = raw_input.strip().upper()
-    player = game.players[game.active_player_index]
+    player = game.players[viewer_index if viewer_index is not None else game.active_player_index]
 
     if text == "EOT":
         # Deferred import — engine.loop imports read_raw_input from this module,

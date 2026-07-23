@@ -23,7 +23,7 @@ export default function BoardSquare({ piece, row, col, square, isOwn, isActivePl
   const shade = (row + col) % 2 === 0
     ? 'bg-raja-wood'
     : 'bg-raja-wood-dark';
-  const canInspect = isActivePlayer && !!piece;
+  const canInspect = !!piece;
   const canDrag = isActivePlayer && isOwn;
   const overlayClass = isSelected
     ? 'bg-raja-ink/50'
@@ -59,7 +59,7 @@ export default function BoardSquare({ piece, row, col, square, isOwn, isActivePl
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      {overlayClass && <div className={`pointer-events-none absolute inset-0 ${overlayClass}`} />}
+      {overlayClass && <div className={`pointer-events-none absolute inset-1 ${overlayClass}`} />}
       {piece && (
         <PieceToken
           name={piece.name}
