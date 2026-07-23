@@ -8,6 +8,7 @@ interface PlayerResponse {
 
 export function useEnsurePlayer() {
   const [isReady, setIsReady] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,16 +22,19 @@ export function useEnsurePlayer() {
           setError(err instanceof Error ? err.message : 'An error occurred');
           return;
         }
+        setIsCreating(true);
         try {
           await post<PlayerResponse>('/players');
           setIsReady(true);
         } catch (createErr) {
           setError(createErr instanceof Error ? createErr.message : 'An error occurred');
+        } finally {
+          setIsCreating(false);
         }
       }
     }
     ensurePlayer();
   }, []);
 
-  return { isReady, error };
+  return { isReady, isCreating, error };
 }

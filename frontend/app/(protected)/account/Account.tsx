@@ -22,7 +22,7 @@ interface CurrentPlayer {
 }
 
 export default function Account() {
-  const { isReady, error: playerError } = useEnsurePlayer();
+  const { isReady, isCreating, error: playerError } = useEnsurePlayer();
 
   const [currentPlayerId, setCurrentPlayerId] = useState<number | null>(null);
   const [bags, setBags] = useState<Bag[]>([]);
@@ -82,12 +82,11 @@ export default function Account() {
 
   if (!isReady) {
     const setupColor = playerError ? 'text-raja-chrome-error' : 'text-raja-chrome-muted';
+    const setupText = playerError ?? (isCreating ? 'Setting up account' : null);
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-raja-chrome-bg">
         <RajaLoader size="lg" />
-        <p className={`font-sans-serif text-sm ${setupColor}`}>
-          {playerError ?? 'First time logging in — setting up.'}
-        </p>
+        {setupText && <p className={`font-sans-serif text-sm ${setupColor}`}>{setupText}</p>}
       </div>
     );
   }
