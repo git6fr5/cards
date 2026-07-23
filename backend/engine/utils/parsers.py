@@ -29,6 +29,13 @@ CONVERTIBLE_TYPES = {
 def parse_ability(raw_ability_dsl: str) -> PieceAbility:
     lines = [line.strip() for line in raw_ability_dsl.strip().splitlines() if line.strip()]
 
+    if not lines:
+        return PieceAbility(
+            trigger_step=TriggerStep(condition=TriggerCondition.NONE, params={}),
+            effect_step=EffectStep(operation=EffectOperation.NONE, params={}),
+            target_step=TargetStep(target_type=TargetType.NONE, params={}),
+        )
+
     if len(lines) != 3:
         raise ValueError(
             f"An ability block must contain exactly 3 lines (Trigger, Effect, Target). "
