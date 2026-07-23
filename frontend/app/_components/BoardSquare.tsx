@@ -14,16 +14,22 @@ interface BoardSquareProps {
   isActivePlayer: boolean;
   isHighlighted: boolean;
   onSelect: (square: string) => void;
+  onSelectPiece: (name: string) => void;
   onDrop: (source: string, target: string) => void;
 }
 
-export default function BoardSquare({ piece, row, col, square, isOwn, isActivePlayer, isHighlighted, onSelect, onDrop }: BoardSquareProps) {
+export default function BoardSquare({ piece, row, col, square, isOwn, isActivePlayer, isHighlighted, onSelect, onSelectPiece, onDrop }: BoardSquareProps) {
   const shade = (row + col) % 2 === 0
     ? 'bg-raja-wood'
     : 'bg-raja-wood-dark';
   const canInspect = isActivePlayer && !!piece;
   const canDrag = isActivePlayer && isOwn;
   const highlightClass = isHighlighted ? 'ring-2 ring-raja-gold' : '';
+
+  function handleClick() {
+    if (canInspect) onSelect(square);
+    if (piece) onSelectPiece(piece.name);
+  }
 
   function handleDragStart(e: DragEvent<HTMLDivElement>) {
     e.dataTransfer.setData('text/plain', square);
@@ -44,7 +50,7 @@ export default function BoardSquare({ piece, row, col, square, isOwn, isActivePl
       className={`w-14 h-14 flex items-center justify-center ${shade} ${highlightClass}`}
       draggable={canDrag}
       onDragStart={canDrag ? handleDragStart : undefined}
-      onClick={canInspect ? () => onSelect(square) : undefined}
+      onClick={piece ? handleClick : undefined}
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >

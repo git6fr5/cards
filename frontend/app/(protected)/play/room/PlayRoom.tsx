@@ -3,14 +3,11 @@
 import { useEffect, useState } from 'react';
 import { get, post } from '@/utils/api';
 import RajaLoader from '@/components/layout/RajaLoader';
-import Board from '@/app/_components/Board';
-import PlayerPanel from './_components/PlayerPanel';
-import TurnStatus from './_components/TurnStatus';
-import ActionInput from './_components/ActionInput';
-import GameLogPanel from './_components/GameLogPanel';
-import InviteLink from './_components/InviteLink';
+import MainPanel from './_components/MainPanel';
+import Sidebar from './_components/Sidebar';
 import GameLobby from './_components/GameLobby';
 import type { GameState, ActionResult, PreviewActionResult, Game } from '../types';
+import type { PieceFull } from '@/app/_components/types';
 
 interface PlayRoomProps {
   room: string;
@@ -25,11 +22,13 @@ function parseSquareList(outcome: string): string[] {
 export default function PlayRoom({ room, player }: PlayRoomProps) {
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [lobbyGame, setLobbyGame] = useState<Game | null>(null);
+  const [catalog, setCatalog] = useState<PieceFull[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [highlightedSquares, setHighlightedSquares] = useState<string[]>([]);
   const [infoText, setInfoText] = useState<string | null>(null);
+  const [selectedPieceName, setSelectedPieceName] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadState() {
@@ -42,8 +41,12 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
           setLobbyGame(game);
           return;
         }
-        const state = await get<GameState>(`/games/${room}/state`);
+        const [state, pieces] = await Promise.all([
+          get<GameState>(`/games/${room}/state`),
+          get<PieceFull[]>('/pieces/full'),
+        ]);
         setGameState(state);
+        setCatalog(pieces);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -98,16 +101,24 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
     setInfoText(readResult?.outcome ?? null);
   }
 
+  function handleSelectPiece(name: string) {
+    setSelectedPieceName(name);
+  }
+
   function handleDropOnBoard(source: string, target: string) {
     setHighlightedSquares([]);
     setInfoText(null);
     handleSubmitAction(`${source}@${target}`);
   }
 
+  function handleEndTurn() {
+    handleSubmitAction('EOT');
+  }
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-raja-black flex items-center justify-center">
-        <RajaLoader alt size="lg" />
+      <div className="min-h-screen bg-raja-chrome-bg flex items-center justify-center">
+        <RajaLoader size="lg" />
       </div>
     );
   }
@@ -118,8 +129,8 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
 
   if (!gameState) {
     return (
-      <div className="min-h-screen bg-raja-black flex items-center justify-center">
-        <p className="font-sans-serif text-sm text-raja-crimson">{error ?? 'Game not found'}</p>
+      <div className="min-h-screen bg-raja-chrome-bg flex items-center justify-center">
+        <p className="font-sans-serif text-sm text-raja-chrome-error">{error ?? 'Game not found'}</p>
       </div>
     );
   }
@@ -128,54 +139,43 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
   const opponent = gameState.players.find((p) => p.player_id !== player) ?? gameState.players[1];
   const isActivePlayer = gameState.active_player_index === player;
   const lastOutcome = gameState.log[gameState.log.length - 1];
+  const selectedPiece = selectedPieceName
+    ? catalog.find((piece) => piece.name === selectedPieceName) ?? null
+    : null;
 
   return (
-    <div className="min-h-screen bg-raja-black flex items-center justify-center gap-8 p-8">
-      <div className="flex items-center gap-8">
-        <PlayerPanel
-          player={opponent}
-          label={`Player ${opponent.player_id} — hand`}
-          isOwn={false}
-          isActivePlayer={isActivePlayer}
-          onSelectShelf={handleSelectShelf}
-        />
-
-        <div className="flex flex-col items-center gap-4">
-          <Board
+    <div className="min-h-screen bg-raja-chrome-bg flex items-center justify-center p-8">
+      <div className="flex w-full h-[85vh] bg-raja-chrome-panel border border-raja-chrome-border">
+        <div className="flex-4 h-full">
+          <MainPanel
             board={gameState.board}
+            selfPlayer={self}
+            opponentPlayer={opponent}
+            selfLabel={`Player ${self.player_id} — hand`}
+            opponentLabel={`Player ${opponent.player_id} — hand`}
             selfPlayerId={player}
+            otherPlayerIndex={1 - player}
             isActivePlayer={isActivePlayer}
+            isSubmitting={isSubmitting}
+            flipped={player === 1}
             highlightedSquares={highlightedSquares}
-            onSelectSquare={handleSelectSquare}
-            onDrop={handleDropOnBoard}
-          />
-          <TurnStatus
+            infoText={infoText}
+            error={error}
             turnCount={gameState.turn_count}
             activePlayerIndex={gameState.active_player_index}
             lastOutcome={lastOutcome}
+            room={room}
+            onSelectSquare={handleSelectSquare}
+            onSelectPiece={handleSelectPiece}
+            onDrop={handleDropOnBoard}
+            onSelectShelf={handleSelectShelf}
+            onEndTurn={handleEndTurn}
           />
-          {infoText && (
-            <p className="font-sans-serif text-xs text-raja-grey-light max-w-xs text-center">{infoText}</p>
-          )}
-          {error && (
-            <p className="font-sans-serif text-xs text-raja-crimson">{error}</p>
-          )}
-          {isActivePlayer && (
-            <ActionInput onSubmit={handleSubmitAction} isSubmitting={isSubmitting} />
-          )}
-          <InviteLink room={room} otherPlayerIndex={1 - player} />
         </div>
-
-        <PlayerPanel
-          player={self}
-          label={`Player ${self.player_id} — hand`}
-          isOwn
-          isActivePlayer={isActivePlayer}
-          onSelectShelf={handleSelectShelf}
-        />
+        <div className="flex-1 h-full border-l border-raja-chrome-border">
+          <Sidebar piece={selectedPiece} log={gameState.log} />
+        </div>
       </div>
-
-      <GameLogPanel log={gameState.log} />
     </div>
   );
 }

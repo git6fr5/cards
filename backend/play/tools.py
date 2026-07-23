@@ -13,7 +13,7 @@ from play.orm.piece import Piece
 from utils.databases import DatabaseConnection
 
 
-def pack_game_state(engine_game: EngineGame, log: list[str]) -> dict:
+def pack_game_state(engine_game: EngineGame, log: list[str], viewer_index: int) -> dict:
     board = {
         format_square(position): {
             "name": piece.name,
@@ -24,17 +24,23 @@ def pack_game_state(engine_game: EngineGame, log: list[str]) -> dict:
         for position, piece in engine_game.board.pieces.items()
     }
 
+    def pack_shelf_piece(piece, is_hidden: bool) -> dict:
+        if is_hidden:
+            return {"name": None, "archetype": None, "summon_cost": None, "hidden": True}
+        return {
+            "name": piece.name,
+            "archetype": piece.piecetype.get("archetype").value,
+            "summon_cost": piece.attributes.get("summon_cost"),
+            "hidden": False,
+        }
+
     players = [
         {
             "player_id": player.player_id,
             "current_mana": player.current_mana,
             "total_mana": player.total_mana,
             "shelf": [
-                {
-                    "name": piece.name,
-                    "archetype": piece.piecetype.get("archetype").value,
-                    "summon_cost": piece.attributes.get("summon_cost"),
-                }
+                pack_shelf_piece(piece, player.player_id != viewer_index)
                 for piece in player.shelf
             ],
             "bag_count": len(player.bag),

@@ -14,13 +14,19 @@ interface PlayerShelfProps {
   isOwn: boolean;
   isActivePlayer: boolean;
   onSelectShelf: (shelfIndex: number) => void;
+  onSelectPiece: (name: string) => void;
 }
 
-export default function PlayerShelf({ shelf, bodyColor, isOwn, isActivePlayer, onSelectShelf }: PlayerShelfProps) {
+export default function PlayerShelf({ shelf, bodyColor, isOwn, isActivePlayer, onSelectShelf, onSelectPiece }: PlayerShelfProps) {
   const canInteract = isOwn && isActivePlayer;
 
   function handleDragStart(e: DragEvent<HTMLDivElement>, index: number) {
     e.dataTransfer.setData('text/plain', `S${index}`);
+  }
+
+  function handleClick(piece: ShelfPiece, index: number) {
+    if (canInteract) onSelectShelf(index);
+    if (isOwn && !piece.hidden) onSelectPiece(piece.name);
   }
 
   return (
@@ -28,14 +34,17 @@ export default function PlayerShelf({ shelf, bodyColor, isOwn, isActivePlayer, o
       {Array.from({ length: SHELF_SIZE }, (_, i) => {
         const piece = shelf[i];
         if (!piece) {
-          return <div key={i} className="w-12 h-12 rounded-full border border-dashed border-raja-stone" />;
+          return <div key={i} className="w-12 h-12 rounded-full border border-dashed border-raja-chrome-border" />;
+        }
+        if (piece.hidden) {
+          return <div key={i} className="w-12 h-12 rounded-full bg-raja-chrome-muted/40 border border-raja-chrome-border" />;
         }
         return (
           <div
             key={i}
             draggable={canInteract}
             onDragStart={canInteract ? (e) => handleDragStart(e, i) : undefined}
-            onClick={canInteract ? () => onSelectShelf(i) : undefined}
+            onClick={() => handleClick(piece, i)}
           >
             <PieceToken
               name={piece.name}

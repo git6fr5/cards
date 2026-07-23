@@ -4,15 +4,15 @@ interface GameLogPanelProps {
 
 export default function GameLogPanel({ log }: GameLogPanelProps) {
   return (
-    <div className="hidden lg:flex flex-col w-64 max-h-[80vh] overflow-y-auto gap-1 border-l border-raja-stone/40 pl-4">
-      <span className="font-sans-serif text-xs uppercase tracking-wide text-raja-grey-muted">
+    <div className="flex flex-col gap-1 w-full h-full overflow-y-auto">
+      <span className="font-sans-serif text-xs uppercase tracking-wide text-raja-chrome-muted">
         Game Log
       </span>
       {log.length === 0 && (
-        <p className="font-sans-serif text-xs text-raja-grey-muted">No moves yet</p>
+        <p className="font-sans-serif text-xs text-raja-chrome-muted">No moves yet</p>
       )}
       {log.map((entry, i) => (
-        <p key={i} className="font-sans-serif text-xs text-raja-grey-light">
+        <p key={i} className="font-sans-serif text-xs text-raja-chrome-text">
           {i + 1}. {entry}
         </p>
       ))}

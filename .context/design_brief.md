@@ -8,7 +8,7 @@ type: project
 
 Two deliberately separate visual domains, split by **what a component does**, not by which page it sits on.
 
-**Core game** — the components used to actually play (board, pieces, mana, shelf, panels, log, action input, turn status). Dark, matte, tactile: charcoal-slate surfaces, a plain wood board, warm parchment text. Everything in this domain stays quiet and desaturated on purpose, so the metal piece tokens — antique steel and gold, rendered as embossed physical coins — read as the only reflective, precious object in the scene. These components carry the game's identity wherever they render, including as previews inside builder tools.
+**Core game** — the components that render the actual board and pieces (board, pieces, mana). Dark, matte, tactile: charcoal-slate surfaces, a plain wood board, warm parchment text. Everything in this domain stays quiet and desaturated on purpose, so the metal piece tokens — antique steel and gold, rendered as embossed physical coins — read as the only reflective, precious object in the scene. These components carry the game's identity wherever they render, including as previews inside builder tools.
 
 **Chrome** — everything else: page backgrounds, nav, forms, buttons, marketing and lobby pages, and the shell around builder tools. Light, clean, cool lavender-grey. Deliberately plain — one saturated orange is the only accent, reserved for actions and links. Chrome should recede; it is not trying to look like the game.
 
@@ -24,7 +24,7 @@ A single page can contain both — e.g. `token-builder`'s page shell is chrome, 
 
 ## Colour Palette — Core game domain
 
-Applies to: `Board`, `BoardSquare`, `Piece/*`, `ManaToken`, `PlayerShelf`, `PlayerPanel`, `GameLogPanel`, `ActionInput`, `TurnStatus`, and any container built specifically around the live board or pieces.
+Applies to: `Board`, `BoardSquare`, `Piece/*`, `ManaToken`. `PlayerShelf`, `PlayerPanel`, `GameLogPanel`, and `TurnStatus` moved to the chrome domain as of the `/play/room` layout rework — see `.context/builds/play_room_rework_plan.md`.
 
 ### Core surfaces
 
@@ -93,9 +93,9 @@ These are gameplay semantics (attack, resource cost, effects, mana), not site UI
 
 ## Colour Palette — Chrome domain
 
-Applies to: everything that is not a core-game component — page backgrounds, `RajaHeader`/`RajaFooter`, `RajaModal`/`RajaSection`/`RajaLoader`, all `components/forms/*`, marketing and lobby pages (`Home`, `DesignShowcase`, `PlayLanding`), and the page shell around `token-builder` (not the piece/mana previews that tool renders, which stay game-styled).
+Applies to: everything that is not a core-game component — page backgrounds, `RajaHeader`/`RajaFooter`, `RajaModal`/`RajaSection`/`RajaLoader`, all `components/forms/*`, marketing and lobby pages (`Home`, `DesignShowcase`, `PlayLanding`), the page shell around `token-builder` (not the piece/mana previews that tool renders, which stay game-styled), and — as of the `/play/room` rework — the room's `PlayerShelf`, `PlayerPanel`, `GameLogPanel`, `TurnStatus`, `Sidebar`, and `EndTurnButton`.
 
-**Atoms are chrome by definition.** Domain is decided by component *location*, not by where it's used: anything living in `components/forms/*` or `components/layout/*` (the shared, `Raja`-prefixed atom layer) is chrome — always, with no variant prop and no forking, even when a game screen composes it. A shared `RajaButton` rendered inside `ActionInput` (submitting a move) is still chrome-styled. The game domain is reserved for bespoke, page-local components that are never promoted to the shared atom layer (`Board`, `BoardSquare`, `Piece/*`, `ManaToken`, `PlayerShelf`, `PlayerPanel`, `GameLogPanel`, `TurnStatus`). The moment a component is promoted to `components/forms/*` or `components/layout/*` for reuse, it becomes chrome by that act alone.
+**Atoms are chrome by definition.** Domain is decided by component *location*, not by where it's used: anything living in `components/forms/*` or `components/layout/*` (the shared, `Raja`-prefixed atom layer) is chrome — always, with no variant prop and no forking, even when a game screen composes it. A shared `RajaButton` rendered as the room's End Turn button is still chrome-styled. The game domain is now reserved narrowly for `Board`, `BoardSquare`, `Piece/*`, and `ManaToken` — the components that render the board surface and pieces themselves. The moment a component is promoted to `components/forms/*` or `components/layout/*` for reuse, it becomes chrome by that act alone.
 
 | Token | Hex | Role |
 |---|---|---|
@@ -114,7 +114,7 @@ Chrome is deliberately plain: one light neutral scale, one accent. It should nev
 
 ## Functional token mapping
 
-- **Domain selection is component-location-based.** Shared atoms (`components/forms/*`, `components/layout/*`) are always chrome. Bespoke, page-local game components (board, piece, mana, shelf, panel, log, turn status) always use game-domain tokens, even when composed inside a chrome-styled wrapper.
+- **Domain selection is component-location-based.** Shared atoms (`components/forms/*`, `components/layout/*`) are always chrome. Bespoke, page-local game components (board, piece, mana) always use game-domain tokens, even when composed inside a chrome-styled wrapper.
 - **Focus ring:** `ring-2 ring-raja-gold` inside the game domain; `ring-2 ring-raja-chrome-action` inside chrome. Never shared across domains.
 - **Primary accent:** `raja-gold` (game) / `raja-chrome-action` (chrome).
 - **Error colour:** `raja-crimson` (game) / `raja-chrome-error` (chrome — form-atom inline validation).
@@ -128,3 +128,5 @@ Chrome is deliberately plain: one light neutral scale, one accent. It should nev
 ## Status
 
 Palette rewritten as of the board/chrome domain pivot — see `.context/builds/board_chrome_pivot_plan.md` (design direction) and `.context/builds/chrome_game_domain_repaint_plan.md` (code execution plan) for the full decision record and code-impact inventory. Code build in progress.
+
+Game-domain boundary narrowed further as of the `/play/room` layout rework (`.context/builds/play_room_rework_plan.md`) — `PlayerShelf`/`PlayerPanel`/`GameLogPanel`/`TurnStatus` reclassified game→chrome; only `Board`/`BoardSquare`/`Piece/*`/`ManaToken` remain game-domain.

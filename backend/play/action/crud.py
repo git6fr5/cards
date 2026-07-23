@@ -52,7 +52,7 @@ def create_action(
     DatabaseConnection.add(GameLog(game_id=game_row.id, move_number=move_number, input=request.raw_input))
     DatabaseConnection.flush()
 
-    state = pack_game_state(engine_game, log)
+    state = pack_game_state(engine_game, log, auth.seat_index)
     if state["is_game_over"] and not game_row.is_game_over:
         game_row.is_game_over = True
         winning_index = next(index for index, player in enumerate(engine_game.players) if player.king.alive)

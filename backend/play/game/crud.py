@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
-from play.auth import PlayerAuthContext, require_player_access
+from play.auth import GameAuthContext, PlayerAuthContext, require_game_access, require_player_access
 from play.orm.bag import Bag
 from play.orm.game import Game
 from play.orm.game_player import GamePlayer
@@ -55,9 +55,10 @@ class BoardPieceResponse(BaseModel):
 
 
 class ShelfPieceResponse(BaseModel):
-    name: str
-    archetype: str
-    summon_cost: int
+    name: str | None
+    archetype: str | None
+    summon_cost: int | None
+    hidden: bool
 
 
 class GameStatePlayerResponse(BaseModel):
@@ -109,10 +110,9 @@ def read_game(room: UUID, auth: AuthContext = Depends(require_auth)) -> Game:
 
 @router.get("/{room}/state", response_model=GameStateResponse)
 @read_resource
-def read_game_state(room: UUID, auth: AuthContext = Depends(require_auth)) -> dict:
-    game_row = DatabaseConnection.execute(select(Game).where(Game.room == room)).scalar_one_or_none()
-    assert_preconditions([(game_row is None, 404, "game_not_found")], ERRORS)
+def read_game_state(room: UUID, auth: GameAuthContext = Depends(require_game_access)) -> dict:
+    game_row = DatabaseConnection.get(Game, auth.game_id)
     assert_preconditions([(not game_is_full(DatabaseConnection.session(), game_row.id), 422, "game_not_full")], ERRORS)
 
     engine_game, log = replay_game(DatabaseConnection.session(), game_row)
-    return pack_game_state(engine_game, log)
+    return pack_game_state(engine_game, log, auth.seat_index)
