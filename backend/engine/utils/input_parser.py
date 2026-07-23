@@ -7,6 +7,7 @@ from engine.utils.positions import Position
 
 SQUARE_PATTERN = re.compile(r"^([A-Z])(\d+)$")
 SHELF_PATTERN = re.compile(r"^S(\d+)$")
+AGENT_PATTERN = re.compile(r"^AI(\d+)$")
 
 
 def parse_square(token: str) -> Position:
@@ -24,7 +25,13 @@ def format_square(position: Position) -> str:
 
 def read_raw_input(raw_input: str, game: Game, viewer_index: int | None = None) -> tuple[Callable | None, dict | None]:
     text = raw_input.strip().upper()
-    player = game.players[viewer_index if viewer_index is not None else game.active_player_index]
+    resolved_viewer_index = viewer_index if viewer_index is not None else game.active_player_index
+    player = game.players[resolved_viewer_index]
+
+    if agent_match := AGENT_PATTERN.match(text):
+        from engine.agent import AGENTS
+        agent = AGENTS[int(agent_match.group(1))]
+        return read_raw_input(agent.decide(game, resolved_viewer_index), game, resolved_viewer_index)
 
     if text == "EOT":
         # Deferred import — engine.loop imports read_raw_input from this module,
