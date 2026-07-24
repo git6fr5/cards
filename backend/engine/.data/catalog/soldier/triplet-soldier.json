@@ -1,7 +1,7 @@
 {
-  "name": "Three-Headed Dragon",
+  "name": "Triplet Soldier",
   "concept": "no stated ability — 3 actions per turn is the effect.",
-  "archetype": "DRAGON",
+  "archetype": "SOLDIER",
   "roleType": "UNIT",
   "movement": "CROSS 3",
   "ability": "",

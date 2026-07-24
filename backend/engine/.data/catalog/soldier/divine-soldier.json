@@ -1,6 +1,6 @@
 {
-  "name": "Divine Dragon",
-  "archetype": "DRAGON",
+  "name": "Divine Soldier",
+  "archetype": "SOLDIER",
   "roleType": "UNIT",
   "movement": "CROSS 5",
   "ability": "ON KILL 4\nMODIFY ACTION_COST -5 TURNS 99\nSELF",

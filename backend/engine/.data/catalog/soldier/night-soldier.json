@@ -1,6 +1,6 @@
 {
-  "name": "Dragon Knight",
-  "archetype": "DRAGON",
+  "name": "Night Soldier",
+  "archetype": "SOLDIER",
   "roleType": "UNIT",
   "movement": "CROSS 5",
   "ability": "",

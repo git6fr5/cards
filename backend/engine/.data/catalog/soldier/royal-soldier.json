@@ -1,0 +1,12 @@
+{
+  "name": "Royal Soldier",
+  "archetype": "SOLDIER",
+  "roleType": "UNIT",
+  "movement": "FORWARD 1",
+  "ability": "ON KILL 1\nSUMMON FRIENDLY\nFRIENDLY BAG:SEE:0 1 WHERE ARCHETYPE:SOLDIER ATT:SUMMON_COST>2",
+  "attributes": {
+    "summon_cost": 2,
+    "action_cost": 1,
+    "action_count": 1
+  }
+}

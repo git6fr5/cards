@@ -1,10 +1,10 @@
 {
-  "name": "Dragon King",
-  "archetype": "DRAGON",
+  "name": "Soldier King",
+  "archetype": "SOLDIER",
   "roleType": "KING",
   "movement": "SQUARE 1",
   "summoning": "SQUARE 1",
-  "ability": "ON KILL 1\nMODIFY SUMMON_COST -1 TURNS 99\nFRIENDLY SHELF 1 WHERE ARCHETYPE:DRAGON",
+  "ability": "ON KILL 1\nMODIFY SUMMON_COST -1 TURNS 99\nFRIENDLY SHELF 1 WHERE ARCHETYPE:SOLDIER",
   "attributes": {
     "summon_cost": 0,
     "action_cost": 1,

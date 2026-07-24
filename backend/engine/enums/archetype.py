@@ -1,9 +1,12 @@
 from enum import Enum
 
 class Archetype(str, Enum):
-    DRAGON = "DRAGON"
+    SOLDIER = "SOLDIER"
     GOBLIN = "GOBLIN"
     WARLOCK = "WARLOCK"
+    TIMER = "TIMER"
+    MESSENGER = "MESSENGER"
+    TURRET = "TURRET"
 
     @staticmethod
     def get_color(archetype: "Archetype") -> str:
@@ -11,7 +14,10 @@ class Archetype(str, Enum):
 
 
 ArchetypeColorMap: dict[Archetype, str] = {
-    Archetype.DRAGON: "#DC2626",
+    Archetype.SOLDIER: "#DC2626",
     Archetype.GOBLIN: "#16A34A",
     Archetype.WARLOCK: "#4B5563",
+    Archetype.TIMER: "#CA8A04",
+    Archetype.MESSENGER: "#0EA5E9",
+    Archetype.TURRET: "#7C3AED",
 }

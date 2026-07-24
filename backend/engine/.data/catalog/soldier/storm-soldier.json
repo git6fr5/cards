@@ -1,6 +1,6 @@
 {
-  "name": "Storm Dragon",
-  "archetype": "DRAGON",
+  "name": "Storm Soldier",
+  "archetype": "SOLDIER",
   "roleType": "UNIT",
   "movement": "DIAGONAL 5",
   "ability": "ON KILL 1\nPUT SHELF\nSELF",

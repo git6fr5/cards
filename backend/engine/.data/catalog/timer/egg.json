@@ -1,0 +1,12 @@
+{
+  "name": "Egg",
+  "archetype": "TIMER",
+  "roleType": "UNIT",
+  "movement": "NONE",
+  "ability": "ON TURNEND 3\nSUMMON FRIENDLY\nFRIENDLY BAG:SEE:0 1 WHERE ATT:SUMMON_COST<=2",
+  "attributes": {
+    "summon_cost": 1,
+    "action_cost": 0,
+    "action_count": 1
+  }
+}
