@@ -8,9 +8,9 @@ import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { get, post, put } from '@/utils/api';
 import RajaLoader from '@/components/layout/RajaLoader';
 import RajaToast from '@/components/layout/RajaToast';
+import RajaPlayerGate from '@/components/layout/RajaPlayerGate';
 import PieceToken from '@/app/_components/Piece';
 import { ARCHETYPES, PIECE_TYPES } from '@/utils/archetypes';
-import { useEnsurePlayer } from '@/hooks/useEnsurePlayer';
 import { useToastQueue } from '@/hooks/useToastQueue';
 import CatalogFilters from './_components/CatalogFilters';
 import CatalogGrid from './_components/CatalogGrid';
@@ -42,7 +42,14 @@ function generateBagName(existing: Bag[]): string {
 }
 
 export default function Catalog() {
-  const { isReady, error: playerError } = useEnsurePlayer();
+  return (
+    <RajaPlayerGate>
+      <CatalogContent />
+    </RajaPlayerGate>
+  );
+}
+
+function CatalogContent() {
   const searchParams = useSearchParams();
   const requestedBagId = searchParams.get('bagId');
 
@@ -59,8 +66,6 @@ export default function Catalog() {
   const { setNodeRef: setCatalogDropRef, isOver: isOverCatalog } = useDroppable({ id: 'catalog-grid' });
 
   useEffect(() => {
-    if (!isReady) return;
-
     async function loadData() {
       setError(null);
       setIsLoading(true);
@@ -84,7 +89,7 @@ export default function Catalog() {
       }
     }
     loadData();
-  }, [isReady, requestedBagId]);
+  }, [requestedBagId]);
 
   const catalogByName = useMemo(() => new Map(pieces.map((piece) => [piece.name, piece])), [pieces]);
   const filteredPieces = useMemo(() => pieces.filter((piece) => matchesFilters(piece, filters)), [pieces, filters]);
@@ -160,18 +165,6 @@ export default function Catalog() {
     dropWasValidRef.current = isValid;
     setActiveDragPiece(null);
     setActiveDragSource(null);
-  }
-
-  if (!isReady) {
-    const setupColor = playerError ? 'text-raja-chrome-error' : 'text-raja-chrome-muted';
-    return (
-      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-raja-chrome-bg">
-        <RajaLoader size="lg" />
-        <p className={`font-sans-serif text-sm ${setupColor}`}>
-          {playerError ?? 'First time logging in — setting up.'}
-        </p>
-      </div>
-    );
   }
 
   if (isLoading) {
