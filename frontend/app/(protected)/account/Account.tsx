@@ -5,7 +5,7 @@ import { get } from '@/utils/api';
 import RajaLoader from '@/components/layout/RajaLoader';
 import RajaButton from '@/components/ui/RajaButton';
 import RajaToast from '@/components/layout/RajaToast';
-import { useEnsurePlayer } from '@/hooks/useEnsurePlayer';
+import RajaPlayerGate from '@/components/layout/RajaPlayerGate';
 import { useToastQueue } from '@/hooks/useToastQueue';
 import type { Bag, PieceFull } from '@/app/_components/types';
 import type { GameHistoryEntry, FriendEntry, GameInviteEntry, ActiveGameEntry } from './types';
@@ -22,8 +22,14 @@ interface CurrentPlayer {
 }
 
 export default function Account() {
-  const { isReady, isCreating, error: playerError } = useEnsurePlayer();
+  return (
+    <RajaPlayerGate>
+      <AccountContent />
+    </RajaPlayerGate>
+  );
+}
 
+function AccountContent() {
   const [currentPlayerId, setCurrentPlayerId] = useState<number | null>(null);
   const [bags, setBags] = useState<Bag[]>([]);
   const [pieces, setPieces] = useState<PieceFull[]>([]);
@@ -37,8 +43,6 @@ export default function Account() {
   const { active: toast, push: pushToast, dismiss: dismissToast } = useToastQueue();
 
   useEffect(() => {
-    if (!isReady) return;
-
     async function loadData() {
       setError(null);
       setIsLoading(true);
@@ -68,7 +72,7 @@ export default function Account() {
       }
     }
     loadData();
-  }, [isReady]);
+  }, []);
 
   const catalogByName = useMemo(() => new Map(pieces.map((piece) => [piece.name, piece])), [pieces]);
 
@@ -78,17 +82,6 @@ export default function Account() {
 
   function handleError(message: string) {
     pushToast({ text: message, tone: 'error' });
-  }
-
-  if (!isReady) {
-    const setupColor = playerError ? 'text-raja-chrome-error' : 'text-raja-chrome-muted';
-    const setupText = playerError ?? (isCreating ? 'Setting up account' : null);
-    return (
-      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-raja-chrome-bg">
-        <RajaLoader size="lg" />
-        {setupText && <p className={`font-sans-serif text-sm ${setupColor}`}>{setupText}</p>}
-      </div>
-    );
   }
 
   if (isLoading || currentPlayerId === null) {

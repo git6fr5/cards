@@ -2,14 +2,15 @@
 
 import { useDraggable } from '@dnd-kit/core';
 import PieceDetailCard from '@/app/_components/PieceDetailCard';
-import type { PieceFull } from '../types';
+import PieceIconCard from '@/app/_components/PieceIconCard';
+import type { PieceFull, AbilityViewMode } from '../types';
 
 interface PieceCardProps {
   piece: PieceFull;
-  showRawDsl?: boolean;
+  abilityViewMode?: AbilityViewMode;
 }
 
-export default function PieceCard({ piece, showRawDsl = false }: PieceCardProps) {
+export default function PieceCard({ piece, abilityViewMode = 'text' }: PieceCardProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `catalog-${piece.name}`,
     data: { piece, source: 'catalog' },
@@ -19,7 +20,11 @@ export default function PieceCard({ piece, showRawDsl = false }: PieceCardProps)
 
   return (
     <div ref={setNodeRef} {...listeners} {...attributes} className="cursor-grab">
-      <PieceDetailCard piece={piece} showRawDsl={showRawDsl} className={opacity} />
+      {abilityViewMode === 'icons' ? (
+        <PieceIconCard piece={piece} className={opacity} />
+      ) : (
+        <PieceDetailCard piece={piece} showRawDsl={abilityViewMode === 'dsl'} className={opacity} />
+      )}
     </div>
   );
 }

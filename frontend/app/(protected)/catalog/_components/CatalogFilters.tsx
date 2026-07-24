@@ -3,16 +3,22 @@
 import RajaTextField from '@/components/ui/RajaTextField';
 import RajaDropdown from '@/components/ui/RajaDropdown';
 import RajaButton from '@/components/ui/RajaButton';
-import RajaCheckbox from '@/components/ui/RajaCheckbox';
-import type { PieceFull, FilterState } from '../types';
+import RajaRadio from '@/components/ui/RajaRadio';
+import type { PieceFull, FilterState, AbilityViewMode } from '../types';
 import { EMPTY_FILTERS } from '../types';
+
+const ABILITY_VIEW_MODE_OPTIONS = [
+  { value: 'dsl', label: 'Raw DSL' },
+  { value: 'text', label: 'Translated text' },
+  { value: 'icons', label: 'Icons' },
+];
 
 interface CatalogFiltersProps {
   pieces: PieceFull[];
   filters: FilterState;
   onChange: (filters: FilterState) => void;
-  showRawDsl: boolean;
-  onToggleRawDsl: (showRawDsl: boolean) => void;
+  abilityViewMode: AbilityViewMode;
+  onChangeAbilityViewMode: (mode: AbilityViewMode) => void;
 }
 
 function distinctOptions(values: (string | number)[]): { value: string; label: string }[] {
@@ -20,7 +26,7 @@ function distinctOptions(values: (string | number)[]): { value: string; label: s
   return unique.map((value) => ({ value, label: value }));
 }
 
-export default function CatalogFilters({ pieces, filters, onChange, showRawDsl, onToggleRawDsl }: CatalogFiltersProps) {
+export default function CatalogFilters({ pieces, filters, onChange, abilityViewMode, onChangeAbilityViewMode }: CatalogFiltersProps) {
   function updateFilter(key: keyof FilterState, value: string) {
     onChange({ ...filters, [key]: value });
   }
@@ -115,11 +121,11 @@ export default function CatalogFilters({ pieces, filters, onChange, showRawDsl, 
       />
 
       <div className="border-t border-raja-chrome-border pt-4">
-        <RajaCheckbox
-          id="catalog-show-raw-dsl"
-          label="Show raw DSL"
-          checked={showRawDsl}
-          onChange={(e) => onToggleRawDsl(e.target.checked)}
+        <RajaRadio
+          name="catalog-ability-view-mode"
+          options={ABILITY_VIEW_MODE_OPTIONS}
+          value={abilityViewMode}
+          onChange={(value) => onChangeAbilityViewMode(value as AbilityViewMode)}
         />
       </div>
     </div>
