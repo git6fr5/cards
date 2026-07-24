@@ -1,9 +1,8 @@
-import PieceToken from '@/app/_components/Piece';
 import MovementBoard from '@/app/_components/MovementBoard';
 import type { MovementPattern } from '@/app/_components/MovementBoard';
-import { ARCHETYPES, PIECE_TYPES } from '@/utils/archetypes';
 import RajaCostCircle from '@/components/ui/RajaCostCircle';
-import RajaArchetypePill from '@/components/ui/RajaArchetypePill';
+import RajaArchetypeIcon from '@/components/ui/RajaArchetypeIcon';
+import RajaAbilityText from '@/components/ui/RajaAbilityText';
 import type { PieceFull } from './types';
 
 interface PieceDetailCardProps {
@@ -15,24 +14,22 @@ export default function PieceDetailCard({ piece, className = '' }: PieceDetailCa
   const pattern = piece.movement_type.toLowerCase() as MovementPattern;
 
   return (
-    <div className={`flex flex-col items-center gap-2 border border-raja-chrome-border bg-raja-chrome-panel p-3 ${className}`}>
-      <p className="font-serif text-sm text-raja-chrome-text text-center">{piece.name}</p>
-      <PieceToken
-        name={piece.name}
-        archetype={ARCHETYPES[piece.archetype]}
-        pieceType={PIECE_TYPES[piece.role_type]}
-        bodyColor="steel"
-        size="md"
+    <div className={`relative flex w-[5.5cm] h-[8cm] flex-col items-center justify-center gap-0.5 border-[3px] border-raja-orange bg-raja-chrome-panel px-1 pt-7 pb-7 ${className}`}>
+      <RajaArchetypeIcon archetype={piece.archetype} className="absolute left-0.5 top-0.5" />
+      <RajaCostCircle value={piece.attributes.action_cost} label="Action cost" className="absolute right-0.5 top-0.5" />
+      <RajaCostCircle
+        value={piece.attributes.summon_cost}
+        label="Summon cost"
+        bgClassName="bg-raja-ink/50"
+        className="absolute left-0.5 bottom-0.5"
       />
-      <RajaArchetypePill archetype={piece.archetype} />
-      <MovementBoard pattern={pattern} distance={piece.movement_distance} size="sm" />
-      <p className="font-monospace text-[0.55rem] text-raja-chrome-text whitespace-pre-line text-center">
-        {piece.ability}
+      <RajaArchetypeIcon archetype={piece.archetype} className="absolute right-0.5 bottom-0.5" />
+
+      <p className="absolute top-0.5 left-8 right-8 font-serif text-sm font-bold uppercase text-raja-chrome-text text-center leading-tight">
+        {piece.name}
       </p>
-      <div className="flex w-full items-center justify-between">
-        <RajaCostCircle value={piece.attributes.summon_cost} label="Summon cost" bgClassName="bg-raja-ink/50" />
-        <RajaCostCircle value={piece.attributes.action_cost} label="Action cost" />
-      </div>
+      <MovementBoard pattern={pattern} distance={piece.movement_distance} size="sm" />
+      <RajaAbilityText dsl={piece.ability} />
     </div>
   );
 }
