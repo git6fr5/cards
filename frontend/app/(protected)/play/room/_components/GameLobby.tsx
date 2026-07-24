@@ -13,9 +13,9 @@ export default function GameLobby({ room, player, game }: GameLobbyProps) {
   const message = isSeated ? 'Waiting for your opponent to join…' : 'Waiting for the other seat to be claimed…';
 
   return (
-    <div className="min-h-screen bg-raja-black flex flex-col items-center justify-center gap-6 p-8">
-      <RajaLoader alt size="lg" />
-      <p className="font-sans-serif text-sm text-raja-grey-light">{message}</p>
+    <div className="min-h-screen bg-raja-chrome-bg flex flex-col items-center justify-center gap-6 p-8">
+      <RajaLoader size="lg" />
+      <p className="font-sans-serif text-sm text-raja-chrome-muted">{message}</p>
       <InviteLink room={room} otherPlayerIndex={1 - player} />
     </div>
   );

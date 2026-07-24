@@ -15,6 +15,7 @@ import RajaFooter from '@/components/layout/RajaFooter';
 import RajaSection from '@/components/layout/RajaSection';
 import RajaModal from '@/components/layout/RajaModal';
 import RajaLoader from '@/components/layout/RajaLoader';
+import { CurrentUserProvider } from '@/hooks/useCurrentUser';
 
 interface SwatchSpec {
   token: string;
@@ -141,13 +142,15 @@ export default function DesignShowcase() {
           </Row>
         </Block>
 
-        <Block title="RajaHeader" subtitle="Site nav bar — open and protected variants.">
-          <Row label="Open">
-            <RajaHeader variant="open" />
-          </Row>
-          <Row label="Protected">
-            <RajaHeader variant="protected" />
-          </Row>
+        <Block title="RajaHeader" subtitle="Site nav bar — auth state read from CurrentUserContext.">
+          <CurrentUserProvider>
+            <Row label="Default">
+              <RajaHeader />
+            </Row>
+            <Row label="With Catalog link">
+              <RajaHeader showCatalog />
+            </Row>
+          </CurrentUserProvider>
         </Block>
 
         <Block title="RajaButton" subtitle="Primary (orange action) and alt (panel) variants.">

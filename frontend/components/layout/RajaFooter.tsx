@@ -10,7 +10,7 @@ export default function RajaFooter({ alt = false, children, className = '' }: Ra
   const bg = alt ? 'bg-raja-chrome-text' : 'bg-raja-chrome-bg';
 
   return (
-    <footer className={`${bg} ${className}`}>
+    <footer className={`sticky bottom-0 z-pin ${bg} ${className}`}>
       {children}
     </footer>
   );

@@ -33,7 +33,7 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-serif text-2xl text-raja-chrome-bg text-center tracking-wide">
+      <h1 className="font-serif text-2xl text-raja-chrome-text text-center tracking-wide">
         Sign in to Raja
       </h1>
 
@@ -43,7 +43,6 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
 
       <div className="flex flex-col gap-4">
         <RajaTextField
-          alt
           id="email"
           label="Email"
           type="email"
@@ -53,7 +52,6 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
           disabled={isLoading}
         />
         <RajaTextField
-          alt
           id="password"
           label="Password"
           type="password"
@@ -72,7 +70,7 @@ export default function LoginForm({ onSwitch }: LoginFormProps) {
         fullWidth
       />
 
-      <p className="font-sans-serif text-sm text-center text-raja-chrome-bg/60">
+      <p className="font-sans-serif text-sm text-center text-raja-chrome-muted">
         Don't have an account?{' '}
         <button type="button" onClick={onSwitch} className="font-bold underline">
           Create one

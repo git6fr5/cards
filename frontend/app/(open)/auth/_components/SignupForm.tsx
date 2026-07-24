@@ -34,7 +34,7 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="font-serif text-2xl text-raja-chrome-bg text-center tracking-wide">
+      <h1 className="font-serif text-2xl text-raja-chrome-text text-center tracking-wide">
         Create your account
       </h1>
 
@@ -44,7 +44,6 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
 
       <div className="flex flex-col gap-4">
         <RajaTextField
-          alt
           id="display-name"
           label="Display Name"
           value={displayName}
@@ -53,7 +52,6 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
           disabled={isLoading}
         />
         <RajaTextField
-          alt
           id="email"
           label="Email"
           type="email"
@@ -63,7 +61,6 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
           disabled={isLoading}
         />
         <RajaTextField
-          alt
           id="password"
           label="Password"
           type="password"
@@ -82,7 +79,7 @@ export default function SignupForm({ onSwitch }: SignupFormProps) {
         fullWidth
       />
 
-      <p className="font-sans-serif text-sm text-center text-raja-chrome-bg/60">
+      <p className="font-sans-serif text-sm text-center text-raja-chrome-muted">
         Already have an account?{' '}
         <button type="button" onClick={onSwitch} className="font-bold underline">
           Sign in

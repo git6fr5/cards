@@ -11,7 +11,7 @@ export default function Auth() {
   const [mode, setMode] = useState<Mode>('login');
 
   return (
-    <RajaSection alt className="min-h-screen flex items-center justify-center px-4">
+    <RajaSection className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm flex flex-col gap-6">
         {mode === 'login'
           ? <LoginForm onSwitch={() => setMode('signup')} />
