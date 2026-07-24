@@ -4,6 +4,8 @@
 1. [Breakdown of the engine's ability parser/resolver](#1-breakdown-of-the-engines-ability-parserresolver)
 2. [Reusability scope and locked decisions](#2-reusability-scope-and-locked-decisions)
 3. [Implementation and verification](#3-implementation-and-verification)
+4. [Wording rewrite: possessive zones and embedded filter line](#4-wording-rewrite-possessive-zones-and-embedded-filter-line)
+5. [PUT effect wording — Black Dragon](#5-put-effect-wording-black-dragon)
 
 ---
 
@@ -50,3 +52,34 @@ Built in slice order per the plan: `abilityTranslator.ts` (pure functions: `tran
 
 ### Decision
 Shipped as planned, no scope cuts needed — full grammar coverage held up against every canonical example without requiring the "safe cut" fallbacks (raw `WHERE` clause, skeleton-only trigger/effect/target) that were pre-planned in case filter/zone translation proved too heavy.
+
+---
+
+## 4. Wording rewrite: possessive zones and embedded filter line
+
+### Context
+User pasted the Dragon Queen catalog entry (`ON KILL 1` / `SUMMON FRIENDLY` / `FRIENDLY BAG:SEE:0 1 WHERE ARCHETYPE:DRAGON ATT:SUMMON_COST<=1`) and a screenshot of the rendered card, wanting the target line reworded: `FRIENDLY BAG` → "From your bag" instead of "1 friendly piece in the bag", and the `WHERE` filter moved onto its own line rather than a trailing parenthetical.
+
+### Discussion points
+Five scope questions were asked before touching the translator, since some options would have changed `RajaAbilityText`'s public output shape (a breaking change for its only other consumer, `PieceDetailPanel`):
+- **Output shape**: user kept the existing fixed `{ trigger, effect, target }` object rather than switching to a variable-length `lines[]` array — "ditched the second line thing for filters." Resolved by embedding the `Where ...` clause as a literal `\n` *inside* the existing `target.text` (and `trigger.text`, symmetrically) string — `AbilityLine` already renders with `whitespace-pre-line`, so the embedded newline renders as its own visual line without any type/shape change at all.
+- **Zone scope**: `SHELF` (hand) gets the same "From your/their hand" possessive treatment as `BAG`; `BOARD` (spatial, pattern-based) keeps its existing count/alignment-prefixed phrasing unchanged, since it isn't a possessed pool.
+- **Count omission**: confirmed — the count number is omitted only when it's exactly `1` (matches Dragon Queen's `1` disappearing entirely); still shown for `>1` and `ALL`.
+- **Wording**: comparators spelled out in full site-wide (`<=` → "less than or equal to", `>=` → "greater than or equal to", `>` → "greater than", was previously "X or less"/"X or more"/"more than X"). The attribute-name rename to "summoning cost" was proposed and then reverted — user preferred keeping the existing generic "summon cost" wording.
+- Filter phrasing itself also changed shape (not just placement): from a plural noun-list ("dragons with summon cost 2 or less") to a subject-verb sentence ("the piece is a dragon with summon cost less than or equal to 1") — necessary once it became a standalone "Where ..." line rather than a parenthetical modifying a preceding noun.
+
+### Decision
+Rewrote `translateFilters` → `translateFilterSentence` (structure criteria now singular "a `{value}`" joined with "and"/"or" as needed, sentence-assembled as "the piece is X [with Y]"); split zone translation into a dedicated `translateZonePhrase` that branches on possessed-pool (`BAG`/`SHELF`, via a new `POSSESSIVE_WORDS` map: `your`/`their`/`any`) vs spatial (`BOARD`, unchanged style) zones; both `translateTrigger` and `translateTarget` now append `\n` + `Where {sentence}` when a filter is present, instead of the old `, limited to ...` / `(...)` forms. Also fixed a layout bug surfaced by this change: `AbilityLine`'s `<p>` had no width constraint inside its flex-column parent, so a now-longer two-line target string could overflow the card's fixed width instead of wrapping — added `w-full` to both the translated and raw-mode `<p>` elements in `RajaAbilityText`. Verified via a throwaway `tsx` script against Dragon Queen (exact match to the requested output) plus all prior canonical examples — none regressed.
+
+---
+
+## 5. PUT effect wording — Black Dragon
+
+### Context
+User showed a screenshot of Black Dragon (`ON KILL 1` / `PUT SHELF` / `DEFENDER`, rendering as "Every time this piece captures / Move the target to hand / The defending piece") and proposed rewording to "Move to your hand" / "the captured piece". Asked for a `/bullet 4 12` cost-and-issues rundown before touching anything.
+
+### Discussion points
+The bullet answer flagged two issues with renaming `DEFENDER`'s target phrase to "the captured piece": `DEFENDER` also means a building's activated-on piece (not always something captured), and `translateTarget` translates each line independently — it has no visibility into whether the paired trigger was `KILL`/`DEATH`, so it can't conditionally pick "captured" vs some other phrasing. No issue was raised against the `PUT` effect reword itself (it doesn't reference `DEFENDER` at all). User's response: keep "The defending piece" as-is for now, but proceed with the `PUT` reword.
+
+### Decision
+`PUT`'s effect line switched from `Move the target to ${zone}` to zone-specific phrasing: `SHELF` → "Move to your hand", `BAG` → "Move to your bag", `BOARD` → "Move to the board" (no possessive — the board isn't a per-player pool). `DEFENDER`'s target phrase left untouched. Note: `PUT`'s DSL carries no alignment token, so "your" is an assumption baked into the wording, not something read off the DSL — flagged, not resolved, since the user didn't push back on it.

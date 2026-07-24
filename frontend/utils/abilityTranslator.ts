@@ -20,9 +20,10 @@ const ALIGNMENT_WORDS: Record<string, string> = {
   ANY: '',
 };
 
-const ZONE_WORDS: Record<string, string> = {
-  SHELF: 'hand',
-  BAG: 'the bag',
+const POSSESSIVE_WORDS: Record<string, string> = {
+  FRIENDLY: 'your',
+  ENEMY: 'their',
+  ANY: 'any',
 };
 
 const TRIGGER_PHRASES: Record<string, (n: number) => string> = {
@@ -36,9 +37,9 @@ const TRIGGER_PHRASES: Record<string, (n: number) => string> = {
 
 const COMPARATOR_PHRASE: Record<string, (value: string) => string> = {
   '<': (v) => `less than ${v}`,
-  '<=': (v) => `${v} or less`,
-  '>': (v) => `more than ${v}`,
-  '>=': (v) => `${v} or more`,
+  '<=': (v) => `less than or equal to ${v}`,
+  '>': (v) => `greater than ${v}`,
+  '>=': (v) => `greater than or equal to ${v}`,
   '=': (v) => `exactly ${v}`,
 };
 
@@ -49,17 +50,13 @@ function humanizeToken(token: string): string {
   return token.toLowerCase().replace(/_/g, ' ');
 }
 
-function pluralize(token: string): string {
-  const lower = token.toLowerCase();
-  return lower.endsWith('s') ? lower : `${lower}s`;
-}
-
 function durationPhrase(turns: number): string {
   return turns >= PERMANENT_TURNS ? 'permanently' : `for ${turns} turn${turns === 1 ? '' : 's'}`;
 }
 
 // rawTokens is everything after COUNT (target) or VALUE (trigger) — may start with "WHERE", or be empty.
-function translateFilters(rawTokens: string[]): string | null {
+// Returns a full "Where ..." clause (sans the "Where" word itself) for embedding as its own line.
+function translateFilterSentence(rawTokens: string[]): string | null {
   if (rawTokens.length === 0 || rawTokens[0] !== 'WHERE' || rawTokens[1] === 'ANY') return null;
 
   const structurePhrases: string[] = [];
@@ -75,15 +72,17 @@ function translateFilters(rawTokens: string[]): string | null {
     }
     if (criterion.includes(':')) {
       const [, rawValues] = criterion.split(':');
-      structurePhrases.push(rawValues.split('|').map(pluralize).join(' or '));
+      structurePhrases.push(`a ${rawValues.split('|').map((v) => v.toLowerCase()).join(' or ')}`);
     }
   }
 
-  const parts: string[] = [];
-  if (structurePhrases.length > 0) parts.push(structurePhrases.join(' '));
-  if (attributePhrases.length > 0) parts.push(`with ${attributePhrases.join(' and ')}`);
+  const structureText = structurePhrases.length > 0 ? structurePhrases.join(' and ') : null;
+  const attributeText = attributePhrases.length > 0 ? attributePhrases.join(' and ') : null;
 
-  return parts.length > 0 ? parts.join(' ') : null;
+  if (structureText && attributeText) return `the piece is ${structureText} with ${attributeText}`;
+  if (structureText) return `the piece is ${structureText}`;
+  if (attributeText) return `the piece has ${attributeText}`;
+  return null;
 }
 
 function translateTrigger(rawLine: string): TranslatedLine {
@@ -97,9 +96,9 @@ function translateTrigger(rawLine: string): TranslatedLine {
   const n = Number(value);
   if (!phraseFn || Number.isNaN(n)) return asFallback(rawLine);
 
-  const filterPhrase = translateFilters(filterParts);
+  const filterSentence = translateFilterSentence(filterParts);
   const base = phraseFn(n);
-  return ok(filterPhrase ? `${base}, limited to ${filterPhrase}` : base);
+  return ok(filterSentence ? `${base}\nWhere ${filterSentence}` : base);
 }
 
 function translateEffect(rawLine: string): TranslatedLine {
@@ -117,8 +116,12 @@ function translateEffect(rawLine: string): TranslatedLine {
 
     case 'PUT': {
       if (parts.length !== 2) return asFallback(rawLine);
-      const zone = ZONE_WORDS[parts[1]] ?? (parts[1] === 'BOARD' ? 'the board' : undefined);
-      return zone ? ok(`Move the target to ${zone}`) : asFallback(rawLine);
+      switch (parts[1]) {
+        case 'BOARD': return ok('Move to the board');
+        case 'SHELF': return ok('Move to your hand');
+        case 'BAG': return ok('Move to your bag');
+        default: return asFallback(rawLine);
+      }
     }
 
     case 'MODIFY': {
@@ -145,17 +148,32 @@ function translateEffect(rawLine: string): TranslatedLine {
   }
 }
 
-function translateZone(zoneToken: string): string | null {
+// Zones are either a possessed pool (bag/hand — "From your bag") or a spatial board query
+// (count + alignment + "on the board within <pattern> <size>").
+function translateZonePhrase(
+  zoneToken: string,
+  alignmentToken: string,
+  alignment: string,
+  isAll: boolean,
+  countNum: number | null,
+): string | null {
   const segments = zoneToken.split(':');
+
   switch (segments[0]) {
     case 'SHELF':
-      return segments.length === 1 ? `in ${ZONE_WORDS.SHELF}` : null;
+      return segments.length === 1 ? `From ${POSSESSIVE_WORDS[alignmentToken]} hand` : null;
+
     case 'BAG':
-      return segments[1] === 'SEE' && segments.length === 3 ? `in ${ZONE_WORDS.BAG}` : null;
-    case 'BOARD':
-      return segments[1] === 'PATTERN' && segments.length === 4
-        ? `on the board within ${segments[2]} ${segments[3]}`
-        : null;
+      return segments[1] === 'SEE' && segments.length === 3 ? `From ${POSSESSIVE_WORDS[alignmentToken]} bag` : null;
+
+    case 'BOARD': {
+      if (segments[1] !== 'PATTERN' || segments.length !== 4) return null;
+      const pieceWord = isAll || countNum !== 1 ? 'pieces' : 'piece';
+      const countWord = isAll ? 'all' : countNum === 1 ? '' : String(countNum);
+      const location = `on the board within ${segments[2]} ${segments[3]}`;
+      return [countWord, alignment, pieceWord, location].filter(Boolean).join(' ');
+    }
+
     default:
       return null;
   }
@@ -172,19 +190,15 @@ function translateTarget(rawLine: string): TranslatedLine {
   const alignment = ALIGNMENT_WORDS[alignmentToken];
   if (alignment === undefined) return asFallback(rawLine);
 
-  const zonePhrase = translateZone(zoneToken);
-  if (zonePhrase === null) return asFallback(rawLine);
-
   const isAll = countToken === 'ALL';
   const countNum = isAll ? null : Number(countToken);
   if (!isAll && Number.isNaN(countNum)) return asFallback(rawLine);
 
-  const pieceWord = isAll || countNum !== 1 ? 'pieces' : 'piece';
-  const countWord = isAll ? 'all' : String(countNum);
-  const filterPhrase = translateFilters(filterParts);
+  const zonePhrase = translateZonePhrase(zoneToken, alignmentToken, alignment, isAll, countNum);
+  if (zonePhrase === null) return asFallback(rawLine);
 
-  const sentence = [countWord, alignment, pieceWord, zonePhrase].filter(Boolean).join(' ');
-  return ok(filterPhrase ? `${sentence} (${filterPhrase})` : sentence);
+  const filterSentence = translateFilterSentence(filterParts);
+  return ok(filterSentence ? `${zonePhrase}\nWhere ${filterSentence}` : zonePhrase);
 }
 
 export function translateAbility(dsl: string): TranslatedAbility | null {

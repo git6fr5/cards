@@ -3,6 +3,7 @@ import type { PieceFull } from '../types';
 
 interface CatalogGridProps {
   pieces: PieceFull[];
+  showRawDsl?: boolean;
 }
 
 function groupByArchetype(pieces: PieceFull[]): [string, PieceFull[]][] {
@@ -18,7 +19,7 @@ function groupByArchetype(pieces: PieceFull[]): [string, PieceFull[]][] {
   return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
 }
 
-export default function CatalogGrid({ pieces }: CatalogGridProps) {
+export default function CatalogGrid({ pieces, showRawDsl = false }: CatalogGridProps) {
   const groups = groupByArchetype(pieces);
 
   if (groups.length === 0) {
@@ -32,7 +33,7 @@ export default function CatalogGrid({ pieces }: CatalogGridProps) {
           <h2 className="font-serif text-lg text-raja-chrome-text tracking-wide">{archetype}</h2>
           <div className="grid grid-cols-[repeat(auto-fill,minmax(12rem,1fr))] gap-4">
             {groupPieces.map((piece) => (
-              <PieceCard key={piece.id} piece={piece} />
+              <PieceCard key={piece.id} piece={piece} showRawDsl={showRawDsl} />
             ))}
           </div>
         </div>

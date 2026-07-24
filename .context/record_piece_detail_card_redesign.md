@@ -4,6 +4,7 @@
 1. [Scope and shared-component discovery](#1-scope-and-shared-component-discovery)
 2. [Layout spec](#2-layout-spec)
 3. [Implementation](#3-implementation)
+4. [Layout polish: name and movement-board centering](#4-layout-polish-name-and-movement-board-centering)
 
 ---
 
@@ -49,3 +50,18 @@ Built directly on the `/build` router (frontend-only, styling-tagged): loaded `g
 
 ### Decision
 Rewrote `PieceDetailCard.tsx`: removed the `PieceToken`/`RajaArchetypePill` render, switched the container to `relative w-piece-card h-[4cm] border-[3px] border-raja-orange`, and absolutely-positioned the four corner elements with the name/movement-board/ability text stacked in between. Verified with `tsc --noEmit` (no dev server, no DB, per standing constraints) — visual correctness (whether the middle content fits legibly) is explicitly left for the user to check in-browser.
+
+---
+
+## 4. Layout polish: name and movement-board centering
+
+### Context
+Two follow-up visual fixes once the user could actually see the card in-browser (final size settled at 5.5cm × 8cm per §2): the piece name needed to sit centered both horizontally and vertically within the top icon row (it was pinned to the top edge of that band), and the movement board needed to stay perfectly centered in the card regardless of whether ability text was present below it — it was visibly shifting upward whenever a piece had (non-empty) ability text, because both were flex children of the same centered column and got treated as one combined block.
+
+### Discussion points
+None on the name fix — straightforward. On the movement board: root cause was that `MovementBoard` and `RajaAbilityText` were both normal-flow children of a `flex flex-col justify-center` container, so `justify-center` centered the *combined* stack, not the board alone — the more ability text there was, the further the board itself drifted from true center.
+
+### Decision
+Name: gave the absolutely-positioned name `<p>` a fixed `h-7` (matching the corner icons' height) plus `flex items-center justify-center`, so it centers within that top band on both axes instead of just horizontally via `text-center`.
+
+Movement board: pulled it out of the flex flow entirely into its own `absolute inset-0 flex items-center justify-center` layer (with matching `px-1 pt-7 pb-7` so it still respects the corner-icon margins) — this centers it in the full card independent of anything else. Ability text now lives in a separate `absolute inset-x-1 bottom-7` layer, anchored to the bottom and growing upward with its own content, instead of sharing a flex stack with the board. The container itself dropped its now-unused `flex flex-col items-center justify-center gap-0.5` classes since nothing is in normal flow anymore. Known follow-on risk (not yet hit): a long enough ability text block (e.g. a fallback line plus a filter line) could grow upward far enough to visually collide with the board — left for a future visual check rather than pre-solved.

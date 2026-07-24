@@ -3,6 +3,7 @@
 import RajaTextField from '@/components/ui/RajaTextField';
 import RajaDropdown from '@/components/ui/RajaDropdown';
 import RajaButton from '@/components/ui/RajaButton';
+import RajaCheckbox from '@/components/ui/RajaCheckbox';
 import type { PieceFull, FilterState } from '../types';
 import { EMPTY_FILTERS } from '../types';
 
@@ -10,6 +11,8 @@ interface CatalogFiltersProps {
   pieces: PieceFull[];
   filters: FilterState;
   onChange: (filters: FilterState) => void;
+  showRawDsl: boolean;
+  onToggleRawDsl: (showRawDsl: boolean) => void;
 }
 
 function distinctOptions(values: (string | number)[]): { value: string; label: string }[] {
@@ -17,7 +20,7 @@ function distinctOptions(values: (string | number)[]): { value: string; label: s
   return unique.map((value) => ({ value, label: value }));
 }
 
-export default function CatalogFilters({ pieces, filters, onChange }: CatalogFiltersProps) {
+export default function CatalogFilters({ pieces, filters, onChange, showRawDsl, onToggleRawDsl }: CatalogFiltersProps) {
   function updateFilter(key: keyof FilterState, value: string) {
     onChange({ ...filters, [key]: value });
   }
@@ -110,6 +113,15 @@ export default function CatalogFilters({ pieces, filters, onChange }: CatalogFil
         text="Clear Filters"
         onClick={() => onChange(EMPTY_FILTERS)}
       />
+
+      <div className="border-t border-raja-chrome-border pt-4">
+        <RajaCheckbox
+          id="catalog-show-raw-dsl"
+          label="Show raw DSL"
+          checked={showRawDsl}
+          onChange={(e) => onToggleRawDsl(e.target.checked)}
+        />
+      </div>
     </div>
   );
 }

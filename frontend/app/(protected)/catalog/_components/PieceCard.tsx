@@ -6,9 +6,10 @@ import type { PieceFull } from '../types';
 
 interface PieceCardProps {
   piece: PieceFull;
+  showRawDsl?: boolean;
 }
 
-export default function PieceCard({ piece }: PieceCardProps) {
+export default function PieceCard({ piece, showRawDsl = false }: PieceCardProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `catalog-${piece.name}`,
     data: { piece, source: 'catalog' },
@@ -18,7 +19,7 @@ export default function PieceCard({ piece }: PieceCardProps) {
 
   return (
     <div ref={setNodeRef} {...listeners} {...attributes} className="cursor-grab">
-      <PieceDetailCard piece={piece} className={opacity} />
+      <PieceDetailCard piece={piece} showRawDsl={showRawDsl} className={opacity} />
     </div>
   );
 }
