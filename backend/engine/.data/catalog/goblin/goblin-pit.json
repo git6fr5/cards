@@ -1,12 +1,12 @@
 {
-  "name": "Goblin Pit",
-  "archetype": "GOBLIN",
+  "name": "Stun Turret",
+  "archetype": "TURRET",
   "roleType": "BUILDING",
-  "movement": "CROSS 1",
-  "ability": "ON ACTIVATE\nMODIFY ACTION_COUNT -99 TURNS 3\nDEFENDER",
+  "movement": "CROSS 2",
+  "ability": "ON ACTIVATE\nMODIFY ACTION_COUNT -99 TURNS 1\nDEFENDER",
   "attributes": {
     "summon_cost": 3,
-    "action_cost": 3,
+    "action_cost": 2,
     "action_count": 1
   }
 }

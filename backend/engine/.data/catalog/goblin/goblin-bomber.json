@@ -1,12 +1,12 @@
 {
-  "name": "Goblin Bomber",
-  "archetype": "GOBLIN",
+  "name": "Exploding Messenger",
+  "archetype": "MESSENGER",
   "roleType": "UNIT",
   "movement": "DIAGONAL 2",
   "ability": "ON MOVE 3\nKILL\nANY BOARD:PATTERN:CROSS:1 1 WHERE ANY",
   "attributes": {
     "summon_cost": 3,
-    "action_cost": 3,
+    "action_cost": 2,
     "action_count": 1
   }
 }

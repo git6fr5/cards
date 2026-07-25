@@ -158,7 +158,7 @@ fixed immediately — reported as root cause + proposed diff, then applied once 
 
 ---
 
-## 4. 2026-07-26 — Goblin archetype split (in progress)
+## 4. 2026-07-26 — Goblin archetype split (partial, 5 of 8)
 
 ### Context
 Picked up the open question carried forward from part 2: ran `card_updater_workflow.md`'s audit +
@@ -166,9 +166,9 @@ per-piece walk against `backend/engine/.data/catalog/goblin/` (8 pieces), reusin
 rules from the Soldier rework (archetype implies trigger; `action_cost` = max move distance /
 activation-pattern distance for buildings) and reusing the existing SOLDIER/TIMER/MESSENGER/TURRET
 archetypes rather than inventing goblin-specific ones — confirmed explicitly before the walk began.
-Session paused mid-walk (piece 6 of 8) for the day; nothing has been written to any file yet — all
-decisions below are conversationally locked only, per the workflow's Step 3 (no edits before the
-Step 6 batch `/build`).
+Session paused mid-walk (piece 6 of 8) for the day, then resumed and ran `/build all locked
+decisions` — batch-wrote the 5 pieces locked so far, leaving Goblin Warrior/Hobgoblin/Salt Goblin
+for a follow-up pass.
 
 ### Discussion points
 - Corrected assistant mid-session: audit should present mismatches only, not propose a fix
@@ -191,7 +191,7 @@ Step 6 batch `/build`).
   introducing DEMON).
 
 ### Decision
-Locked so far (conversational only, no files touched):
+Implemented, in `backend/engine/.data/catalog/goblin/`:
 
 | File | New name | Archetype | Key changes |
 |---|---|---|---|
@@ -201,9 +201,18 @@ Locked so far (conversational only, no files touched):
 | goblin-knight.json | Dying Timekeeper | TIMEKEEPER (renamed from TIMER, enum-wide) | archetype reclass; triggers the TIMER→TIMEKEEPER rename |
 | goblin-pit.json | Stun Turret | TURRET | ability `TURNS 3`→`TURNS 1`; movement `CROSS 1`→`CROSS 2`; action_cost 3→2 |
 
+Plus cross-file consequences applied in the same pass:
+- `TIMER`→`TIMEKEEPER`: `backend/engine/enums/archetype.py` (member + color map),
+  `frontend/utils/archetypes.ts` (`ARCHETYPES` map entry, same `Timer` icon/color), and
+  `backend/engine/.data/catalog/timer/egg.json`'s `archetype` field — all renamed, no orphaned
+  `TIMER` references left (verified by grep).
+- `backend/engine/.data/default_bags/goblin.txt`: entries renamed to match (Exploding Messenger ×10,
+  Good News Messenger ×10, Stun Turret ×4, Messenger King ×1).
+- Filenames/folders: left as-is (default per workflow Step 5, not asked this pass) —
+  `goblin-bomber.json` etc. keep old filenames despite new piece names; `timer/` folder unrenamed.
+- `GOBLIN` archetype enum member kept (still used by the 3 unimplemented pieces below).
+
 Open / not yet reached:
-- Goblin Warrior (mismatches presented, no decision locked — paused here).
-- Hobgoblin, Salt Goblin — not yet walked.
-- `TIMER`→`TIMEKEEPER` rename scope (enum, frontend mirror, `timer/egg.json`, folder) — not confirmed.
-- Filename/folder treatment for `goblin/` (workflow Step 5) — not asked yet.
+- Goblin Warrior, Hobgoblin, Salt Goblin — still archetype `GOBLIN`, not yet walked/locked
+  (Warrior's mismatches were presented but no decision locked before the pause).
 - No `/build` run yet — Step 6 (batch write) still pending completion of the walk.

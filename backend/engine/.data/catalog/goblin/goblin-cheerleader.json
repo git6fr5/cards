@@ -1,12 +1,12 @@
 {
-  "name": "Goblin Cheerleader",
-  "archetype": "GOBLIN",
+  "name": "Good News Messenger",
+  "archetype": "MESSENGER",
   "roleType": "UNIT",
   "movement": "CROSS 2",
-  "ability": "ON MOVE 3\nMODIFY ACTION_COUNT +1 TURNS 1\nFRIENDLY BOARD:PATTERN:SQUARE:1 ALL WHERE ARCHETYPE:GOBLIN",
+  "ability": "ON MOVE 3\nMODIFY ACTION_COUNT +1 TURNS 1\nFRIENDLY BOARD:PATTERN:SQUARE:1 ALL",
   "attributes": {
     "summon_cost": 3,
-    "action_cost": 3,
+    "action_cost": 2,
     "action_count": 1
   }
 }

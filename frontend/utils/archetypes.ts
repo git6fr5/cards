@@ -18,7 +18,7 @@ export const ARCHETYPES: Record<string, Archetype> = {
   GOBLIN: { name: 'Goblin', color: '#16A34A', Icon: Cat },
   SOLDIER: { name: 'Soldier', color: '#DC2626', Icon: Sword },
   WARLOCK: { name: 'Warlock', color: '#38BDF8', Icon: Ghost },
-  TIMER: { name: 'Timer', color: '#CA8A04', Icon: Timer },
+  TIMEKEEPER: { name: 'Timekeeper', color: '#CA8A04', Icon: Timer },
   MESSENGER: { name: 'Messenger', color: '#0EA5E9', Icon: Send },
   TURRET: { name: 'Turret', color: '#7C3AED', Icon: Castle },
 };

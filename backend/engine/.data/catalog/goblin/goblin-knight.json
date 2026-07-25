@@ -1,6 +1,6 @@
 {
-  "name": "Goblin Knight",
-  "archetype": "GOBLIN",
+  "name": "Dying Timekeeper",
+  "archetype": "TIMEKEEPER",
   "roleType": "UNIT",
   "movement": "CROSS 1",
   "ability": "ON TURNEND 2\nKILL\nSELF",

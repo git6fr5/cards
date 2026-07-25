@@ -1,6 +1,6 @@
 {
   "name": "Egg",
-  "archetype": "TIMER",
+  "archetype": "TIMEKEEPER",
   "roleType": "UNIT",
   "movement": "NONE",
   "ability": "ON TURNEND 3\nSUMMON FRIENDLY\nFRIENDLY BAG:SEE:0 1 WHERE ATT:SUMMON_COST<=2",
