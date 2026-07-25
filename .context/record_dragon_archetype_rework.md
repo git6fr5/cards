@@ -3,6 +3,8 @@
 ## Contents
 1. [Archetype-implied trigger + action-cost-matches-movement rules](#1-archetype-implied-trigger--action-cost-matches-movement-rules)
 2. [Archetype split & Dragon → Soldier batch rename](#2-archetype-split--dragon--soldier-batch-rename)
+3. [2026-07-24 — Frontend archetype-map break + workflow fix](#3-2026-07-24--frontend-archetype-map-break--workflow-fix)
+4. [2026-07-26 — Goblin archetype split (in progress)](#4-2026-07-26--goblin-archetype-split-in-progress)
 
 ---
 
@@ -106,12 +108,102 @@ Final per-piece state, all in `backend/engine/.data/catalog/dragon/`:
 Plus `backend/engine/enums/archetype.py` (enum + color map) and
 `backend/engine/.data/default_bags/dragon.txt` (bag entries renamed to match).
 
+**Resolved after this entry was first written:**
+- Catalog filenames + folders: renamed. `dragon/` split into `soldier/`, `timer/`, `messenger/`,
+  `turret/` folders, files renamed to match new piece names (safe — `engine/loader.py` globs
+  recursively and keys by JSON `name`, not path). Committed `ce8713f`.
+- `default_bags/dragon.txt`: left as "dragon" — decided to be a player-facing deck/flavor name,
+  not an archetype label, so it doesn't need to track the archetype rename. Its *contents* (piece
+  name list) were still updated to match the renamed pieces.
+
 **Open questions carried forward:**
-- Rename catalog filenames and the `dragon/` folder to match the new archetype-based naming, or
-  leave the legacy folder grouping as-is?
 - Run the same trigger-rule + rename pass on the Goblin (→ Messenger) and Warlock (→ Demon) catalog
   lines?
 - `frontend/app/(open)/rules/_components/AbilitiesPanel.tsx:74` still has an illustrative "Dragon
   King" example (`FRIENDLY SHELF:1 WHERE DRAGON`) using the old archetype name — update to match?
 - Placeholder hex colors chosen for the three new archetypes (Timer `#CA8A04`, Messenger
   `#0EA5E9`, Turret `#7C3AED`) — confirm or replace.
+
+---
+
+## 3. 2026-07-24 — Frontend archetype-map break + workflow fix
+
+### Context
+After part 2 was committed, the user ran the app and hit a runtime crash on `/catalog`:
+`Cannot destructure property 'Icon' of ... ARCHETYPES[archetype] as it is undefined` in
+`RajaArchetypeIcon`. Root cause: `frontend/utils/archetypes.ts` keeps its own `ARCHETYPES` map —
+a hand-maintained mirror of the backend `Archetype` enum, not generated from it — and it still
+only had `GOBLIN`/`DRAGON`/`WARLOCK`. Any piece now carrying `SOLDIER`/`TIMER`/`MESSENGER`/`TURRET`
+had no entry, so the icon lookup returned `undefined`.
+
+This was flagged under the project's hard-stop rule (no file edits outside `/build`) rather than
+fixed immediately — reported as root cause + proposed diff, then applied once `/build` was invoked.
+
+### Discussion points
+- The user's `/build` invocation bundled two asks in one: fix the crash, and update
+  `card_updater_workflow.md` (written earlier this session) so the same class of miss doesn't
+  recur — the workflow's Step 4 (cross-file consequences) had listed the backend enum but not this
+  frontend mirror.
+- `salt_goblin.svg 404` in the same browser log was noted as unrelated/pre-existing and left alone.
+
+### Decision
+- `frontend/utils/archetypes.ts`: `DRAGON` entry replaced with `SOLDIER` (same red, `Sword` icon),
+  added `TIMER` (`Timer` icon, `#CA8A04`), `MESSENGER` (`Send` icon, `#0EA5E9`), `TURRET` (`Castle`
+  icon, `#7C3AED`) — colors matched to the backend enum's color map. `Flame` import dropped
+  (no longer used).
+- `card_updater_workflow.md` updated: Step 1 (orient) now lists `frontend/utils/archetypes.ts` as a
+  file to read alongside the backend enum; Step 4 (cross-file consequences) now calls it out
+  explicitly as a silent-until-runtime break, to be touched in the same pass as the backend enum,
+  never as a follow-up; Step 6 (batch write) now names both mirrors explicitly.
+
+---
+
+## 4. 2026-07-26 — Goblin archetype split (in progress)
+
+### Context
+Picked up the open question carried forward from part 2: ran `card_updater_workflow.md`'s audit +
+per-piece walk against `backend/engine/.data/catalog/goblin/` (8 pieces), reusing the same two
+rules from the Soldier rework (archetype implies trigger; `action_cost` = max move distance /
+activation-pattern distance for buildings) and reusing the existing SOLDIER/TIMER/MESSENGER/TURRET
+archetypes rather than inventing goblin-specific ones — confirmed explicitly before the walk began.
+Session paused mid-walk (piece 6 of 8) for the day; nothing has been written to any file yet — all
+decisions below are conversationally locked only, per the workflow's Step 3 (no edits before the
+Step 6 batch `/build`).
+
+### Discussion points
+- Corrected assistant mid-session: audit should present mismatches only, not propose a fix
+  alongside them — decisions are the user's to make per piece, not a confirm/reject of an assistant
+  suggestion. Applies to any future workflow run of this kind.
+- Ambiguous trigger cases (Goblin King's `ON SUMMON`; Goblin Warrior/Hobgoblin's `ON PROMOTION`,
+  neither matching any of the 4 archetypes' implied triggers) were surfaced per workflow guidance
+  rather than force-fit — King resolved this session (see Decision), Warrior/Hobgoblin still open.
+- Ability-target filters reading `WHERE ARCHETYPE:GOBLIN` (on what became Good News Messenger and
+  Messenger King) were **dropped entirely** rather than renamed to `ARCHETYPE:MESSENGER` — an
+  explicit choice, not a mechanical rename-in-place.
+- Goblin Knight's rename to Dying Timekeeper came with a broader decision: renaming the `TIMER`
+  archetype itself to `TIMEKEEPER` (enum-wide), not just reclassifying this one piece into an
+  existing archetype. Only one other current `TIMER` user found catalog-wide:
+  `backend/engine/.data/catalog/timer/egg.json`. That piece's archetype field, plus
+  `archetype.py`/`archetypes.ts`, plus a possible `timer/` folder rename, are flagged but not yet
+  confirmed in scope.
+- Goblin King's trigger was changed to `ON MOVE 5` under the MESSENGER archetype — an explicit
+  user override rather than the assistant-proposed alternatives (ON KILL under SOLDIER, or
+  introducing DEMON).
+
+### Decision
+Locked so far (conversational only, no files touched):
+
+| File | New name | Archetype | Key changes |
+|---|---|---|---|
+| goblin-bomber.json | Exploding Messenger | MESSENGER | action_cost 3→2 |
+| goblin-cheerleader.json | Good News Messenger | MESSENGER | action_cost 3→2; ability filter drops `WHERE ARCHETYPE:GOBLIN` |
+| goblin-king.json | Messenger King | MESSENGER | trigger `ON SUMMON 1`→`ON MOVE 5`; ability filter drops `WHERE ARCHETYPE:GOBLIN` |
+| goblin-knight.json | Dying Timekeeper | TIMEKEEPER (renamed from TIMER, enum-wide) | archetype reclass; triggers the TIMER→TIMEKEEPER rename |
+| goblin-pit.json | Stun Turret | TURRET | ability `TURNS 3`→`TURNS 1`; movement `CROSS 1`→`CROSS 2`; action_cost 3→2 |
+
+Open / not yet reached:
+- Goblin Warrior (mismatches presented, no decision locked — paused here).
+- Hobgoblin, Salt Goblin — not yet walked.
+- `TIMER`→`TIMEKEEPER` rename scope (enum, frontend mirror, `timer/egg.json`, folder) — not confirmed.
+- Filename/folder treatment for `goblin/` (workflow Step 5) — not asked yet.
+- No `/build` run yet — Step 6 (batch write) still pending completion of the walk.

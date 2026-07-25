@@ -28,6 +28,8 @@ list — plus the rule(s) to audit against.
 
 - Every JSON file in scope.
 - `backend/engine/enums/archetype.py` — current archetype list + color map.
+- `frontend/utils/archetypes.ts` — the frontend's own mirror of that enum (`ARCHETYPES` map);
+  it does not import from the backend and must be kept in sync by hand.
 - `.context/engine_dsl_reference.md` and `.context/notes.md` for standing conventions.
 - Any `default_bags/*.txt` that reference pieces in scope (grep piece `name` values, not
   filenames).
@@ -62,6 +64,12 @@ Whenever a piece's archetype or name changes, check for and queue:
 - The backing `Archetype` enum (`backend/engine/enums/archetype.py`) — new archetypes need a
   member + a color map entry (flag placeholder colors for the user to confirm); renamed
   archetypes need the member renamed everywhere it's referenced.
+- **`frontend/utils/archetypes.ts`'s `ARCHETYPES` map — same additions/renames as the backend
+  enum, plus a `lucide-react` icon pick for any new archetype.** Missing this is a silent-until-
+  runtime break: the catalog page renders fine at build time and only throws
+  (`Cannot destructure property 'Icon' of ... undefined`) when a piece with the new/renamed
+  archetype is actually displayed. Always touch this file in the same pass as the backend enum,
+  never as a follow-up.
 - `default_bags/*.txt` rosters — entries are piece `name` strings, not filenames; any renamed
   piece needs its bag entries updated too.
 - Non-catalog copy that hardcodes the old name/archetype (e.g. example content in frontend rules
@@ -84,7 +92,8 @@ into an actual code edit and deserves its own explicit confirmation.
 ## Step 6 — Batch write via `/build`
 
 Once every piece in scope is locked, run the entire batch through `/build` in a single pass:
-JSON content edits, enum edits, `default_bags` edits, and any confirmed filename/folder renames.
-Nothing gets written before this step. `/build`'s own flow handles verification (JSON validity,
-`py_compile` on any touched `.py`, grep for orphaned old-name references), recording, and the
-commit offer.
+JSON content edits, both enum mirrors (backend `.py` + frontend `archetypes.ts`), `default_bags`
+edits, and any confirmed filename/folder renames. Nothing gets written before this step.
+`/build`'s own flow handles verification (JSON validity, `py_compile` on any touched `.py`, grep
+for orphaned old-archetype-key references in both the backend enum and
+`frontend/utils/archetypes.ts`), recording, and the commit offer.
