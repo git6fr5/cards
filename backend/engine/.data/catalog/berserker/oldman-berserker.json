@@ -1,6 +1,6 @@
 {
-  "name": "Ancient Soldier",
-  "archetype": "SOLDIER",
+  "name": "Oldman Berserker",
+  "archetype": "BERSERKER",
   "roleType": "UNIT",
   "movement": "CROSS 6",
   "ability": "ON KILL 3\nMODIFY ACTION_COUNT -99 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL",

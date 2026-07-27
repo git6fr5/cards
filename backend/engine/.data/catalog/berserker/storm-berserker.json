@@ -1,6 +1,6 @@
 {
-  "name": "Storm Soldier",
-  "archetype": "SOLDIER",
+  "name": "Storm Berserker",
+  "archetype": "BERSERKER",
   "roleType": "UNIT",
   "movement": "DIAGONAL 5",
   "ability": "ON KILL 1\nPUT SHELF\nSELF",

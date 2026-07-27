@@ -1,6 +1,6 @@
 {
-  "name": "Reincarnation Soldier",
-  "archetype": "SOLDIER",
+  "name": "Warden Berserker",
+  "archetype": "BERSERKER",
   "roleType": "UNIT",
   "movement": "CROSS 3",
   "ability": "ON KILL 2\nPUT SHELF\nDEFENDER",

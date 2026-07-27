@@ -1,6 +1,6 @@
 {
-  "name": "Good News Messenger",
-  "archetype": "MESSENGER",
+  "name": "Good News Nomad",
+  "archetype": "NOMAD",
   "roleType": "UNIT",
   "movement": "CROSS 2",
   "ability": "ON MOVE 3\nMODIFY ACTION_COUNT +1 TURNS 1\nFRIENDLY BOARD:PATTERN:SQUARE:1 ALL",

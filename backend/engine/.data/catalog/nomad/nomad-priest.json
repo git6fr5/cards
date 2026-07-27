@@ -1,6 +1,6 @@
 {
-  "name": "Messenger Priest",
-  "archetype": "MESSENGER",
+  "name": "Nomad Priest",
+  "archetype": "NOMAD",
   "roleType": "UNIT",
   "movement": "DIAGONAL 2",
   "ability": "ON MOVE 1\nMODIFY ACTION_COUNT +1 TURNS 1\nFRIENDLY BOARD:PATTERN:SQUARE:1 ALL",

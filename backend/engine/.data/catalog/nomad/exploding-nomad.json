@@ -1,6 +1,6 @@
 {
-  "name": "Exploding Messenger",
-  "archetype": "MESSENGER",
+  "name": "Exploding Nomad",
+  "archetype": "NOMAD",
   "roleType": "UNIT",
   "movement": "DIAGONAL 2",
   "ability": "ON MOVE 3\nKILL\nANY BOARD:PATTERN:CROSS:1 1 WHERE ANY",

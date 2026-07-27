@@ -1,10 +1,10 @@
 {
-  "name": "Soldier King",
-  "archetype": "SOLDIER",
+  "name": "Nomad King",
+  "archetype": "NOMAD",
   "roleType": "KING",
   "movement": "SQUARE 1",
   "summoning": "SQUARE 1",
-  "ability": "ON KILL 1\nMODIFY SUMMON_COST -1 TURNS 99\nFRIENDLY SHELF 1 WHERE ARCHETYPE:SOLDIER",
+  "ability": "ON MOVE 5\nMODIFY ACTION_COUNT +1 TURNS 1\nFRIENDLY BOARD:PATTERN:SQUARE:1 ALL",
   "attributes": {
     "summon_cost": 0,
     "action_cost": 1,

@@ -3,7 +3,7 @@
 
 import type { LucideIcon } from 'lucide-react';
 import {
-  Timer, Footprints, Swords, Skull, SquareArrowDown, SquareArrowUp, Play,
+  Timer, Footprints, Axe, Skull, SquareArrowDown, SquareArrowUp, Castle,
   CornerRightDown, Pencil, Handbag, InspectionPanel, ShelvingUnit,
   ChessQueen, ChessPawn, ChessRook, ChessBishop, Dot, Gem, Shield,
 } from 'lucide-react';
@@ -31,7 +31,7 @@ const PERMANENT_TURNS = 99;
 const TRIGGER_ICONS: Record<string, LucideIcon> = {
   TURNEND: Timer,
   MOVE: Footprints,
-  KILL: Swords,
+  KILL: Axe,
   DEATH: Skull,
   SUMMON: SquareArrowDown,
   PROMOTION: SquareArrowUp,
@@ -71,7 +71,7 @@ const ATTRIBUTE_ICON_CHIPS: Record<string, IconChip[]> = {
   ACTION_COST: [{ Icon: Footprints }, { Icon: Gem }],
   ACTION_COUNT: [{ Icon: Footprints }],
   TURNS_ON_BOARD: [{ Icon: Timer }],
-  KILL_COUNT: [{ Icon: Swords }],
+  KILL_COUNT: [{ Icon: Axe }],
   DEATH_COUNT: [{ Icon: Skull }],
   SUMMON_COUNT: [{ Icon: SquareArrowDown }],
   PROMOTION_COUNT: [{ Icon: SquareArrowUp }],
@@ -132,7 +132,7 @@ function translateFilterChips(rawTokens: string[]): IconChip[] | null {
 function translateTriggerIcons(rawLine: string): IconLine {
   const parts = rawLine.trim().toUpperCase().split(' ');
   if (parts[0] !== 'ON') return asFallback(rawLine);
-  if (parts.length === 2 && parts[1] === 'ACTIVATE') return chips([{ Icon: Play }]);
+  if (parts.length === 2 && parts[1] === 'ACTIVATE') return chips([{ Icon: Castle }]);
   if (parts.length < 3) return asFallback(rawLine);
 
   const [, condition, value, ...filterParts] = parts;
@@ -154,7 +154,7 @@ function translateEffectIcons(rawLine: string): IconLine {
 
   switch (parts[0]) {
     case 'KILL':
-      return parts.length === 1 ? chips([{ Icon: Swords }]) : asFallback(rawLine);
+      return parts.length === 1 ? chips([{ Icon: Axe }]) : asFallback(rawLine);
 
     case 'SUMMON': {
       if (parts.length !== 2 || !(parts[1] in ALIGNMENT_COLORS)) return asFallback(rawLine);

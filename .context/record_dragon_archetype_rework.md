@@ -4,7 +4,8 @@
 1. [Archetype-implied trigger + action-cost-matches-movement rules](#1-archetype-implied-trigger--action-cost-matches-movement-rules)
 2. [Archetype split & Dragon → Soldier batch rename](#2-archetype-split--dragon--soldier-batch-rename)
 3. [2026-07-24 — Frontend archetype-map break + workflow fix](#3-2026-07-24--frontend-archetype-map-break--workflow-fix)
-4. [2026-07-26 — Goblin archetype split (in progress)](#4-2026-07-26--goblin-archetype-split-in-progress)
+4. [2026-07-26 — Goblin archetype split (partial, 5 of 8)](#4-2026-07-26--goblin-archetype-split-partial-5-of-8)
+5. [2026-07-26 — Berserker/Vanguard split, Messenger→Nomad, unified trigger icons](#5-2026-07-26--berserkervanguard-split-messengernomad-unified-trigger-icons)
 
 ---
 
@@ -215,4 +216,124 @@ Plus cross-file consequences applied in the same pass:
 Open / not yet reached:
 - Goblin Warrior, Hobgoblin, Salt Goblin — still archetype `GOBLIN`, not yet walked/locked
   (Warrior's mismatches were presented but no decision locked before the pause).
-- No `/build` run yet — Step 6 (batch write) still pending completion of the walk.
+
+---
+
+## 5. 2026-07-26 — Berserker/Vanguard split, Messenger→Nomad, unified trigger icons
+
+### Context
+Resuming the goblin walk at Goblin Warrior (`ON PROMOTION`, effect `KILL` — fits no archetype's
+implied trigger) surfaced that the archetype-implied-trigger scheme itself was still incomplete:
+`SOLDIER` was overloaded the same way `DRAGON` originally was (its 8 live pieces are all `ON KILL`,
+but "promotion-flavored" pieces like Goblin Warrior had nowhere to go). Rather than force Goblin
+Warrior into `SOLDIER`, the archetype scheme was extended: `SOLDIER`'s trigger claim is dropped
+entirely (redefined as the exception bucket for no-ability pieces), a new `BERSERKER` archetype
+takes over `ON KILL` (absorbing all 8 current Soldier pieces), and a new `VANGUARD` archetype
+claims `ON PROMOTION`. Separately, `MESSENGER` was renamed `NOMAD` (no functional trigger change —
+still `ON MOVE` — pure rename). Alongside this, the archetype icon system was reworked: since each
+archetype now implies exactly one trigger condition, the archetype's own icon and that trigger
+condition's icon are unified into one shared icon rather than maintained as two independently-
+chosen ones (`archetypes.ts` vs `abilityTranslatorIcons.ts`).
+
+Goblin Warrior/Hobgoblin's own reclassification (to `VANGUARD`) was explicitly held back from this
+pass — user called it out as forward-walk work, not part of the retroactive Soldier retrofit.
+
+### Discussion points
+- Warlock→`ON DEATH` (proposed to reuse Warlock's `Ghost` icon under the new unify-icon rule) was
+  raised and then retracted by the user ("that was my mistake") — the original plan already on
+  record stands: `Trap` (unused) owns `ON DEATH`, `Demon` (future Warlock migration) owns
+  `ON SUMMON`. Warlock itself is untouched this pass.
+- Turret's icon unification went the opposite direction from Berserker/Vanguard/Nomad: instead of
+  Turret's archetype icon (`Castle`) changing to match the `ON ACTIVATE` trigger icon (`Play`), the
+  *trigger* icon changed to match the archetype (`Play`→`Castle`) — user specified "backwards."
+  `Castle` is now shared by both the `TURRET` archetype and the `ON ACTIVATE` trigger.
+- `KILL` was the only word found to be both a trigger condition (`ON KILL`) and a distinct effect
+  keyword (`KILL` effect line) in the DSL grammar — so Berserker's icon unification (`Swords`→`Axe`)
+  applies to *both* the trigger icon and the effect icon. No other archetype/trigger pairing this
+  session had a matching effect keyword to unify against.
+- `ATTRIBUTE_ICON_CHIPS.KILL_COUNT` (a third, previously-separate `Swords` usage — the `ATT:
+  KILL_COUNT` filter chip) was defaulted to the same `Axe` swap for consistency, since the user did
+  not answer that specific sub-question directly before saying "lock all decisions."
+- Exact hex values for Berserker ("a dark red") and Soldier ("grey") were never given — assistant
+  picked placeholders (`#7F1D1D`, `#6B7280`) per standing authorization to choose placeholder
+  colors (same precedent as the original Timer/Messenger/Turret colors), flagged for confirm.
+- The 8 Soldier→Berserker piece renames were supplied piecemeal across several messages; one
+  (Royal Soldier) was initially missing from a 7-name batch and had to be asked for explicitly
+  before the batch could be locked — consistent with the session's established rule of never
+  guessing a piece name.
+- `MESSENGER`→`NOMAD` was found to hit 4 live pieces, not just the 3 goblin ones from part 4 —
+  `messenger-priest.json` (already-committed, from the original Dragon rework) also carries the
+  archetype and is referenced twice in `default_bags/dragon.txt`. Confirmed in scope before writing.
+
+### Decision
+Implemented across `backend/engine/enums/archetype.py`, `frontend/utils/archetypes.ts`,
+`frontend/utils/abilityTranslatorIcons.ts`, and the catalog:
+
+| Archetype | Trigger | Icon (unified) | Color |
+|---|---|---|---|
+| BERSERKER (new) | ON KILL | `Axe` (trigger, effect, and `KILL_COUNT` chip all swapped from `Swords`) | `#7F1D1D` (placeholder) |
+| VANGUARD (new) | ON PROMOTION | `SquareArrowUp` | `#C026D3` |
+| NOMAD (renamed from MESSENGER) | ON MOVE | `Footprints` (was `Send`) | `#0EA5E9` (unchanged) |
+| TURRET | ON ACTIVATE | `Castle` (trigger icon changed `Play`→`Castle` to match, not the reverse) | `#7C3AED` (unchanged) |
+| SOLDIER | none (no-ability exception bucket only) | blank `Square` (was `Sword`) | `#6B7280` (placeholder, was `#DC2626`) |
+| TIMEKEEPER | ON TURNEND | `Timer` | `#CA8A04` (unchanged — already unified) |
+| WARLOCK | — (unmigrated) | `Ghost` | `#38BDF8` (unchanged) |
+| GOBLIN | — (transitional, being migrated out piece by piece) | `Cat` | `#16A34A` (unchanged) |
+
+8 Soldier pieces reclassed to BERSERKER, in `backend/engine/.data/catalog/soldier/`:
+
+| File | New name |
+|---|---|
+| ancient-soldier.json | Oldman Berserker |
+| divine-soldier.json | Divine Berserker |
+| foot-soldier.json | Mr Berserker |
+| queen-soldier.json | Chieftess Berserker |
+| reincarnation-soldier.json | Warden Berserker |
+| royal-soldier.json | Royal Berserker |
+| soldier-king.json | Berserker King |
+| storm-soldier.json | Storm Berserker |
+
+The 4 ability filters among those 8 that read `WHERE ARCHETYPE:SOLDIER` (Foot/Queen/Royal/Soldier
+King) were updated to `ARCHETYPE:BERSERKER` in the same pass. `night-soldier.json` and
+`triplet-soldier.json` (no `ability` field at all) were left as archetype `SOLDIER` unchanged —
+the intended exception bucket.
+
+MESSENGER→NOMAD rename applied to all 4 live pieces: `goblin-bomber.json` (Exploding
+Messenger→**Exploding Nomad**), `goblin-king.json` (Messenger King→**Nomad King**),
+`goblin-cheerleader.json` (Good News Messenger→**Good News Nomad**), and
+`messenger/messenger-priest.json` (Messenger Priest→**Nomad Priest**) — simple word-swap per
+explicit instruction, `messenger/` folder itself left unrenamed (same filename/folder default as
+part 4).
+
+`default_bags/goblin.txt` and `default_bags/dragon.txt` rosters updated to match every renamed
+piece (quantities unchanged). `default_bags/dragon.txt` itself keeps its "dragon" filename per the
+part-2 precedent (flavor name, not an archetype label).
+
+Verified: all touched JSON parses, `archetype.py` `py_compile`s clean, no orphaned `TIMER`/
+`MESSENGER`/stray-`SOLDIER` references outside the intended exceptions, no leftover `Swords`/`Play`
+imports in `abilityTranslatorIcons.ts`, no leftover `Sword`/`Send` imports in `archetypes.ts`.
+`tsc --noEmit` clean on both touched frontend files (one unrelated pre-existing `.next` cache error
+ignored).
+
+**Follow-up, same session:** user asked whether filenames/folders had been renamed to match (they
+hadn't — left at the default per Step 5, same as part 4). Confirmed via `/build` immediately after.
+`backend/engine/loader.py` globs the catalog recursively and keys by the JSON `name` field, not
+path, so this was a pure filesystem reorg — verified safe by reading `loader.py` first, then
+re-running `load_catalog()` afterward (pure in-memory dict build, no DB engine/session — respects
+the standing DB ban) to confirm all 34 pieces, including every renamed one, resolve by name.
+
+Moves: `messenger/` → `nomad/` (folder renamed), `timer/` → `timekeeper/` (folder renamed),
+`soldier/` split (Berserker pieces move out to a new `berserker/` folder; Night/Triplet Soldier
+stay in `soldier/`, the only two pieces that still are that archetype), `goblin/` pruned down to
+just its 3 remaining live-GOBLIN pieces (Warrior/Hobgoblin/Salt Goblin) with the other 5 moving out
+to their new archetype folders (`nomad/`, `timekeeper/`, `turret/`). `turret/` and `warlock/` were
+already correctly named and untouched. Every moved file was also renamed to match its new piece
+name (e.g. `goblin-bomber.json`→`nomad/exploding-nomad.json`,
+`soldier-king.json`→`berserker/berserker-king.json`).
+
+Open / not yet reached:
+- Goblin Warrior, Hobgoblin, Salt Goblin — still archetype `GOBLIN`; now that `VANGUARD` (`ON
+  PROMOTION`) exists, Warrior/Hobgoblin are expected to land there once the walk resumes.
+- Berserker dark-red and Soldier grey hex values are still placeholders, not user-confirmed.
+- `frontend/app/(open)/rules/_components/AbilitiesPanel.tsx`'s illustrative "Dragon King" example
+  (flagged back in part 2) remains unaddressed.
