@@ -1,11 +1,11 @@
 {
-  "name": "Night Soldier",
+  "name": "Suave Soldier",
   "archetype": "SOLDIER",
   "roleType": "UNIT",
   "movement": "CROSS 5",
   "ability": "",
   "attributes": {
-    "summon_cost": 3,
+    "summon_cost": 7,
     "action_cost": 5,
     "action_count": 1
   }

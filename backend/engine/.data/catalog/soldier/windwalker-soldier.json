@@ -1,13 +1,12 @@
 {
-  "name": "Berserker of the Eastern Winds",
-  "concept": "When this unit captures an enemy unit, discard a card from your hand",
-  "archetype": "BERSERKER",
+  "name": "Windwalker Soldier",
+  "archetype": "SOLDIER",
   "roleType": "UNIT",
-  "movement": "CROSS 3",
-  "ability": "ON KILL 1\nPUT BAG\nFRIENDLY SHELF 1",
+  "movement": "SQUARE 2",
+  "ability": "",
   "attributes": {
-    "summon_cost": 5,
-    "action_cost": 3,
+    "summon_cost": 11,
+    "action_cost": 2,
     "action_count": 2
   }
 }

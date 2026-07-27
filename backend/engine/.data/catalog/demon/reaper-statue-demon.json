@@ -1,13 +1,13 @@
 {
-  "name": "Reaper Demon",
+  "name": "Reaper Statue Demon",
   "concept": "On summon, all units along each Cross Direction are captured (friendly and enemy)",
   "archetype": "DEMON",
   "roleType": "UNIT",
-  "movement": "CROSS 8",
-  "ability": "ON SUMMON 1\nKILL\nANY BOARD:PATTERN:CROSS:6 ALL",
+  "movement": "NONE",
+  "ability": "ON SUMMON 1\nKILL\nANY BOARD:PATTERN:CROSS:4 ALL",
   "attributes": {
-    "summon_cost": 8,
-    "action_cost": 8,
+    "summon_cost": 6,
+    "action_cost": 0,
     "action_count": 1
   }
 }

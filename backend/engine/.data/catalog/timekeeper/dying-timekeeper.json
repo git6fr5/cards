@@ -5,7 +5,7 @@
   "movement": "CROSS 1",
   "ability": "ON TURNEND 2\nKILL\nSELF",
   "attributes": {
-    "summon_cost": 0,
+    "summon_cost": 3,
     "action_cost": 1,
     "action_count": 1
   }

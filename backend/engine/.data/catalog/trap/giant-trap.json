@@ -1,13 +1,12 @@
 {
-  "name": "Giant Snare",
-  "concept": "On captured, add a colossal golem to your hand.",
+  "name": "Giant Trap",
   "archetype": "TRAP",
   "roleType": "UNIT",
-  "movement": "DIAGONAL 4",
-  "ability": "ON DEATH 1\nPUT SHELF\nFRIENDLY BAG:SEE:0 1 WHERE ARCHETYPE:SOLDIER ATT:SUMMON_COST=6",
+  "movement": "NONE",
+  "ability": "ON DEATH 1\nMODIFY ACTION_COUNT -99 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL WHERE ATT:SUMMON_COST<7",
   "attributes": {
-    "summon_cost": 4,
-    "action_cost": 4,
+    "summon_cost": 1,
+    "action_cost": 0,
     "action_count": 1
   }
 }

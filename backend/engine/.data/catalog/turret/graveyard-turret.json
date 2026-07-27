@@ -3,11 +3,11 @@
   "concept": "When a unit is captured within 2 SQUARE of this building, destroy this building and resummon the captured unit on this square",
   "archetype": "TURRET",
   "roleType": "BUILDING",
-  "movement": "SQUARE 1",
-  "ability": "ON ACTIVATE\nKILL\nANY BOARD:PATTERN:SQUARE:8 ALL",
+  "movement": "FORWARD 3",
+  "ability": "ON ACTIVATE\nKILL\nANY BOARD:PATTERN:SQUARE:2 ALL",
   "attributes": {
-    "summon_cost": 10,
-    "action_cost": 1,
+    "summon_cost": 6,
+    "action_cost": 3,
     "action_count": 1
   }
 }

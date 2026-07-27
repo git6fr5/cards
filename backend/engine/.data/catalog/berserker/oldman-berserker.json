@@ -2,11 +2,11 @@
   "name": "Oldman Berserker",
   "archetype": "BERSERKER",
   "roleType": "UNIT",
-  "movement": "CROSS 6",
+  "movement": "CROSS 2",
   "ability": "ON KILL 3\nMODIFY ACTION_COUNT -99 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL",
   "attributes": {
-    "summon_cost": 8,
-    "action_cost": 6,
+    "summon_cost": 7,
+    "action_cost": 2,
     "action_count": 1
   }
 }

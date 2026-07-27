@@ -3,9 +3,9 @@
   "archetype": "TIMEKEEPER",
   "roleType": "UNIT",
   "movement": "FORWARD 1",
-  "ability": "ON TURNEND 2\nKILL\nSELF",
+  "ability": "ON TURNEND 2\nMODIFY ACTION_COUNT -99 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL",
   "attributes": {
-    "summon_cost": 0,
+    "summon_cost": 10,
     "action_cost": 1,
     "action_count": 3
   }

@@ -5,7 +5,7 @@
   "movement": "DIAGONAL 5",
   "ability": "ON KILL 1\nPUT SHELF\nSELF",
   "attributes": {
-    "summon_cost": 3,
+    "summon_cost": 6,
     "action_cost": 5,
     "action_count": 1
   }

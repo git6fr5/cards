@@ -3,9 +3,9 @@
   "archetype": "BERSERKER",
   "roleType": "UNIT",
   "movement": "CROSS 5",
-  "ability": "ON KILL 4\nMODIFY ACTION_COST -5 TURNS 99\nSELF",
+  "ability": "ON KILL 4\nKILL\nANY BOARD:PATTERN:SQUARE:2 ALL",
   "attributes": {
-    "summon_cost": 8,
+    "summon_cost": 10,
     "action_cost": 5,
     "action_count": 1
   }

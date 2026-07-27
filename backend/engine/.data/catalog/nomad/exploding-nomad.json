@@ -5,7 +5,7 @@
   "movement": "DIAGONAL 2",
   "ability": "ON MOVE 3\nKILL\nANY BOARD:PATTERN:CROSS:1 1 WHERE ANY",
   "attributes": {
-    "summon_cost": 3,
+    "summon_cost": 5,
     "action_cost": 2,
     "action_count": 1
   }

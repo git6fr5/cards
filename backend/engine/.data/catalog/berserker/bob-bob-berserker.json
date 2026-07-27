@@ -1,9 +1,9 @@
 {
-  "name": "Mr Berserker",
+  "name": "Bob Bob Berserker",
   "archetype": "BERSERKER",
   "roleType": "UNIT",
   "movement": "FORWARD 1",
-  "ability": "ON KILL 1\nSUMMON FRIENDLY\nFRIENDLY BAG:SEE:0 1 WHERE ARCHETYPE:BERSERKER ATT:SUMMON_COST<=2",
+  "ability": "ON KILL 2\nMODIFY ACTION_COUNT -1 TURNS 1\nENEMY BOARD:PATTERN:DIAGONAL:1 ALL",
   "attributes": {
     "summon_cost": 1,
     "action_cost": 1,

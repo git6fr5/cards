@@ -2,11 +2,11 @@
   "name": "Stun Turret",
   "archetype": "TURRET",
   "roleType": "BUILDING",
-  "movement": "CROSS 2",
+  "movement": "FORWARD 3",
   "ability": "ON ACTIVATE\nMODIFY ACTION_COUNT -99 TURNS 1\nDEFENDER",
   "attributes": {
-    "summon_cost": 3,
-    "action_cost": 2,
+    "summon_cost": 5,
+    "action_cost": 3,
     "action_count": 1
   }
 }
