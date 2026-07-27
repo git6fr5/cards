@@ -3,7 +3,7 @@ export { KING_ROLE_TYPE } from '@/app/_components/types';
 import type { PieceFull, BagPiece } from '@/app/_components/types';
 import { KING_ROLE_TYPE } from '@/app/_components/types';
 
-export type AbilityViewMode = 'dsl' | 'text' | 'icons';
+export type AbilityViewMode = 'dsl' | 'text' | 'icons' | 'icons2';
 
 export interface FilterState {
   search: string;

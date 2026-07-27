@@ -11,6 +11,7 @@ const ABILITY_VIEW_MODE_OPTIONS = [
   { value: 'dsl', label: 'Raw DSL' },
   { value: 'text', label: 'Translated text' },
   { value: 'icons', label: 'Icons' },
+  { value: 'icons2', label: 'Icons v2' },
 ];
 
 interface CatalogFiltersProps {

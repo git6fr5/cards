@@ -1,9 +1,17 @@
 import PieceCard from './PieceCard';
 import type { PieceFull, AbilityViewMode } from '../types';
+import { KING_ROLE_TYPE } from '../types';
 
 interface CatalogGridProps {
   pieces: PieceFull[];
   abilityViewMode?: AbilityViewMode;
+}
+
+const MOVEMENT_ORDER: Record<string, number> = { SQUARE: 0, CROSS: 1, DIAGONAL: 2, FORWARD: 3, NONE: 4 };
+
+function pieceOrderRank(piece: PieceFull): number {
+  if (piece.role_type === KING_ROLE_TYPE) return -1;
+  return MOVEMENT_ORDER[piece.movement_type] ?? MOVEMENT_ORDER.NONE;
 }
 
 function groupByArchetype(pieces: PieceFull[]): [string, PieceFull[]][] {
@@ -14,7 +22,11 @@ function groupByArchetype(pieces: PieceFull[]): [string, PieceFull[]][] {
     groups.set(piece.archetype, group);
   }
   for (const group of groups.values()) {
-    group.sort((a, b) => a.attributes.summon_cost - b.attributes.summon_cost || a.name.localeCompare(b.name));
+    group.sort((a, b) =>
+      pieceOrderRank(a) - pieceOrderRank(b) ||
+      a.attributes.summon_cost - b.attributes.summon_cost ||
+      a.name.localeCompare(b.name),
+    );
   }
   return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
 }
