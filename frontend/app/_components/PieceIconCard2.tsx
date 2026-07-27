@@ -1,4 +1,4 @@
-import { Crown, SquareArrowDown, X } from 'lucide-react';
+import { Crown } from 'lucide-react';
 import { translateAbilityToIcons, PATTERN_ICONS } from '@/utils/abilityTranslatorIcons';
 import type { IconChip, IconLine } from '@/utils/abilityTranslatorIcons';
 import { ARCHETYPES } from '@/utils/archetypes';
@@ -56,6 +56,14 @@ function ChipRow({ line }: ChipRowProps) {
   );
 }
 
+function displayName(piece: PieceFull, archetypeName: string): string {
+  const stripped = piece.name
+    .replace(new RegExp(`\\b${archetypeName}\\b`, 'i'), '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return stripped || piece.name;
+}
+
 function triggerChips(ability: string): IconChip[] {
   const trigger = translateAbilityToIcons(ability)?.trigger;
   return trigger && trigger.kind === 'chips' ? trigger.chips : [];
@@ -82,47 +90,40 @@ export default function PieceIconCard2({ piece, className = '' }: PieceIconCard2
   const ability = translateAbilityToIcons(piece.ability);
   const { count: triggerCount, filterChips } = splitTriggerCorner(triggerChips(piece.ability));
   const PatternIcon = PATTERN_ICONS[piece.movement_type];
+  const MpsIcon = isKing ? Crown : PatternIcon;
+  const mpsCount = Math.max(piece.attributes.action_count, 1);
+  const mpsScale = Math.max(1 - 0.2 * (mpsCount - 1), 0.2);
+  const mpsSize = Math.round((isKing ? 44 : 36) * mpsScale);
 
   return (
     <div
       className={`relative w-[4.5cm] h-[4.5cm] border-[3px] border-raja-orange bg-raja-chrome-panel px-1 pt-5 pb-5 ${className}`}
     >
-      <div className="absolute left-0.5 top-0.5 flex h-7 w-7 items-center justify-center">
+      <div className="absolute left-0.5 top-0.5 flex flex-col items-center gap-0.5">
         <archetype.Icon size={18} color={archetype.color} />
-      </div>
-
-      <div className="absolute right-0.5 top-0.5 flex flex-col items-center gap-0.5">
         {triggerCount && <span className="font-monospace text-xs text-raja-chrome-text">{triggerCount}</span>}
         {filterChips.map((chip, index) => (
           <Chip key={index} chip={chip} />
         ))}
       </div>
 
-      <div className="absolute left-0.5 bottom-0.5 flex h-7 w-7 items-center justify-center">
-        <SquareArrowDown size={18} className="text-raja-chrome-text" />
-      </div>
-
-      <div className="absolute right-0.5 bottom-0.5 flex h-7 w-7 items-center justify-center">
+      <div className="absolute right-0.5 top-0.5 flex h-7 w-7 items-center justify-center">
         <span className="font-monospace text-xs text-raja-chrome-text">{piece.attributes.summon_cost}</span>
       </div>
 
-      <p className="absolute top-0.5 left-8 right-8 h-7 flex items-center justify-center font-serif text-sm font-bold uppercase text-raja-chrome-text text-center leading-tight">
-        {piece.name}
+      <p className="absolute top-0.5 left-8 right-8 h-7 flex items-center justify-center font-serif text-xs font-bold uppercase text-raja-chrome-text text-center leading-tight">
+        {displayName(piece, archetype.name)}
       </p>
 
       <div className="absolute inset-0 flex items-center justify-center">
-        {PatternIcon && (
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1">
-            <span className="flex items-center justify-end gap-1">
-              <span className="font-monospace text-sm text-raja-chrome-text">{piece.attributes.action_cost}</span>
-              <X size={16} className="text-raja-chrome-text" />
-            </span>
-            {isKing ? (
-              <Crown size={36} className="text-raja-chrome-text" />
-            ) : (
-              <PatternIcon size={28} className="text-raja-chrome-text" />
-            )}
-            <span className="font-monospace text-sm text-raja-chrome-text">{piece.movement_distance}</span>
+        {MpsIcon && (
+          <div className="flex flex-col items-center gap-1">
+            <span className="font-monospace text-sm text-raja-chrome-text">{piece.attributes.action_cost}</span>
+            <div className="flex items-center gap-1">
+              {Array.from({ length: mpsCount }, (_, index) => (
+                <MpsIcon key={index} size={mpsSize} color={archetype.color} />
+              ))}
+            </div>
           </div>
         )}
       </div>

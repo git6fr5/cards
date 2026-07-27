@@ -5,6 +5,13 @@
 2. [Border revert, bigger center block with action_cost × pattern × distance](#2-border-revert-bigger-center-block-with-action_cost--pattern--distance)
 3. [True-center the pattern icon](#3-true-center-the-pattern-icon)
 4. [King override: Crown icon in the center block](#4-king-override-crown-icon-in-the-center-block)
+5. [Bump center icon sizes](#5-bump-center-icon-sizes)
+6. [Repeat mps icons by action_count, drop movement_distance](#6-repeat-mps-icons-by-action_count-drop-movement_distance)
+7. [Two-row center block, smaller name text](#7-two-row-center-block-smaller-name-text)
+8. [Strip archetype word from displayed name](#8-strip-archetype-word-from-displayed-name)
+9. [mps icon in archetype color](#9-mps-icon-in-archetype-color)
+10. [Merge trigger count/filters under the trigger icon](#10-merge-trigger-countfilters-under-the-trigger-icon)
+11. [Summon cost to top-right, drop bottom corners](#11-summon-cost-to-top-right-drop-bottom-corners)
 
 ---
 
@@ -141,6 +148,185 @@ Center block's grid middle column now renders `Crown` (`size={36}`, imported dir
 `lucide-react` rather than through `PIECE_TYPES`, since only the icon itself was needed) when
 `isKing`, else the existing `PatternIcon` (`size={28}`) — flanking `action_cost ×` / `distance`
 unchanged.
+
+Verified: `tsc --noEmit` clean (same pre-existing unrelated `.next` error ignored). No dev server
+started, no DB access.
+
+---
+
+## 5. Bump center icon sizes
+
+### Context
+Follow-up sizing pass: bump every movement-pattern icon in the center block up to the size the
+Crown icon was already at, then bump Crown a little further past that, keeping the King/non-King
+size gap the sizes had before.
+
+### Discussion points
+None — direct sizing request via `/build`.
+
+### Decision
+In `frontend/app/_components/PieceIconCard2.tsx`'s center block: `PatternIcon` `size` `28` → `36`
+(matches the old Crown size), `Crown` `size` `36` → `44`.
+
+Verified: `tsc --noEmit` clean (same pre-existing unrelated `.next` error ignored). No dev server
+started, no DB access.
+
+---
+
+## 6. Repeat mps icons by action_count, drop movement_distance
+
+### Context
+Further rework of the center block's content, not just its sizing: instead of a single
+movement-pattern icon flanked by `action_cost ×` on one side and `movement_distance` on the other,
+show the movement-pattern icon ("mps") repeated `action_count` times, each repetition scaled down
+as a set, followed by `action_cost` alone as a trailing number.
+
+### Discussion points
+- Whether `movement_distance` disappearing from this row was intentional — confirmed yes:
+  `movement_distance = action_cost` is a standing game rule (established back in the archetype
+  rework, [[record_dragon_archetype_rework]] part 1), so displaying both was redundant; dropping
+  `movement_distance` here loses no information a player couldn't already read off `action_cost`.
+- Whether King repeats too (King's `action_count` is always 1 in practice per game rules, but
+  should the code special-case it anyway) — confirmed no special-case: same repeat-by-`action_count`
+  logic applies uniformly, using `Crown` as its "mps" and its own base size, purely so the render
+  path stays consistent rather than King being a silent exception that only differs by accident of
+  current data.
+- Scale rule, precisely: **not** a per-icon shrink (each subsequent icon isn't smaller than the
+  last) — the whole set shares one scale factor, chosen by the total count: 1 icon → scale 1, 2
+  icons → scale 0.8 (both), 3 icons → scale 0.6 (all three). Confirmed as a linear
+  `1 − 0.2×(N−1)` rule, floored at `0.2` for larger `N` (no upper bound on `N` given, since
+  `action_count` this high doesn't occur under current game rules, but the floor keeps it
+  non-degenerate if it ever does).
+- Units clarified: lucide's `size` prop is plain pixels — the same unit every icon size in this
+  component has used throughout.
+
+### Decision
+In `frontend/app/_components/PieceIconCard2.tsx`: dropped the `X` (multiply) icon import and the
+`action_cost ×` / `movement_distance` display entirely. Added `MpsIcon` (`Crown` for Kings, else
+`PatternIcon`), `mpsCount = max(action_count, 1)`, `mpsScale = max(1 − 0.2×(mpsCount−1), 0.2)`, and
+`mpsSize = round(baseSize × mpsScale)` where `baseSize` is `44` for Kings / `36` otherwise (the
+sizes section 5 had just set). Center block now renders `mpsCount` copies of `MpsIcon` at
+`mpsSize` in a plain centered flex row, followed by `piece.attributes.action_cost` as a trailing
+number — the earlier 3-column true-center grid (section 3) is no longer needed now that there's no
+lone icon to center against asymmetric flanking content.
+
+Verified: `tsc --noEmit` clean (same pre-existing unrelated `.next` error ignored). No dev server
+started, no DB access.
+
+---
+
+## 7. Two-row center block, smaller name text; catalog sub-order by action_count
+
+### Context
+Two small follow-ups landed in the same `/build`: split the center block's single row (icons then
+trailing number) into two stacked rows — `action_cost` on top, the mps icon row centered below it —
+and shrink the name label slightly. Alongside that, a `CatalogGrid.tsx` ordering gap from section
+2's chess-rank sort: pieces sharing both King/movement-pattern rank and `summon_cost` had no
+`action_count`-aware tiebreak.
+
+### Discussion points
+None — both were direct, unambiguous asks, reported as plan-only until `/build` per the standing
+hard-stop rule (no edits fired on the interjected mid-turn ordering note either, until confirmed).
+
+### Decision
+`frontend/app/_components/PieceIconCard2.tsx`: center block's flex row became `flex-col` — top row
+`action_cost` (`text-sm`, unchanged styling), bottom row the existing `mpsCount`-copies-of-`MpsIcon`
+row. Name `<p>` font size `text-sm` → `text-xs`.
+
+`frontend/app/(protected)/catalog/_components/CatalogGrid.tsx`: per-group sort comparator gained an
+`action_count` tiebreak between `pieceOrderRank` and `summon_cost` — within a King/movement-pattern
+tier, lower `action_count` now sorts first.
+
+Verified: `tsc --noEmit` clean on both files (same pre-existing unrelated `.next` error ignored). No
+dev server started, no DB access.
+
+---
+
+## 8. Strip archetype word from displayed name
+
+### Context
+Most piece names embed their archetype word somewhere (prefix or suffix — "Berserker King",
+"Reaper Demon", "Royal Berserker"), which reads as redundant now that the top-left corner already
+shows the archetype icon. User wanted the archetype word stripped from the on-card name, regardless
+of which side of the name it sits on: "Berserker King" → "King".
+
+### Discussion points
+User's first phrasing of the example was inverted ("Berserker King" → "Berserker") and immediately
+self-corrected via an interrupted/redone message to the intended direction ("Berserker King" →
+"King", i.e. strip the archetype word, keep the rest) — built against the corrected example.
+
+### Decision
+In `frontend/app/_components/PieceIconCard2.tsx`: added `displayName(piece, archetypeName)` — a
+word-boundary, case-insensitive regex removes the archetype's display name
+(`ARCHETYPES[archetype].name`) from `piece.name` wherever it appears, collapses/trims the
+remaining whitespace, and falls back to the full original name if stripping would leave an empty
+string. Name `<p>` now renders `displayName(piece, archetype.name)` instead of `piece.name`.
+
+Verified: `tsc --noEmit` clean (same pre-existing unrelated `.next` error ignored). No dev server
+started, no DB access.
+
+---
+
+## 9. mps icon in archetype color
+
+### Context
+The mps icon row (section 6) was still plain `text-raja-chrome-text`, matching every other icon on
+the card. User wanted it recolored to the piece's archetype color, same as the top-left corner icon
+already is.
+
+### Discussion points
+None — single-line swap, confirmed via `/quick-edit`'s snippet-first fallback (snippet shown, then
+`/build`).
+
+### Decision
+In `frontend/app/_components/PieceIconCard2.tsx`: `MpsIcon`'s `className="text-raja-chrome-text"`
+→ `color={archetype.color}` (same lucide `color`-prop pattern the top-left corner icon already
+uses) — applies to both the movement-pattern icon and King's `Crown`, since both render through the
+shared `MpsIcon` variable.
+
+Verified: `tsc --noEmit` clean (same pre-existing unrelated `.next` error ignored). No dev server
+started, no DB access.
+
+---
+
+## 10. Merge trigger count/filters under the trigger icon
+
+### Context
+Trigger count and any rare `WHERE`-filter chips were living in their own top-right corner, visually
+disconnected from the archetype icon (top-left) that they actually describe — the trigger icon and
+its count/filters read as two unrelated pieces of info. User wanted them merged into one vertical
+stack under the trigger icon itself.
+
+### Discussion points
+Initial phrasing read ambiguous (kept saying "top right" while also asking for it to move) —
+resolved as: relocate the existing top-right vertical-stack layout to sit under the icon in the
+top-left corner, leaving top-right empty.
+
+### Decision
+In `frontend/app/_components/PieceIconCard2.tsx`: collapsed the separate top-left (`archetype.Icon`
+only) and top-right (`triggerCount` + `filterChips`) corner blocks into a single top-left
+`flex-col` stack — icon, then count, then filter chips, all vertically centered in one corner. The
+top-right corner is now unused.
+
+Verified: `tsc --noEmit` clean (same pre-existing unrelated `.next` error ignored). No dev server
+started, no DB access.
+
+---
+
+## 11. Summon cost to top-right, drop bottom corners
+
+### Context
+With top-right freed up by section 10's merge, user wanted `summon_cost` moved there from
+bottom-right, and the bottom-left `SquareArrowDown` summon-cost icon dropped entirely rather than
+moved — leaving both bottom corners empty.
+
+### Discussion points
+None — direct, unambiguous relocation/removal.
+
+### Decision
+In `frontend/app/_components/PieceIconCard2.tsx`: removed the bottom-left `SquareArrowDown` block
+and its now-unused import; removed the bottom-right `summon_cost` block and re-added it as a new
+top-right block (same `flex h-7 w-7 items-center justify-center` styling, just repositioned).
 
 Verified: `tsc --noEmit` clean (same pre-existing unrelated `.next` error ignored). No dev server
 started, no DB access.

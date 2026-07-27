@@ -24,6 +24,7 @@ function groupByArchetype(pieces: PieceFull[]): [string, PieceFull[]][] {
   for (const group of groups.values()) {
     group.sort((a, b) =>
       pieceOrderRank(a) - pieceOrderRank(b) ||
+      a.attributes.action_count - b.attributes.action_count ||
       a.attributes.summon_cost - b.attributes.summon_cost ||
       a.name.localeCompare(b.name),
     );
