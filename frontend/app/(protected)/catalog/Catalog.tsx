@@ -16,7 +16,7 @@ import CatalogFilters from './_components/CatalogFilters';
 import CatalogGrid from './_components/CatalogGrid';
 import BagTabs from '@/app/_components/BagTabs';
 import BagTable from '@/app/_components/BagTable';
-import type { PieceFull, Bag, FilterState } from './types';
+import type { PieceFull, Bag, FilterState, AbilityViewMode } from './types';
 import { EMPTY_FILTERS, getBagRejectionReason } from './types';
 
 function matchesFilters(piece: PieceFull, filters: FilterState): boolean {
@@ -57,6 +57,7 @@ function CatalogContent() {
   const [bags, setBags] = useState<Bag[]>([]);
   const [selectedBagId, setSelectedBagId] = useState<number | null>(null);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
+  const [abilityViewMode, setAbilityViewMode] = useState<AbilityViewMode>('text');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeDragPiece, setActiveDragPiece] = useState<PieceFull | null>(null);
@@ -179,7 +180,13 @@ function CatalogContent() {
     <DndContext collisionDetection={pointerWithin} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="flex h-screen overflow-hidden bg-raja-chrome-bg">
         <aside className="w-sidebar shrink-0 border-r border-raja-chrome-border overflow-y-auto p-4">
-          <CatalogFilters pieces={pieces} filters={filters} onChange={setFilters} />
+          <CatalogFilters
+            pieces={pieces}
+            filters={filters}
+            onChange={setFilters}
+            abilityViewMode={abilityViewMode}
+            onChangeAbilityViewMode={setAbilityViewMode}
+          />
         </aside>
 
         <div className="flex flex-1 overflow-hidden">
@@ -188,7 +195,7 @@ function CatalogContent() {
               <div className="absolute inset-0 bg-raja-chrome-text/20 pointer-events-none z-modal" />
             )}
             {error && <p className="font-sans-serif text-sm text-raja-chrome-error mb-4">{error}</p>}
-            <CatalogGrid pieces={filteredPieces} />
+            <CatalogGrid pieces={filteredPieces} abilityViewMode={abilityViewMode} />
           </div>
 
           <div className="flex-1 flex flex-col overflow-hidden border-l border-raja-chrome-border">
