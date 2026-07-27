@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 
 from play.auth import BagAuthContext, PlayerAuthContext, require_bag_access, require_player_access
+from play.bag.tools import validate_bag_composition, MAX_BAG_SIZE
 from play.orm.bag import Bag, BagPiece
 from play.orm.piece import Piece
 from utils.databases import create_resource, read_resource, update_resource, delete_resource, DatabaseConnection
@@ -18,6 +19,16 @@ ERRORS = {
     "bag_name_already_exists":    "A bag with that name already exists for this player.",
     "piece_not_found":            "One of the given piece names does not exist.",
     "quantity_would_go_negative": "The requested change would take a piece's quantity below zero.",
+    "bag_too_large":              f"Bag is full (max {MAX_BAG_SIZE} pieces).",
+    "bag_king_limit":             "Only one King is allowed in a bag.",
+    "bag_square_limit":           "Max 2 Square-movement pieces allowed in a bag.",
+    "bag_square_name_limit":      "Max 1 of the same Square-movement piece allowed.",
+    "bag_cross_limit":            "Max 4 Cross-movement pieces allowed in a bag.",
+    "bag_cross_name_limit":       "Max 2 of the same Cross-movement piece allowed.",
+    "bag_diagonal_limit":         "Max 4 Diagonal-movement pieces allowed in a bag.",
+    "bag_diagonal_name_limit":    "Max 2 of the same Diagonal-movement piece allowed.",
+    "bag_pawn_limit":             "Max 16 Pawn-movement pieces allowed in a bag.",
+    "bag_pawn_name_limit":        "Max 8 of the same Pawn-movement piece allowed.",
 }
 
 
@@ -116,6 +127,20 @@ def update_bag_pieces(bag_id: int, body: UpdateBagPiecesRequest, auth: BagAuthCo
         for name, delta in body.delta_pieces.items()
     }
     assert_preconditions([(any(quantity < 0 for quantity in new_quantities.values()), 422, "quantity_would_go_negative")], ERRORS)
+
+    id_to_name = {piece.id: name for name, piece in pieces_by_name.items()}
+    final_pieces = {
+        entry.piece.name: entry.quantity
+        for entry in bag.bag_pieces
+        if entry.piece_id not in new_quantities
+    }
+    final_pieces.update({
+        id_to_name[piece_id]: quantity
+        for piece_id, quantity in new_quantities.items()
+        if quantity > 0
+    })
+    violations = validate_bag_composition(final_pieces)
+    assert_preconditions([(violated, 422, key) for key, violated in violations.items()], ERRORS)
 
     for piece_id, new_quantity in new_quantities.items():
         entry = entries_by_piece_id.get(piece_id)

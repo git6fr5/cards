@@ -2,12 +2,22 @@
 // Goes through the /api rewrite in next.config.ts so requests stay same-origin.
 const BASE_URL = '/api';
 
+async function errorDetail(response: Response, fallback: string): Promise<string> {
+  try {
+    const data = await response.json();
+    if (data && typeof data.detail === 'string') return data.detail;
+  } catch {
+    return fallback;
+  }
+  return fallback;
+}
+
 export async function get<T = unknown>(path: string): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`, {
     credentials: 'include',
   });
   if (!response.ok) {
-    throw new Error(`GET ${path} failed with status ${response.status}`);
+    throw new Error(await errorDetail(response, `GET ${path} failed with status ${response.status}`));
   }
   return response.json() as Promise<T>;
 }
@@ -20,7 +30,7 @@ export async function post<T = unknown>(path: string, body?: unknown): Promise<T
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   if (!response.ok) {
-    throw new Error(`POST ${path} failed with status ${response.status}`);
+    throw new Error(await errorDetail(response, `POST ${path} failed with status ${response.status}`));
   }
   return response.json() as Promise<T>;
 }
@@ -50,7 +60,7 @@ export async function postFormData(path: string, body: FormData): Promise<Blob> 
     body,
   });
   if (!response.ok) {
-    throw new Error(`POST ${path} failed with status ${response.status}`);
+    throw new Error(await errorDetail(response, `POST ${path} failed with status ${response.status}`));
   }
   return response.blob();
 }
@@ -62,7 +72,7 @@ export async function postForm<T = unknown>(path: string, body: FormData): Promi
     body,
   });
   if (!response.ok) {
-    throw new Error(`POST ${path} failed with status ${response.status}`);
+    throw new Error(await errorDetail(response, `POST ${path} failed with status ${response.status}`));
   }
   return response.json() as Promise<T>;
 }
@@ -75,7 +85,7 @@ export async function put<T = unknown>(path: string, body?: unknown): Promise<T>
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   if (!response.ok) {
-    throw new Error(`PUT ${path} failed with status ${response.status}`);
+    throw new Error(await errorDetail(response, `PUT ${path} failed with status ${response.status}`));
   }
   return response.json() as Promise<T>;
 }
@@ -86,7 +96,7 @@ export async function del<T = unknown>(path: string): Promise<T> {
     credentials: 'include',
   });
   if (!response.ok) {
-    throw new Error(`DELETE ${path} failed with status ${response.status}`);
+    throw new Error(await errorDetail(response, `DELETE ${path} failed with status ${response.status}`));
   }
   return response.json() as Promise<T>;
 }

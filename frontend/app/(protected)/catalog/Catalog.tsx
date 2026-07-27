@@ -17,7 +17,7 @@ import CatalogGrid from './_components/CatalogGrid';
 import BagTabs from '@/app/_components/BagTabs';
 import BagTable from '@/app/_components/BagTable';
 import type { PieceFull, Bag, FilterState, AbilityViewMode } from './types';
-import { EMPTY_FILTERS, getBagRejectionReason } from './types';
+import { EMPTY_FILTERS } from './types';
 
 function matchesFilters(piece: PieceFull, filters: FilterState): boolean {
   if (filters.search && !piece.name.toLowerCase().includes(filters.search.toLowerCase())) return false;
@@ -124,13 +124,8 @@ function CatalogContent() {
 
   async function adjustPieceQuantity(pieceName: string, delta: number) {
     if (!selectedBag) return;
-    setError(null);
-    try {
-      await put<Bag>(`/bags/${selectedBag.id}/pieces`, { delta_pieces: { [pieceName]: delta } });
-      await refreshBags();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-    }
+    await put<Bag>(`/bags/${selectedBag.id}/pieces`, { delta_pieces: { [pieceName]: delta } });
+    await refreshBags();
   }
 
   function handleDragStart(event: DragStartEvent) {
@@ -140,7 +135,7 @@ function CatalogContent() {
     setActiveDragSource(source ?? null);
   }
 
-  function handleDragEnd(event: DragEndEvent) {
+  async function handleDragEnd(event: DragEndEvent) {
     const piece = event.active.data.current?.piece as PieceFull | undefined;
     const source = event.active.data.current?.source as 'catalog' | 'bag' | undefined;
     const droppedOnBagTable = event.over?.id === 'bag-table';
@@ -148,18 +143,21 @@ function CatalogContent() {
     let isValid = false;
     if (piece && selectedBag) {
       if (source === 'catalog' && droppedOnBagTable) {
-        const rejectionReason = getBagRejectionReason(piece, selectedBag.pieces, catalogByName);
-        if (rejectionReason) {
-          pushToast({ text: rejectionReason, tone: 'error' });
-        } else {
+        try {
+          await adjustPieceQuantity(piece.name, 1);
           isValid = true;
-          adjustPieceQuantity(piece.name, 1);
           pushToast({ text: `Added ${piece.name} to ${selectedBag.name}.`, tone: 'success' });
+        } catch (err) {
+          pushToast({ text: err instanceof Error ? err.message : 'An error occurred', tone: 'error' });
         }
       } else if (source === 'bag' && !droppedOnBagTable) {
-        isValid = true;
-        adjustPieceQuantity(piece.name, -1);
-        pushToast({ text: `Removed ${piece.name} from ${selectedBag.name}.`, tone: 'success' });
+        try {
+          await adjustPieceQuantity(piece.name, -1);
+          isValid = true;
+          pushToast({ text: `Removed ${piece.name} from ${selectedBag.name}.`, tone: 'success' });
+        } catch (err) {
+          pushToast({ text: err instanceof Error ? err.message : 'An error occurred', tone: 'error' });
+        }
       }
     }
 

@@ -12,6 +12,9 @@
 9. [mps icon in archetype color](#9-mps-icon-in-archetype-color)
 10. [Merge trigger count/filters under the trigger icon](#10-merge-trigger-countfilters-under-the-trigger-icon)
 11. [Summon cost to top-right, drop bottom corners](#11-summon-cost-to-top-right-drop-bottom-corners)
+12. [Gem icon for summon cost, swap target/effect row order](#12-gem-icon-for-summon-cost-swap-targeteffect-row-order)
+13. [Pill coloring: colored background, black text, 70% opacity](#13-pill-coloring-colored-background-black-text-70-opacity)
+14. [Widen and heighten the bottom orange block](#14-widen-and-heighten-the-bottom-orange-block)
 
 ---
 
@@ -327,6 +330,80 @@ None — direct, unambiguous relocation/removal.
 In `frontend/app/_components/PieceIconCard2.tsx`: removed the bottom-left `SquareArrowDown` block
 and its now-unused import; removed the bottom-right `summon_cost` block and re-added it as a new
 top-right block (same `flex h-7 w-7 items-center justify-center` styling, just repositioned).
+
+Verified: `tsc --noEmit` clean (same pre-existing unrelated `.next` error ignored). No dev server
+started, no DB access.
+
+---
+
+## 12. Gem icon for summon cost, swap target/effect row order
+
+### Context
+Two more scoped tweaks: `summon_cost`'s top-right corner had no icon at all since section 11 (icon
+was dropped, not moved, when the bottom-left corner was cleared) — user asked for a symbol back,
+landing on `Gem` (already the project's generic "cost" icon, paired with `SquareArrowDown`/
+`Footprints` for `SUMMON_COST`/`ACTION_COST` in `abilityTranslatorIcons.ts`'s attribute chips — no
+collision with anything else on this card). Separately, the bottom orange block's row order flips —
+target renders above effect now, not below.
+
+### Discussion points
+None — direct, unambiguous.
+
+### Decision
+In `frontend/app/_components/PieceIconCard2.tsx`: top-right corner became a `flex-col` stack (same
+pattern as the top-left archetype corner) — `Gem` (`size={18}`) above the `summon_cost` number.
+Bottom orange block's two `ChipRow`s reordered: `ability.target` first, `ability.effect` second.
+
+Verified: `tsc --noEmit` clean (same pre-existing unrelated `.next` error ignored). No dev server
+started, no DB access.
+
+---
+
+## 13. Pill coloring: colored background, black text, 70% opacity
+
+### Context
+The alignment-colored zone pills from [[record_ability_half_icon_translator]] section 4 put the
+alignment color on the pill's *text*, keeping the default grey background — screenshot feedback
+showed this read poorly (pale green text on grey). User wanted the scheme flipped: alignment color
+as the pill *background*, black text for contrast. Bundled with a second, broader ask: every pill
+on this card (colored or not — `ALL`, `AMP`, `STUN`, `SLOW`, and the zone pills) should render its
+background at 70% opacity.
+
+### Discussion points
+None — direct, unambiguous, screenshot-driven correction.
+
+### Decision
+In `PieceIconCard2.tsx`'s `Chip` component, pill branch: base className now
+`bg-raja-chrome-border/70` (Tailwind opacity modifier, same pattern already used elsewhere in the
+project e.g. `Catalog.tsx`'s drag-overlay `bg-raja-chrome-text/20`) instead of a plain
+`bg-raja-chrome-border` — covers the "all pills" 70%-opacity ask for colorless pills automatically.
+When `chip.color` is set, inline `style` overrides both `backgroundColor` (`` `${chip.color}B3` ``
+— `B3` hex ≈ 70% alpha, matching the same opacity target via the dynamic-color path) and `color`
+(`'#000000'`, flat black) — colorless pills are unaffected since they never set `chip.color`.
+
+Verified: `tsc --noEmit` clean (same pre-existing unrelated `.next` error ignored). No dev server
+started, no DB access.
+
+---
+
+## 14. Widen/heighten the bottom orange block, opacity tried then reverted
+
+### Context
+Content in the bottom orange block (target/effect rows, now including alignment pills) was
+crowding the fixed-width band. User asked for slightly more room both dimensions, then in the same
+round asked for the block's background itself to be more transparent (30%) — then, across a
+sizeable topic detour (the bag-composition-rules feature), asked to revert the opacity back to
+100% while keeping the width/height change.
+
+### Discussion points
+None — direct sizing/opacity requests, the second a plain revert of the first.
+
+### Decision
+In `frontend/app/_components/PieceIconCard2.tsx`: bottom orange block's inset `left-11 right-11`
+→ `left-9 right-9` (44px → 36px each side, wider band) and `h-9` → `h-10` (36px → 40px, taller) —
+both stand. `bg-raja-orange` → `bg-raja-orange/30` (Tailwind opacity modifier, same pattern already
+used for the pill backgrounds) → reverted back to plain `bg-raja-orange` (full opacity) per the
+follow-up ask.
 
 Verified: `tsc --noEmit` clean (same pre-existing unrelated `.next` error ignored). No dev server
 started, no DB access.

@@ -1,3 +1,4 @@
+import random
 from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
@@ -8,12 +9,20 @@ from play.orm.game_player import GamePlayer, GamePlayerPiece
 from play.orm.player import Player
 
 
-SEAT_BAG_NAME = "Goblin"  # bag used to resolve each seat's pieces — must include a KingPiece for the engine to load the board
+SEAT_BAG_RANDOM_SEED = 0  # fixed seed — deterministic across seeding runs, still random per default bag
 
 
 def seed_game(session: Session, players: list[Player], bags: list[Bag]) -> list[Game]:
     now = datetime.utcnow()
-    seat_bag_by_player_id = {bag.player_id: bag for bag in bags if bag.name == SEAT_BAG_NAME}
+    bags_by_player_id: dict[int, list[Bag]] = {}
+    for bag in bags:
+        bags_by_player_id.setdefault(bag.player_id, []).append(bag)
+    rng = random.Random(SEAT_BAG_RANDOM_SEED)
+    # every default bag must include a King for the engine to load the board — true for all current ones
+    seat_bag_by_player_id = {
+        player_id: rng.choice(player_bags)
+        for player_id, player_bags in bags_by_player_id.items()
+    }
 
     games = [
         Game(seed=1, is_game_over=True, winner_player_id=players[0].id, created_at=now - timedelta(days=2)),

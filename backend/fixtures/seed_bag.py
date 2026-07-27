@@ -8,7 +8,7 @@ from play.orm.piece import Piece
 from play.orm.player import Player
 
 
-DEFAULT_BAG_NAMES = ["goblin", "dragon", "warlock"]
+DEFAULT_BAG_NAMES = ["bag_0", "bag_1", "bag_2"]
 
 
 def seed_bag(session: Session, players: list[Player], pieces: list[Piece]) -> list[Bag]:

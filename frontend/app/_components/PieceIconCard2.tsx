@@ -1,6 +1,7 @@
-import { Crown } from 'lucide-react';
+import { Crown, Gem } from 'lucide-react';
 import { translateAbilityToIcons, PATTERN_ICONS } from '@/utils/abilityTranslatorIcons';
 import type { IconChip, IconLine } from '@/utils/abilityTranslatorIcons';
+import { translateAbilityHalfIcon } from '@/utils/abilityHalfIconTranslator';
 import { ARCHETYPES } from '@/utils/archetypes';
 import type { PieceFull } from './types';
 import { KING_ROLE_TYPE } from './types';
@@ -21,7 +22,10 @@ interface ChipProps {
 function Chip({ chip }: ChipProps) {
   if (chip.pill && chip.label) {
     return (
-      <span className="inline-block rounded-full bg-raja-chrome-border px-1.5 py-0.5 font-sans-serif text-[0.6rem] font-bold text-raja-chrome-text">
+      <span
+        className="inline-block rounded-full px-1.5 py-0.5 font-sans-serif text-[0.6rem] font-bold bg-raja-chrome-border/70 text-raja-chrome-text"
+        style={chip.color ? { backgroundColor: `${chip.color}B3`, color: '#000000' } : undefined}
+      >
         {chip.label}
       </span>
     );
@@ -84,11 +88,19 @@ function splitTriggerCorner(chips: IconChip[]): { count: string | null; filterCh
   return { count, filterChips };
 }
 
+function targetFilterChips(ability: string): IconChip[] {
+  const target = translateAbilityToIcons(ability)?.target;
+  if (!target || target.kind !== 'chips') return [];
+  const openIndex = target.chips.findIndex((chip) => chip.label === '(');
+  return openIndex === -1 ? [] : target.chips.slice(openIndex + 1, -1);
+}
+
 export default function PieceIconCard2({ piece, className = '' }: PieceIconCard2Props) {
   const archetype = ARCHETYPES[piece.archetype];
   const isKing = piece.role_type === KING_ROLE_TYPE;
-  const ability = translateAbilityToIcons(piece.ability);
+  const ability = translateAbilityHalfIcon(piece.ability);
   const { count: triggerCount, filterChips } = splitTriggerCorner(triggerChips(piece.ability));
+  const targetFilters = targetFilterChips(piece.ability);
   const PatternIcon = PATTERN_ICONS[piece.movement_type];
   const MpsIcon = isKing ? Crown : PatternIcon;
   const mpsCount = Math.max(piece.attributes.action_count, 1);
@@ -107,8 +119,15 @@ export default function PieceIconCard2({ piece, className = '' }: PieceIconCard2
         ))}
       </div>
 
-      <div className="absolute right-0.5 top-0.5 flex h-7 w-7 items-center justify-center">
+      <div className="absolute right-0.5 top-0.5 flex flex-col items-center gap-0.5">
+        <Gem size={18} className="text-raja-chrome-text" />
         <span className="font-monospace text-xs text-raja-chrome-text">{piece.attributes.summon_cost}</span>
+      </div>
+
+      <div className="absolute right-0.5 bottom-0.5 flex flex-col-reverse items-center gap-0.5">
+        {targetFilters.map((chip, index) => (
+          <Chip key={index} chip={chip} />
+        ))}
       </div>
 
       <p className="absolute top-0.5 left-8 right-8 h-7 flex items-center justify-center font-serif text-xs font-bold uppercase text-raja-chrome-text text-center leading-tight">
@@ -129,9 +148,9 @@ export default function PieceIconCard2({ piece, className = '' }: PieceIconCard2
       </div>
 
       {ability && (
-        <div className="absolute bottom-0 left-11 right-11 h-9 flex flex-col items-center justify-center gap-0.5 bg-raja-orange px-1">
-          <ChipRow line={ability.effect} />
+        <div className="absolute bottom-0 left-9 right-9 h-10 flex flex-col items-center justify-center gap-0.5 bg-raja-orange px-1">
           <ChipRow line={ability.target} />
+          <ChipRow line={ability.effect} />
         </div>
       )}
     </div>
