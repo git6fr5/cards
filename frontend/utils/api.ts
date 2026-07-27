@@ -67,11 +67,11 @@ export async function postForm<T = unknown>(path: string, body: FormData): Promi
   return response.json() as Promise<T>;
 }
 
-export async function put<T = unknown>(path: string, body?: unknown): Promise<T> {
+export async function put<T = unknown>(path: string, body?: unknown, headers?: Record<string, string>): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`, {
     method: 'PUT',
     credentials: 'include',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...headers },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
   if (!response.ok) {
