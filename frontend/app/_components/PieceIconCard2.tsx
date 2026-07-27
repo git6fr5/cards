@@ -60,12 +60,8 @@ function ChipRow({ line }: ChipRowProps) {
   );
 }
 
-function displayName(piece: PieceFull, archetypeName: string): string {
-  const stripped = piece.name
-    .replace(new RegExp(`\\b${archetypeName}\\b`, 'i'), '')
-    .replace(/\s+/g, ' ')
-    .trim();
-  return stripped || piece.name;
+function displayName(piece: PieceFull): string {
+  return piece.name;
 }
 
 function triggerChips(ability: string): IconChip[] {
@@ -131,7 +127,7 @@ export default function PieceIconCard2({ piece, className = '' }: PieceIconCard2
       </div>
 
       <p className="absolute top-0.5 left-8 right-8 h-7 flex items-center justify-center font-serif text-xs font-bold uppercase text-raja-chrome-text text-center leading-tight">
-        {displayName(piece, archetype.name)}
+        {displayName(piece)}
       </p>
 
       <div className="absolute inset-0 flex items-center justify-center">
