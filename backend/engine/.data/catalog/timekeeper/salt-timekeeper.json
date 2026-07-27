@@ -1,6 +1,6 @@
 {
-  "name": "Salt Goblin",
-  "archetype": "GOBLIN",
+  "name": "Salt Timekeeper",
+  "archetype": "TIMEKEEPER",
   "roleType": "UNIT",
   "movement": "FORWARD 1",
   "ability": "ON TURNEND 2\nKILL\nSELF",

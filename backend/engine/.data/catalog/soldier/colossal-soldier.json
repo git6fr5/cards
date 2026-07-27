@@ -1,7 +1,7 @@
 {
-  "name": "Colossal Golem",
+  "name": "Colossal Soldier",
   "concept": "no stated ability — top of the golem chain.",
-  "archetype": "WARLOCK",
+  "archetype": "SOLDIER",
   "roleType": "UNIT",
   "movement": "DIAGONAL 6",
   "ability": "",

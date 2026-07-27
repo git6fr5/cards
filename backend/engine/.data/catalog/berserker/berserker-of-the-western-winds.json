@@ -1,13 +1,13 @@
 {
-  "name": "Wizard of the West",
+  "name": "Berserker of the Western Winds",
   "concept": "When this unit captures an enemy unit, randomly kill one of your units.",
-  "archetype": "WARLOCK",
+  "archetype": "BERSERKER",
   "roleType": "UNIT",
   "movement": "CROSS 3",
   "ability": "ON KILL 1\nKILL\nFRIENDLY BOARD:PATTERN:SQUARE:6 1",
   "attributes": {
     "summon_cost": 5,
-    "action_cost": 1,
+    "action_cost": 3,
     "action_count": 2
   }
 }

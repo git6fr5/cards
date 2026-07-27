@@ -1,7 +1,7 @@
 {
-  "name": "Witch King",
+  "name": "Trapped King",
   "concept": "Gain 1 temporary mana whenever any of your units are captured. The temporary mana dissappears at the end of your turn.",
-  "archetype": "WARLOCK",
+  "archetype": "TRAP",
   "roleType": "KING",
   "movement": "SQUARE 1",
   "summoning": "SQUARE 1",

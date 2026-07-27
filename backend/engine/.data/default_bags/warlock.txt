@@ -1,25 +1,25 @@
-Colossal Golem
-Colossal Golem
-Ghost
-Ghost
-Giant Golem
-Giant Golem
-Golem
-Golem
-Graveyard
-Graveyard
-Grim Reaper
-Grim Reaper
-Imp
-Imp
-Sacrificial Circle
-Sacrificial Circle
-Summoning Circle
-Summoning Circle
-Witch Queen
-Witch Queen
-Wizard of the East
-Wizard of the East
-Wizard of the West
-Wizard of the West
-Witch King
+Colossal Soldier
+Colossal Soldier
+Wandering Ghost
+Wandering Ghost
+Giant Snare
+Giant Snare
+Golem Snare
+Golem Snare
+Graveyard Turret
+Graveyard Turret
+Reaper Demon
+Reaper Demon
+Impish Soldier
+Impish Soldier
+Sacrificial Turret
+Sacrificial Turret
+Summoning Turret
+Summoning Turret
+Berserker Witch
+Berserker Witch
+Berserker of the Eastern Winds
+Berserker of the Eastern Winds
+Berserker of the Western Winds
+Berserker of the Western Winds
+Trapped King

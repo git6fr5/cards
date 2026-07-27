@@ -1,10 +1,10 @@
 {
-  "name": "Golem",
+  "name": "Golem Snare",
   "concept": "On captured, add a giant golem to your hand.",
-  "archetype": "WARLOCK",
+  "archetype": "TRAP",
   "roleType": "UNIT",
   "movement": "DIAGONAL 2",
-  "ability": "ON DEATH 1\nPUT SHELF\nFRIENDLY BAG:SEE:0 1 WHERE ARCHETYPE:WARLOCK ATT:SUMMON_COST=4",
+  "ability": "ON DEATH 1\nPUT SHELF\nFRIENDLY BAG:SEE:0 1 WHERE ARCHETYPE:TRAP ATT:SUMMON_COST=4",
   "attributes": {
     "summon_cost": 2,
     "action_cost": 2,

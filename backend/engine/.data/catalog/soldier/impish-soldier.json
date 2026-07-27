@@ -1,7 +1,7 @@
 {
-  "name": "Imp",
+  "name": "Impish Soldier",
   "concept": null,
-  "archetype": "WARLOCK",
+  "archetype": "SOLDIER",
   "roleType": "UNIT",
   "movement": "FORWARD 1",
   "ability": "",

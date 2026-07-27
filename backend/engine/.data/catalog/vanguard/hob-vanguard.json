@@ -1,6 +1,6 @@
 {
-  "name": "Hobgoblin",
-  "archetype": "GOBLIN",
+  "name": "Hob Vanguard",
+  "archetype": "VANGUARD",
   "roleType": "UNIT",
   "movement": "FORWARD 1",
   "ability": "ON PROMOTION 1\nKILL\nANY BOARD:PATTERN:SQUARE:1 ALL",

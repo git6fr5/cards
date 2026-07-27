@@ -6,6 +6,7 @@
 3. [2026-07-24 — Frontend archetype-map break + workflow fix](#3-2026-07-24--frontend-archetype-map-break--workflow-fix)
 4. [2026-07-26 — Goblin archetype split (partial, 5 of 8)](#4-2026-07-26--goblin-archetype-split-partial-5-of-8)
 5. [2026-07-26 — Berserker/Vanguard split, Messenger→Nomad, unified trigger icons](#5-2026-07-26--berserkervanguard-split-messengernomad-unified-trigger-icons)
+6. [2026-07-26 — Full Goblin + Warlock migration; GOBLIN and WARLOCK retired](#6-2026-07-26--full-goblin--warlock-migration-goblin-and-warlock-retired)
 
 ---
 
@@ -331,9 +332,97 @@ already correctly named and untouched. Every moved file was also renamed to matc
 name (e.g. `goblin-bomber.json`→`nomad/exploding-nomad.json`,
 `soldier-king.json`→`berserker/berserker-king.json`).
 
-Open / not yet reached:
+Open / not yet reached (superseded by part 6 below):
 - Goblin Warrior, Hobgoblin, Salt Goblin — still archetype `GOBLIN`; now that `VANGUARD` (`ON
   PROMOTION`) exists, Warrior/Hobgoblin are expected to land there once the walk resumes.
 - Berserker dark-red and Soldier grey hex values are still placeholders, not user-confirmed.
 - `frontend/app/(open)/rules/_components/AbilitiesPanel.tsx`'s illustrative "Dragon King" example
   (flagged back in part 2) remains unaddressed.
+
+---
+
+## 6. 2026-07-26 — Full Goblin + Warlock migration; GOBLIN and WARLOCK retired
+
+### Context
+Same day, continuing straight on. User asked the assistant to infer what was still left across the
+*whole* catalog under the two standing rules (archetype implies trigger, `action_cost` = max move
+distance), not just the goblin walk — surfacing that `warlock/` (13 pieces) had never been audited
+against either rule at all, on top of the 3 remaining `GOBLIN` pieces. Walked through both in full
+before writing anything: a thorough atomic per-field listing (archetype, name, `action_cost`, filter
+implications) for every piece, split out as its own line item rather than bundled per-piece, per
+explicit request ("list each change atomically"). Names were initially left as "TBD" (per the
+session's standing no-guessing rule); the user then explicitly invited inference ("you can infer
+the names, surely"), adjusted 5 of the assistant's suggestions, and confirmed the Colossal
+Golem/Imp open question (both landed on `SOLDIER`, the no-ability exception bucket — same shape as
+Night Soldier/Triplet Soldier). `/build all the changes + the renames` executed the full batch.
+
+### Discussion points
+- Two new archetypes had to be created to unblock the Warlock migration: `DEMON` (`ON SUMMON` —
+  Grim Reaper's trigger, previously blocked/unmigrated per the original Dragon-rework plan) and
+  `TRAP` (`ON DEATH` — Giant Golem/Golem/Witch King's trigger, the "planned, unused" archetype from
+  part 2). Both got unified icons per part 5's rule (`DEMON`/`SquareArrowDown` matching the `SUMMON`
+  trigger+effect icon, `TRAP`/`Skull` matching the `DEATH` trigger icon) and placeholder colors
+  (`#1E293B`, `#78350F`).
+- Caught a real bug before writing: Giant Golem's ability filter (`WHERE ARCHETYPE:WARLOCK
+  ATT:SUMMON_COST=6`) targets Colossal Golem by cost, not by shared archetype — but Colossal Golem
+  was landing on `SOLDIER`, not `TRAP` (Giant Golem's own new archetype). A mechanical
+  find-and-replace (`WARLOCK`→`TRAP`) would have silently broken the golem summon-chain. Fixed to
+  `ARCHETYPE:SOLDIER` instead, matching the actual target. Golem's own filter (targets Giant Golem
+  by cost, which *does* land on `TRAP`) was correctly renamed to `ARCHETYPE:TRAP`.
+- Summoning Turret's filter (`WHERE ARCHETYPE:WARLOCK`, no cost clause — a generic "any warlock
+  piece" filter, not a chain reference) was mechanically renamed to `ARCHETYPE:TURRET`, scoping it
+  to its own new peers. Flagged as a judgment call, not a verified-safe rename like Golem's — unlike
+  the golem chain there's no specific target piece this filter has to keep resolving to, but scoping
+  to `TURRET` narrows what a fragmenting-family filter used to reach across all of former Warlock.
+- Both `GOBLIN` and `WARLOCK` hit **zero** remaining pieces once this batch landed (Goblin's last 3
+  pieces reclassed; Warlock's last 13 split across six different archetypes) — the assistant
+  proactively removed both from the enum, following the exact precedent set when `DRAGON` was
+  removed after its full migration to `SOLDIER` (part 2). Also proactively re-ran the folder/file
+  reorg from part 5's follow-up without being re-asked, since it was established as the expected
+  next step after any archetype-changing batch this session.
+
+### Decision
+**Goblin, 3 pieces** (`backend/engine/.data/catalog/vanguard/`, `timekeeper/`):
+
+| File | New name | Archetype | `action_cost` |
+|---|---|---|---|
+| goblin-warrior.json → vanguard/goblin-vanguard.json | Goblin Vanguard | VANGUARD | 3→1 |
+| hobgoblin.json → vanguard/hob-vanguard.json | Hob Vanguard | VANGUARD | unchanged (1) |
+| salt-goblin.json → timekeeper/salt-timekeeper.json | Salt Timekeeper | TIMEKEEPER | unchanged (1) |
+
+**Warlock, all 13 pieces**, split across `soldier/`, `nomad/`, `trap/`, `demon/`, `berserker/`,
+`turret/`:
+
+| File | New name | Archetype | `action_cost` |
+|---|---|---|---|
+| colossal-golem.json → soldier/colossal-soldier.json | Colossal Soldier | SOLDIER | unchanged (6, no ability) |
+| imp.json → soldier/impish-soldier.json | Impish Soldier | SOLDIER | unchanged (1, no ability) |
+| ghost.json → nomad/wandering-ghost.json | Wandering Ghost | NOMAD | unchanged (3) |
+| giant-golem.json → trap/giant-snare.json | Giant Snare | TRAP | unchanged (4); filter→`ARCHETYPE:SOLDIER` (bug catch, see above) |
+| golem.json → trap/golem-snare.json | Golem Snare | TRAP | unchanged (2); filter→`ARCHETYPE:TRAP` |
+| witch-king.json → trap/trapped-king.json | Trapped King | TRAP | unchanged (1) |
+| grim-reaper.json → demon/reaper-demon.json | Reaper Demon | DEMON | unchanged (8) |
+| witch-queen.json → berserker/berserker-witch.json | Berserker Witch | BERSERKER | unchanged (2) |
+| wizard-of-the-east.json → berserker/berserker-of-the-eastern-winds.json | Berserker of the Eastern Winds | BERSERKER | 1→3 |
+| wizard-of-the-west.json → berserker/berserker-of-the-western-winds.json | Berserker of the Western Winds | BERSERKER | 1→3 |
+| graveyard.json → turret/graveyard-turret.json | Graveyard Turret | TURRET | 10→1 |
+| sacrificial-circle.json → turret/sacrificial-turret.json | Sacrificial Turret | TURRET | unchanged (1) |
+| summoning-circle.json → turret/summoning-turret.json | Summoning Turret | TURRET | 3→1; filter→`ARCHETYPE:TURRET` |
+
+`backend/engine/enums/archetype.py` and `frontend/utils/archetypes.ts`: `DEMON`/`TRAP` added,
+`GOBLIN`/`WARLOCK` removed entirely. `default_bags/warlock.txt` updated to match every rename
+(`default_bags/goblin.txt` needed no changes — the 3 migrated pieces were never in that roster).
+`goblin/` and `warlock/` catalog folders removed (empty). New `vanguard/`, `trap/`, `demon/`
+folders created.
+
+Verified: all JSON parses, `archetype.py` `py_compile`s clean, zero orphaned `GOBLIN`/`WARLOCK`
+references anywhere in `backend`/`frontend` (source, not build artifacts), `load_catalog()` resolves
+all 34 pieces by name with no DB engine/session involved (respects the standing DB ban), `tsc
+--noEmit` clean.
+
+Open / not yet reached:
+- Berserker dark-red (`#7F1D1D`) and Soldier grey (`#6B7280`) hex values are still placeholders,
+  never explicitly confirmed.
+- `AbilitiesPanel.tsx`'s stale "Dragon King" example (flagged since part 2) remains unaddressed.
+- Every archetype in the catalog is now believed to comply with both standing rules — this was
+  inferred/asserted during the walk, not re-verified with a fresh full-catalog audit after writing.

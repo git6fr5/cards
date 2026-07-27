@@ -1,7 +1,7 @@
 {
-  "name": "Grim Reaper",
+  "name": "Reaper Demon",
   "concept": "On summon, all units along each Cross Direction are captured (friendly and enemy)",
-  "archetype": "WARLOCK",
+  "archetype": "DEMON",
   "roleType": "UNIT",
   "movement": "CROSS 8",
   "ability": "ON SUMMON 1\nKILL\nANY BOARD:PATTERN:CROSS:6 ALL",

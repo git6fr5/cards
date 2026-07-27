@@ -1,7 +1,7 @@
 {
-  "name": "Sacrificial Circle",
+  "name": "Sacrificial Turret",
   "concept": "You can sacrifice a summoned unit each turn to regain mana equal to its movement cost.",
-  "archetype": "WARLOCK",
+  "archetype": "TURRET",
   "roleType": "BUILDING",
   "movement": "SQUARE 1",
   "ability": "ON ACTIVATE\nKILL\nDEFENDER",
