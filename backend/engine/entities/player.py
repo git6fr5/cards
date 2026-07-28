@@ -20,7 +20,7 @@ FAR_RANK = {0: Board.BOARD_HEIGHT - 1, 1: 0}
 @dataclass
 class Player:
 
-    player_id: int
+    seat_index: int
     king: KingPiece | None = None
     shelf: list[Piece] = field(default_factory=list)
     bag: list[Piece] = field(default_factory=list)
@@ -62,7 +62,7 @@ class Player:
 
         fire_trigger(Trigger.SUMMON, summoned_piece)
         fire_trigger(Trigger.SUMMON, self.king)
-        return InputOutcome(True, f"Player {self.player_id} summoned {summoned_piece.name} at {position}")
+        return InputOutcome(True, f"Player {self.seat_index} summoned {summoned_piece.name} at {position}")
 
     def act(self, origin: Position, target: Position) -> InputOutcome:
         board = game.board
@@ -90,7 +90,7 @@ class Player:
 
         if piece.is_building:
             fire_trigger(Trigger.ACTIVATE, piece, target_piece)
-            result = f"Player {self.player_id} activated {piece.name} targeting {target}"
+            result = f"Player {self.seat_index} activated {piece.name} targeting {target}"
         else:
 
             del board.pieces[origin]
@@ -99,7 +99,7 @@ class Player:
             fire_trigger(Trigger.MOVE, piece)
             fire_trigger(Trigger.MOVE, self.king)
 
-            if target.y == FAR_RANK[self.player_id]:
+            if target.y == FAR_RANK[self.seat_index]:
                 fire_trigger(Trigger.PROMOTION, piece)
 
             if target_piece:
@@ -108,9 +108,9 @@ class Player:
 
                 fire_trigger(Trigger.DEATH, target_piece, piece)
                 fire_trigger(Trigger.DEATH, target_piece.player.king, piece)
-                result = f"Player {self.player_id} moved {piece.name} from {origin} to {target}, capturing {target_piece.name}"
+                result = f"Player {self.seat_index} moved {piece.name} from {origin} to {target}, capturing {target_piece.name}"
             else:
-                result = f"Player {self.player_id} moved {piece.name} from {origin} to {target}"
+                result = f"Player {self.seat_index} moved {piece.name} from {origin} to {target}"
 
         self.current_mana -= piece.attributes.get("action_cost")
         piece.attributes.modify("action_count", -1, 1, "Fatigue")
@@ -134,7 +134,7 @@ class Player:
         fire_trigger(Trigger.TURNEND, self.king)
 
     def owns(self, piece: Piece) -> bool:
-        return piece.player.player_id == self.player_id
+        return piece.player.seat_index == self.seat_index
 
     def can_target(self, piece: Piece, target_piece: Piece | None) -> bool:
         if not target_piece:
@@ -149,9 +149,10 @@ class Player:
         if not piece or not self.owns(piece):
             return []
 
+        facing = 1 if self.seat_index == 0 else -1
         positions = []
         for offset in piece.movement:
-            target = origin.translate(offset)
+            target = origin.translate(Position(offset.x, offset.y * facing))
             if not board.is_within(target):
                 continue
             if board.path_blocked(origin, target):
