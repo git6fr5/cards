@@ -5,17 +5,19 @@ export function useWebSocket<T = unknown>(
   resourceId: string | number,
   onMessage: (data: T) => void,
   enabled: boolean = true,
+  params?: Record<string, string>,
 ) {
   const ws = useRef<WebSocket | null>(null);
   // Prevents the onclose handler from scheduling a reconnect when the
   // connection is closed intentionally (component unmount or enabled → false).
   const shouldReconnect = useRef(false);
+  const queryString = params ? `?${new URLSearchParams(params).toString()}` : '';
 
   const connect = useCallback(() => {
     // Same-origin, through the /api rewrite (same path every other request uses) — the browser
     // attaches the session/testator cookie automatically, same as any other same-origin request.
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const wsUrl = `${wsProtocol}//${window.location.host}/api/${resourceType}/${resourceId}/ws`;
+    const wsUrl = `${wsProtocol}//${window.location.host}/api/${resourceType}/${resourceId}/ws${queryString}`;
     ws.current = new WebSocket(wsUrl);
 
     ws.current.onopen = () => {
@@ -37,7 +39,7 @@ export function useWebSocket<T = unknown>(
         setTimeout(connect, 3000);
       }
     };
-  }, [resourceType, resourceId, onMessage]);
+  }, [resourceType, resourceId, onMessage, queryString]);
 
   useEffect(() => {
     if (!enabled) return;
