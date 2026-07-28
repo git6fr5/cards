@@ -79,26 +79,31 @@ def require_bag_access(
     return BagAuthContext(**vars(auth), bag_id=bag_id)
 
 
-def _load_game_and_seat(room: UUID, player_id: int) -> tuple[int | None, int | None]:
+def _load_game_and_seat(room: UUID, player_id: int, seat_index: int) -> tuple[int | None, bool]:
     from utils.databases import init_engine
 
     with Session(init_engine()) as session:
         game = session.execute(select(Game).where(Game.room == room)).scalar_one_or_none()
         if game is None:
-            return None, None
+            return None, False
         seat = session.execute(
-            select(GamePlayer).where(GamePlayer.game_id == game.id, GamePlayer.player_id == player_id)
+            select(GamePlayer).where(
+                GamePlayer.game_id == game.id,
+                GamePlayer.seat_index == seat_index,
+                GamePlayer.player_id == player_id,
+            )
         ).scalar_one_or_none()
-        return game.id, (seat.player_index if seat is not None else None)
+        return game.id, seat is not None
 
 
 def require_game_access(
     room: UUID,
+    seat_index: int,
     auth: PlayerAuthContext = Depends(require_player_access),
 ) -> GameAuthContext:
-    game_id, seat_index = _load_game_and_seat(room, auth.player_id)
+    game_id, is_seated = _load_game_and_seat(room, auth.player_id, seat_index)
     assert_preconditions([(game_id is None, 404, "game_not_found")], ERRORS)
-    assert_preconditions([(seat_index is None, 403, "not_seated")], ERRORS)
+    assert_preconditions([(not is_seated, 403, "not_seated")], ERRORS)
     return GameAuthContext(**vars(auth), game_id=game_id, seat_index=seat_index)
 
 
@@ -137,12 +142,12 @@ def _resolve_websocket_auth(websocket: WebSocket) -> AuthContext | None:
     return None
 
 
-def require_game_access_ws(room: UUID, websocket: WebSocket) -> GameAuthContext:
+def require_game_access_ws(room: UUID, seat_index: int, websocket: WebSocket) -> GameAuthContext:
     auth = _resolve_websocket_auth(websocket)
     assert_preconditions([(auth is None, 401, "unauthenticated")], ERRORS)
     player_id = _load_player_id(auth.user_id)
     assert_preconditions([(player_id is None, 404, "player_not_found")], ERRORS)
-    game_id, seat_index = _load_game_and_seat(room, player_id)
+    game_id, is_seated = _load_game_and_seat(room, player_id, seat_index)
     assert_preconditions([(game_id is None, 404, "game_not_found")], ERRORS)
-    assert_preconditions([(seat_index is None, 403, "not_seated")], ERRORS)
+    assert_preconditions([(not is_seated, 403, "not_seated")], ERRORS)
     return GameAuthContext(**vars(auth), player_id=player_id, game_id=game_id, seat_index=seat_index)

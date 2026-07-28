@@ -7,7 +7,7 @@ class GamePlayer(Base):
     __tablename__ = "game_player"
 
     id = Column(Integer, primary_key=True)
-    player_index = Column(Integer, nullable=False)  # 0 or 1 — matches the engine's positional player_id
+    seat_index = Column(Integer, nullable=False)  # 0 or 1 — matches the engine's positional seat identity
 
     game_id = Column(Integer, ForeignKey("game.id", ondelete="CASCADE"), nullable=False, index=True)
     #* many-to-one — the game this player is seated in

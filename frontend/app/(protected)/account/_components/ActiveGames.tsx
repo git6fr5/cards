@@ -43,7 +43,7 @@ export default function ActiveGames({ entries }: ActiveGamesProps) {
                   <RajaButton
                     variant="action"
                     text="Resume"
-                    onClick={() => router.push(`/play/room?room=${entry.room}&player=${entry.player_index}`)}
+                    onClick={() => router.push(`/play/room?room=${entry.room}&seat_index=${entry.seat_index}`)}
                   />
                 </td>
               </tr>

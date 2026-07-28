@@ -12,7 +12,7 @@ export default function InviteLink({ room, otherPlayerIndex }: InviteLinkProps) 
   const [copied, setCopied] = useState(false);
 
   function handleCopy() {
-    const url = `${window.location.origin}/play/room?room=${room}&player=${otherPlayerIndex}`;
+    const url = `${window.location.origin}/play/room?room=${room}&seat_index=${otherPlayerIndex}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
   }

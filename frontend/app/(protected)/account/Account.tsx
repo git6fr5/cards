@@ -12,6 +12,7 @@ import type { GameHistoryEntry, FriendEntry, GameInviteEntry, ActiveGameEntry } 
 import GameHistoryTable from './_components/GameHistoryTable';
 import FriendsList from './_components/FriendsList';
 import StartGamePanel from './_components/StartGamePanel';
+import StartCoopGamePanel from './_components/StartCoopGamePanel';
 import IncomingInvites from './_components/IncomingInvites';
 import ActiveGames from './_components/ActiveGames';
 import OutgoingInvites from './_components/OutgoingInvites';
@@ -109,6 +110,8 @@ function AccountContent() {
           onStarted={handleStarted}
           onError={handleError}
         />
+
+        <StartCoopGamePanel bags={bags} onStarted={handleStarted} onError={handleError} />
 
         <IncomingInvites invites={incomingInvites} bags={bags} onError={handleError} />
 

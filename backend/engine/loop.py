@@ -27,7 +27,7 @@ def pad_to_width(text: str, width: int) -> str:
 def bag_lines(player: Player) -> list[str]:
     counts = Counter(piece.name for piece in player.bag)
     colors = {piece.name: Archetype.get_color(piece.piecetype.get("archetype")) for piece in player.bag}
-    title = f"Player {player.player_id} Bag ({len(player.bag)})"
+    title = f"Player {player.seat_index} Bag ({len(player.bag)})"
     lines = [title, "─" * len(title)]
     for name, count in sorted(counts.items()):
         lines.append(f"  {colorize(f'{name:<20}', colors[name])} x{count}")
@@ -38,7 +38,7 @@ def print_bag(player: Player) -> None:
         print(line)
 
 def shelf_lines(player: Player) -> list[str]:
-    title = f"Player {player.player_id} Shelf ({len(player.shelf)})"
+    title = f"Player {player.seat_index} Shelf ({len(player.shelf)})"
     lines = [title, "─" * len(title)]
     for index, piece in enumerate(player.shelf):
         color = Archetype.get_color(piece.piecetype.get("archetype"))

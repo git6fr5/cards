@@ -18,7 +18,7 @@ def pack_game_state(engine_game: EngineGame, log: list[str], viewer_index: int) 
         format_square(position): {
             "name": piece.name,
             "archetype": piece.piecetype.get("archetype").value,
-            "owner": piece.player.player_id,
+            "owner": piece.player.seat_index,
             "is_building": piece.is_building,
         }
         for position, piece in engine_game.board.pieces.items()
@@ -36,11 +36,11 @@ def pack_game_state(engine_game: EngineGame, log: list[str], viewer_index: int) 
 
     players = [
         {
-            "player_id": player.player_id,
+            "seat_index": player.seat_index,
             "current_mana": player.current_mana,
             "total_mana": player.total_mana,
             "shelf": [
-                pack_shelf_piece(piece, player.player_id != viewer_index)
+                pack_shelf_piece(piece, player.seat_index != viewer_index)
                 for piece in player.shelf
             ],
             "bag_count": len(player.bag),
@@ -95,7 +95,7 @@ def _load_seat_pieces(session: Session, game_player_id: int) -> list[str]:
 
 def replay_game(session: Session, game_row: Game) -> tuple[EngineGame, list[str]]:
     seats = session.execute(
-        select(GamePlayer).where(GamePlayer.game_id == game_row.id).order_by(GamePlayer.player_index)
+        select(GamePlayer).where(GamePlayer.game_id == game_row.id).order_by(GamePlayer.seat_index)
     ).scalars().all()
     player_pieces = [_load_seat_pieces(session, seat.id) for seat in seats]
 

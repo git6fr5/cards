@@ -19,7 +19,7 @@ export interface HiddenShelfPiece {
 export type ShelfPiece = VisibleShelfPiece | HiddenShelfPiece;
 
 export interface GameStatePlayer {
-  player_id: number;
+  seat_index: number;
   current_mana: number;
   total_mana: number;
   shelf: ShelfPiece[];

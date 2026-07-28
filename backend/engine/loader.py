@@ -38,12 +38,12 @@ def load_players(catalog: dict[str, dict], player_pieces: list[list[str]] | None
     def build_bag(names: list[str], player: Player) -> list[Piece]:
         return [Piece.create(catalog[name], player) for name in names]
 
-    player_0 = Player(player_id=0)
+    player_0 = Player(seat_index=0)
     player_0.bag = build_bag(player_pieces[0], player_0)
     player_0.total_mana = 1
     player_0.current_mana = player_0.total_mana
 
-    player_1 = Player(player_id=1)
+    player_1 = Player(seat_index=1)
     player_1.bag = build_bag(player_pieces[1], player_1)
     player_1.total_mana = 0
     player_1.current_mana = player_1.total_mana
@@ -57,7 +57,7 @@ def load_board(players: list[Player]) -> Board:
         king = next(piece for piece in player.bag if isinstance(piece, KingPiece))
         player.bag.remove(king)
         player.king = king
-        board.pieces[KING_START[player.player_id]] = king
+        board.pieces[KING_START[player.seat_index]] = king
     return board
 
 

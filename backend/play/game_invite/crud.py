@@ -53,7 +53,7 @@ class GameInviteResponse(BaseModel):
     inviter_display_name:   str | None = None
     invitee_display_name:   str | None = None
     room:                   UUID | None = None
-    invitee_player_index:   int | None = None
+    invitee_seat_index:     int | None = None
 
 
 def _load_display_names(player_ids: set[int]) -> dict[int, str]:
@@ -69,7 +69,7 @@ def _pack_game_invite(
     invite: GameInvite,
     display_name_by_player_id: dict[int, str],
     room: UUID,
-    invitee_player_index: int | None = None,
+    invitee_seat_index: int | None = None,
 ) -> GameInviteResponse:
     return GameInviteResponse(
         id=invite.id,
@@ -81,7 +81,7 @@ def _pack_game_invite(
         inviter_display_name=display_name_by_player_id[invite.inviter_player_id],
         invitee_display_name=display_name_by_player_id[invite.invitee_player_id],
         room=room,
-        invitee_player_index=invitee_player_index,
+        invitee_seat_index=invitee_seat_index,
     )
 
 
@@ -191,11 +191,11 @@ def claim_game_invite(
     assert_preconditions([(open_seat is None, 422, "no_open_seat")], ERRORS)
 
     open_seat.player_id = auth.player_id
-    open_seat_index = open_seat.player_index
+    open_seat_index = open_seat.seat_index
     DatabaseConnection.flush()
     snapshot_bag_pieces(open_seat.id, body.bag_id)
     invite.status = GameInviteStatus.claimed
 
     game = DatabaseConnection.get(Game, invite.game_id)
     display_name_by_player_id = _load_display_names({invite.inviter_player_id, invite.invitee_player_id})
-    return _pack_game_invite(invite, display_name_by_player_id, game.room, invitee_player_index=open_seat_index)
+    return _pack_game_invite(invite, display_name_by_player_id, game.room, invitee_seat_index=open_seat_index)

@@ -32,7 +32,7 @@ def seed_game(session: Session, players: list[Player], bags: list[Bag]) -> list[
     for game in games:
         game.players = [
             GamePlayer(
-                player_index=index,
+                seat_index=index,
                 player_id=player.id,
                 resolved_pieces=[
                     GamePlayerPiece(piece_id=bag_piece.piece_id, quantity=bag_piece.quantity)

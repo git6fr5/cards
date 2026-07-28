@@ -21,7 +21,7 @@ class GameActiveResponse(BaseModel):
     room:                  UUID
     opponent_display_name: str | None
     created_at:            datetime
-    player_index:          int
+    seat_index:            int
 
 
 @router.get("/active", response_model=list[GameActiveResponse])
@@ -29,7 +29,7 @@ class GameActiveResponse(BaseModel):
 def read_active_games(auth: PlayerAuthContext = Depends(require_player_access)) -> list[GameActiveResponse]:
     unclaimed = aliased(GamePlayer)
     rows = DatabaseConnection.execute(
-        select(Game, GamePlayer.player_index)
+        select(Game, GamePlayer.seat_index)
         .join(GamePlayer, GamePlayer.game_id == Game.id)
         .where(
             GamePlayer.player_id == auth.player_id,
@@ -53,7 +53,7 @@ def read_active_games(auth: PlayerAuthContext = Depends(require_player_access)) 
             room=game.room,
             opponent_display_name=opponent_display_name_by_game_id.get(game.id),
             created_at=game.created_at,
-            player_index=player_index,
+            seat_index=seat_index,
         )
-        for game, player_index in rows
+        for game, seat_index in rows
     ]

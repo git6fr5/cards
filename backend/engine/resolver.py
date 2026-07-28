@@ -105,4 +105,4 @@ def _matches_alignment(candidate: Piece, alignment: Alignment, owner: "Player") 
 
 
 def _opponent(player: "Player") -> "Player":
-    return game.players[(player.player_id + 1) % 2]
+    return game.players[(player.seat_index + 1) % 2]

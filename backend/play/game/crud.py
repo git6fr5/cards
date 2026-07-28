@@ -34,7 +34,7 @@ class CreateGameRequest(BaseModel):
 class GamePlayerResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    player_index: int
+    seat_index: int
     player_id: int | None
 
 
@@ -62,7 +62,7 @@ class ShelfPieceResponse(BaseModel):
 
 
 class GameStatePlayerResponse(BaseModel):
-    player_id: int
+    seat_index: int
     current_mana: int
     total_mana: int
     shelf: list[ShelfPieceResponse]
@@ -88,8 +88,8 @@ def create_game(body: CreateGameRequest, auth: PlayerAuthContext = Depends(requi
     seed = random.randint(0, 2**31 - 1)
     game = Game(seed=seed, room=uuid4(), is_game_over=False)
     creator_index = random.choice([0, 1])
-    creator_seat = GamePlayer(player_index=creator_index, player_id=auth.player_id)
-    game.players = [creator_seat, GamePlayer(player_index=1 - creator_index)]
+    creator_seat = GamePlayer(seat_index=creator_index, player_id=auth.player_id)
+    game.players = [creator_seat, GamePlayer(seat_index=1 - creator_index)]
 
     DatabaseConnection.add(game)
     DatabaseConnection.flush()

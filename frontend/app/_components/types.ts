@@ -42,7 +42,7 @@ export interface Bag {
 export const KING_ROLE_TYPE = 'KING';
 
 export interface GamePlayerSeat {
-  player_index: number;
+  seat_index: number;
   player_id: number | null;
 }
 

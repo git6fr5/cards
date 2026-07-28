@@ -39,7 +39,7 @@ export default function StartGamePanel({ bags, friends, currentPlayerId, onStart
       onStarted('Invite sent — waiting for your friend to accept.');
       setSelectedBagId('');
       setSelectedFriendPlayerId('');
-      router.push(`/play/room?room=${game.room}&player=${creatorSeat?.player_index ?? 0}`);
+      router.push(`/play/room?room=${game.room}&seat_index=${creatorSeat?.seat_index ?? 0}`);
     } catch (err) {
       onError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
