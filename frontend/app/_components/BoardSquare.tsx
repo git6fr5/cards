@@ -1,12 +1,12 @@
 'use client';
 
 import type { DragEvent } from 'react';
-import PieceToken from './Piece';
-import { ARCHETYPES, PIECE_TYPES } from '@/utils/archetypes';
-import type { BoardPiece } from './types';
+import PieceIconCard2 from './PieceIconCard2';
+import type { BoardPiece, PieceFull } from './types';
 
 interface BoardSquareProps {
   piece: BoardPiece | null;
+  fullPiece: PieceFull | null;
   row: number;
   col: number;
   square: string;
@@ -19,16 +19,16 @@ interface BoardSquareProps {
   onDrop: (source: string, target: string) => void;
 }
 
-export default function BoardSquare({ piece, row, col, square, isOwn, isActivePlayer, isHighlighted, isSelected, onSelect, onSelectPiece, onDrop }: BoardSquareProps) {
+export default function BoardSquare({ piece, fullPiece, row, col, square, isOwn, isActivePlayer, isHighlighted, isSelected, onSelect, onSelectPiece, onDrop }: BoardSquareProps) {
   const shade = (row + col) % 2 === 0
-    ? 'bg-raja-wood'
-    : 'bg-raja-wood-dark';
+    ? 'bg-raja-chrome-panel'
+    : 'bg-raja-orange';
   const canInspect = !!piece;
   const canDrag = isActivePlayer && isOwn;
   const overlayClass = isSelected
-    ? 'bg-raja-ink/50'
+    ? 'bg-raja-chrome-text/50'
     : isHighlighted
-      ? 'bg-raja-ink/25'
+      ? 'bg-raja-chrome-text/25'
       : '';
 
   function handleClick() {
@@ -52,7 +52,7 @@ export default function BoardSquare({ piece, row, col, square, isOwn, isActivePl
 
   return (
     <div
-      className={`relative w-28 h-28 flex items-center justify-center ${shade}`}
+      className={`relative w-[4.5cm] h-[4.5cm] flex items-center justify-center ${shade}`}
       draggable={canDrag}
       onDragStart={canDrag ? handleDragStart : undefined}
       onClick={piece ? handleClick : undefined}
@@ -60,15 +60,7 @@ export default function BoardSquare({ piece, row, col, square, isOwn, isActivePl
       onDrop={handleDrop}
     >
       {overlayClass && <div className={`pointer-events-none absolute inset-1 ${overlayClass}`} />}
-      {piece && (
-        <PieceToken
-          name={piece.name}
-          archetype={ARCHETYPES[piece.archetype]}
-          pieceType={PIECE_TYPES.PAWN}
-          bodyColor={piece.owner === 0 ? 'steel' : 'gold'}
-          size="board"
-        />
-      )}
+      {fullPiece && piece && <PieceIconCard2 piece={fullPiece} ownerIndex={piece.owner === 0 ? 0 : 1} />}
     </div>
   );
 }

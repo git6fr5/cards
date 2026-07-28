@@ -9,8 +9,7 @@ import { get, post, put } from '@/utils/api';
 import RajaLoader from '@/components/layout/RajaLoader';
 import RajaToast from '@/components/layout/RajaToast';
 import RajaPlayerGate from '@/components/layout/RajaPlayerGate';
-import PieceToken from '@/app/_components/Piece';
-import { ARCHETYPES, PIECE_TYPES } from '@/utils/archetypes';
+import PieceMovementIcon from '@/app/_components/PieceMovementIcon';
 import { useToastQueue } from '@/hooks/useToastQueue';
 import CatalogFilters from './_components/CatalogFilters';
 import CatalogGrid from './_components/CatalogGrid';
@@ -212,13 +211,7 @@ function CatalogContent() {
       <DragOverlay modifiers={[snapCenterToCursor]} dropAnimation={dropWasValidRef.current ? null : undefined}>
         {activeDragPiece && (
           <div className="flex h-14 w-14 items-center justify-center border border-raja-chrome-border bg-raja-chrome-panel shadow-lg">
-            <PieceToken
-              name={activeDragPiece.name}
-              archetype={ARCHETYPES[activeDragPiece.archetype]}
-              pieceType={PIECE_TYPES[activeDragPiece.role_type]}
-              bodyColor="steel"
-              size="sm"
-            />
+            <PieceMovementIcon piece={activeDragPiece} size={28} />
           </div>
         )}
       </DragOverlay>

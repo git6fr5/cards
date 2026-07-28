@@ -6,9 +6,11 @@ import EndTurnButton from './EndTurnButton';
 import InviteLink from './InviteLink';
 import type { ToastItem } from '@/hooks/useToastQueue';
 import type { BoardPiece, GameStatePlayer } from '../../types';
+import type { PieceFull } from '@/app/_components/types';
 
 interface MainPanelProps {
   board: Record<string, BoardPiece>;
+  catalogByName: Map<string, PieceFull>;
   selfPlayer: GameStatePlayer;
   opponentPlayer: GameStatePlayer;
   selfLabel: string;
@@ -35,6 +37,7 @@ interface MainPanelProps {
 
 export default function MainPanel({
   board,
+  catalogByName,
   selfPlayer,
   opponentPlayer,
   selfLabel,
@@ -63,6 +66,7 @@ export default function MainPanel({
       <div className="flex-1 flex flex-col items-center justify-center gap-4">
         <PlayerPanel
           player={selfPlayer}
+          catalogByName={catalogByName}
           label={selfLabel}
           isOwn
           isActivePlayer={isActivePlayer}
@@ -75,6 +79,7 @@ export default function MainPanel({
       <div className="flex-3 flex flex-col items-center justify-center gap-4">
         <Board
           board={board}
+          catalogByName={catalogByName}
           selfPlayerId={selfPlayerId}
           isActivePlayer={isActivePlayer}
           flipped={flipped}
@@ -94,6 +99,7 @@ export default function MainPanel({
       <div className="flex-1 flex flex-col items-center justify-center">
         <PlayerPanel
           player={opponentPlayer}
+          catalogByName={catalogByName}
           label={opponentLabel}
           isOwn={false}
           isActivePlayer={isActivePlayer}

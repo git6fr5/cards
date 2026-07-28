@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { get, post } from '@/utils/api';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useToastQueue } from '@/hooks/useToastQueue';
@@ -13,7 +13,8 @@ import type { PieceFull } from '@/app/_components/types';
 
 interface PlayRoomProps {
   room: string;
-  player: number;
+  initialSeatIndex: number;
+  coop: boolean;
 }
 
 interface GameStateUpdateMessage {
@@ -26,7 +27,8 @@ function parseSquareList(outcome: string): string[] {
   return outcome.split(',').map((square) => square.trim());
 }
 
-export default function PlayRoom({ room, player }: PlayRoomProps) {
+export default function PlayRoom({ room, initialSeatIndex, coop }: PlayRoomProps) {
+  const [activeSeat, setActiveSeat] = useState(initialSeatIndex);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [lobbyGame, setLobbyGame] = useState<Game | null>(null);
   const [catalog, setCatalog] = useState<PieceFull[]>([]);
@@ -37,6 +39,7 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [selectedPieceName, setSelectedPieceName] = useState<string | null>(null);
   const { active: toast, push: pushToast, dismiss: dismissToast } = useToastQueue();
+  const catalogByName = useMemo(() => new Map(catalog.map((piece) => [piece.name, piece])), [catalog]);
 
   useEffect(() => {
     async function loadState() {
@@ -50,7 +53,7 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
           return;
         }
         const [state, pieces] = await Promise.all([
-          get<GameState>(`/games/${room}/state`),
+          get<GameState>(`/games/${room}/state?seat_index=${activeSeat}`),
           get<PieceFull[]>('/pieces/full'),
         ]);
         setGameState(state);
@@ -62,7 +65,7 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
       }
     }
     loadState();
-  }, [room]);
+  }, [room, activeSeat]);
 
   const handleSocketMessage = useCallback((message: GameStateUpdateMessage) => {
     if (message.event === 'STATE_UPDATE') {
@@ -70,24 +73,27 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
     }
   }, []);
 
-  useWebSocket<GameStateUpdateMessage>('games', room, handleSocketMessage, !!gameState);
+  const wsParams = useMemo(() => ({ seat_index: String(activeSeat) }), [activeSeat]);
+  useWebSocket<GameStateUpdateMessage>('games', room, handleSocketMessage, !!gameState, wsParams);
 
   async function previewAction(rawInput: string): Promise<PreviewActionResult | null> {
     try {
-      return await post<PreviewActionResult>(`/actions/${room}/preview`, { raw_input: rawInput });
+      return await post<PreviewActionResult>(`/actions/${room}/preview?seat_index=${activeSeat}`, { raw_input: rawInput });
     } catch (err) {
       pushToast({ text: err instanceof Error ? err.message : 'An error occurred', tone: 'error' });
       return null;
     }
   }
 
-  async function handleSubmitAction(rawInput: string) {
+  async function handleSubmitAction(rawInput: string): Promise<boolean> {
     setIsSubmitting(true);
     try {
-      const result = await post<ActionResult>(`/actions/${room}`, { raw_input: rawInput });
+      const result = await post<ActionResult>(`/actions/${room}?seat_index=${activeSeat}`, { raw_input: rawInput });
       setGameState(result.state);
+      return true;
     } catch (err) {
       pushToast({ text: err instanceof Error ? err.message : 'An error occurred', tone: 'error' });
+      return false;
     } finally {
       setIsSubmitting(false);
     }
@@ -127,11 +133,14 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
     handleSubmitAction(`${source}@${target}`);
   }
 
-  function handleEndTurn() {
-    handleSubmitAction('EOT');
+  async function handleEndTurn() {
+    const succeeded = await handleSubmitAction('EOT');
+    if (succeeded && coop) {
+      setActiveSeat((seat) => 1 - seat);
+    }
   }
 
-  if (isLoading) {
+  if (isLoading && !gameState) {
     return (
       <div className="min-h-screen bg-raja-chrome-bg flex items-center justify-center">
         <RajaLoader size="lg" />
@@ -140,7 +149,7 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
   }
 
   if (lobbyGame) {
-    return <GameLobby room={room} player={player} game={lobbyGame} />;
+    return <GameLobby room={room} seatIndex={activeSeat} game={lobbyGame} />;
   }
 
   if (!gameState) {
@@ -151,9 +160,9 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
     );
   }
 
-  const self = gameState.players.find((p) => p.player_id === player) ?? gameState.players[0];
-  const opponent = gameState.players.find((p) => p.player_id !== player) ?? gameState.players[1];
-  const isActivePlayer = gameState.active_player_index === player;
+  const self = gameState.players.find((p) => p.seat_index === activeSeat) ?? gameState.players[0];
+  const opponent = gameState.players.find((p) => p.seat_index !== activeSeat) ?? gameState.players[1];
+  const isActivePlayer = gameState.active_player_index === activeSeat;
   const lastOutcome = gameState.log[gameState.log.length - 1];
   const selectedPiece = selectedPieceName
     ? catalog.find((piece) => piece.name === selectedPieceName) ?? null
@@ -165,15 +174,16 @@ export default function PlayRoom({ room, player }: PlayRoomProps) {
         <div className="flex-4 h-full">
           <MainPanel
             board={gameState.board}
+            catalogByName={catalogByName}
             selfPlayer={self}
             opponentPlayer={opponent}
-            selfLabel={`Player ${self.player_id} — hand`}
-            opponentLabel={`Player ${opponent.player_id} — hand`}
-            selfPlayerId={player}
-            otherPlayerIndex={1 - player}
+            selfLabel={`Player ${self.seat_index} — hand`}
+            opponentLabel={`Player ${opponent.seat_index} — hand`}
+            selfPlayerId={activeSeat}
+            otherPlayerIndex={1 - activeSeat}
             isActivePlayer={isActivePlayer}
             isSubmitting={isSubmitting}
-            flipped={player === 1}
+            flipped={activeSeat === 1}
             highlightedSquares={highlightedSquares}
             selectedSquare={selectedSquare}
             toast={toast}

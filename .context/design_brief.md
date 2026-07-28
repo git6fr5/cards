@@ -6,13 +6,9 @@ type: project
 
 ## Aesthetic
 
-Two deliberately separate visual domains, split by **what a component does**, not by which page it sits on.
+One visual domain: **chrome** — light, clean, cool lavender-grey, deliberately plain, one saturated orange as the primary accent. This now covers the entire play experience — board, pieces (`PieceIconCard2` "Icons 2" square cards), and mana — not just the surrounding shell.
 
-**Core game** — the components that render the actual board and pieces (board, pieces, mana). Dark, matte, tactile: charcoal-slate surfaces, a plain wood board, warm parchment text. Everything in this domain stays quiet and desaturated on purpose, so the metal piece tokens — antique steel and gold, rendered as embossed physical coins — read as the only reflective, precious object in the scene. These components carry the game's identity wherever they render, including as previews inside builder tools.
-
-**Chrome** — everything else: page backgrounds, nav, forms, buttons, marketing and lobby pages, and the shell around builder tools. Light, clean, cool lavender-grey. Deliberately plain — one saturated orange is the only accent, reserved for actions and links. Chrome should recede; it is not trying to look like the game.
-
-A single page can contain both — e.g. `token-builder`'s page shell is chrome, but the `PieceToken` preview it renders stays game-styled.
+The prior two-domain split (a separate dark/wood/metal-coin "core game" domain for `Board`/`BoardSquare`/`Piece/*`/`ManaToken`) is retired as of the play chrome/Icons2 repaint (`.context/builds/play_chrome_icons2_repaint_plan.md`). The embossed steel/gold coin (`Piece/*`) is **not deleted** — it's kept alive solely for `token-builder`, which was deferred out of this repaint (its `TokenData` shape doesn't carry the fields Icons2 needs, and it was already deferred once before, in the original board/chrome pivot). `token-builder`'s page shell was already chrome; its piece previews are now the one remaining place in the app using the old game-domain look. Expect it to look inconsistent next to the rest of the app until its own redesign lands.
 
 ---
 
@@ -22,15 +18,17 @@ A single page can contain both — e.g. `token-builder`'s page shell is chrome, 
 
 ---
 
-## Colour Palette — Core game domain
+## Colour Palette — Legacy game domain (token-builder only)
 
-Applies to: `Board`, `BoardSquare`, `Piece/*`, `ManaToken`. `PlayerShelf`, `PlayerPanel`, `GameLogPanel`, and `TurnStatus` moved to the chrome domain as of the `/play/room` layout rework — see `.context/builds/play_room_rework_plan.md`.
+This palette is legacy — see [Aesthetic](#aesthetic) above. Its only remaining consumer inside `/play` is `token-builder`'s piece preview (`Piece/*`, the embossed steel/gold coin), which was deferred out of the play chrome/Icons2 repaint. `Board`, `BoardSquare`, and `ManaToken` — the former other consumers of this table — now use the chrome tokens below instead. Several tokens below are also still consumed outside `/play` entirely (`PieceDetailCard`, `BagTableRow`, `MovementBoard`, the `/rules` page) — this table isn't play-specific dead code, just no longer used *by play*.
+
+`raja-wood` / `raja-wood-dark` (the board's former square colors) are the one **fully orphaned** pair here — zero remaining consumers anywhere, only defined in `globals.css`. Left in place rather than deleted, per the play repaint's decision not to touch the legacy/coin system beyond what's needed.
 
 ### Core surfaces
 
 | Token | Hex | Role |
 |---|---|---|
-| `raja-black` | `#171512` | Primary dark — warm near-black slate. Behind and around the board, dark panels, modal backdrops |
+| `raja-black` | `#171512` | Primary dark — warm near-black slate. Dark panels, modal backdrops, `token-builder`'s page background |
 | `raja-obsidian` | `#24211C` | Secondary dark surface — panel interiors, sidebar backgrounds |
 | `raja-white` | `#F0EAD8` | Warm parchment — card faces, light panels, primary text on dark |
 | `raja-hover` | `#E4DCC8` | Parchment hover — subtle hover background on light surfaces |
@@ -43,15 +41,6 @@ Applies to: `Board`, `BoardSquare`, `Piece/*`, `ManaToken`. `PlayerShelf`, `Play
 | `raja-grey` | `#7A7060` | Primary muted text on light surfaces; captions, labels |
 | `raja-grey-muted` | `#9A9080` | Very muted; timestamps, metadata |
 | `raja-grey-light` | `#D8D0C0` | Subtle divider or ghost background on parchment |
-
-### Board
-
-| Token | Hex | Role |
-|---|---|---|
-| `raja-wood` | `#B79868` | Light wood square — the board's light alternate |
-| `raja-wood-dark` | `#6B4A2C` | Dark wood square — the board's dark alternate |
-
-Board keeps the alternating light/dark square pattern (not a flattened single-tone Go board), recolored to wood. Texture treatment (grain, flat vs. photographic) is an open follow-up, not yet decided.
 
 ### Piece metals
 
@@ -84,49 +73,54 @@ Source of truth lives in code (`frontend/app/_components/Piece/metalThemes.ts`) 
 | `raja-crimson-light` | `#E8CFC7` | Pale crimson — error backgrounds |
 | `raja-amber` | `#A8752A` | Earthy ochre — warning states, mana cost, resource cost. Kept distinct from accent gold |
 | `raja-amber-light` | `#EDDCB8` | Pale amber — warning backgrounds |
-| `raja-ink` | `#3E5266` | Muted slate-blue — magic/mystical effects, link colour, **and** the mana track (filled/available pips). Replaces the old fantasy-purple `arcane` and absorbs the old separate `blue` mana token — one pair instead of two |
-| `raja-ink-light` | `#C7CDD4` | Pale ink — mystical/info/mana-adjacent backgrounds |
+| `raja-ink` | `#3E5266` | Muted slate-blue — magic/mystical effects, link colour. No longer the mana track — mana moved to `raja-chrome-blue` (see Chrome domain table) as of the play repaint |
+| `raja-ink-light` | `#C7CDD4` | Pale ink — mystical/info-adjacent backgrounds |
 
-These are gameplay semantics (attack, resource cost, effects, mana), not site UI — they belong to the game domain regardless of which page a game component renders on.
+These are legacy gameplay semantics — still real, but their only remaining consumers are outside `/play` (`PieceDetailCard`, `BagTableRow`) or inside `token-builder`.
 
 ---
 
 ## Colour Palette — Chrome domain
 
-Applies to: everything that is not a core-game component — page backgrounds, `RajaHeader`/`RajaFooter`, `RajaModal`/`RajaSection`/`RajaLoader`, all `components/forms/*`, marketing and lobby pages (`Home`, `DesignShowcase`, `PlayLanding`), the page shell around `token-builder` (not the piece/mana previews that tool renders, which stay game-styled), and — as of the `/play/room` rework — the room's `PlayerShelf`, `PlayerPanel`, `GameLogPanel`, `TurnStatus`, `Sidebar`, and `EndTurnButton`.
+Applies to: everything on the site now, except `token-builder`'s piece/mana previews (see Legacy domain above). This includes page backgrounds, `RajaHeader`/`RajaFooter`, `RajaModal`/`RajaSection`/`RajaLoader`, all `components/forms/*`, marketing and lobby pages (`Home`, `DesignShowcase`, `PlayLanding`), the page shell around `token-builder`, and — as of the play chrome/Icons2 repaint — `Board`, `BoardSquare`, `PieceIconCard2` (rendered as the board/shelf "Icons 2" token), and `ManaToken`, alongside the room's `PlayerShelf`, `PlayerPanel`, `GameLogPanel`, `TurnStatus`, `Sidebar`, and `EndTurnButton` (already chrome as of the `/play/room` rework).
 
-**Atoms are chrome by definition.** Domain is decided by component *location*, not by where it's used: anything living in `components/forms/*` or `components/layout/*` (the shared, `Raja`-prefixed atom layer) is chrome — always, with no variant prop and no forking, even when a game screen composes it. A shared `RajaButton` rendered as the room's End Turn button is still chrome-styled. The game domain is now reserved narrowly for `Board`, `BoardSquare`, `Piece/*`, and `ManaToken` — the components that render the board surface and pieces themselves. The moment a component is promoted to `components/forms/*` or `components/layout/*` for reuse, it becomes chrome by that act alone.
+**Atoms are chrome by definition.** Domain is decided by component *location*, not by where it's used: anything living in `components/forms/*` or `components/layout/*` (the shared, `Raja`-prefixed atom layer) is chrome — always, with no variant prop and no forking. A shared `RajaButton` rendered as the room's End Turn button is chrome-styled. The legacy domain is now reserved narrowly for `token-builder`'s `Piece/*` coin preview — the one place still rendering the embossed metal look.
 
 | Token | Hex | Role |
 |---|---|---|
-| `raja-chrome-bg` | `#BBBDF6` | Page background |
-| `raja-chrome-panel` | `#9893DA` | Card/panel surface |
-| `raja-chrome-border` | `#797A9E` | Borders/dividers |
-| `raja-chrome-muted` | `#72727E` | Secondary/muted text |
-| `raja-chrome-text` | `#625F63` | Primary text on light chrome |
-| `raja-chrome-action` | `#E8622C` | Buttons, links, focus ring — the single saturated color in the entire chrome domain |
-| `raja-chrome-error` | `#C23B3B` | Inline validation error (text fields, dropdowns, etc.) |
-| `raja-chrome-error-light` | `#F5D9D9` | Pale error background |
+| `raja-chrome-bg` | `#F1EFF2` | Page background |
+| `raja-chrome-panel` | `#E1DCE4` | Card/panel surface — also the board's light square and Icons2's card face |
+| `raja-chrome-border` | `#C4BFC8` | Borders/dividers — also the board's outer border and empty shelf slots |
+| `raja-chrome-muted` | `#6B6772` | Secondary/muted text — also mana's locked-pip state |
+| `raja-chrome-text` | `#3D3A42` | Primary text on light chrome — also player 0's Icons2 border color |
+| `raja-chrome-action` | `#B8703F` | Buttons, links, focus ring — general chrome UI accent (distinct from `raja-orange`, see below) |
+| `raja-chrome-error` | `#9C3D3D` | Inline validation error (text fields, dropdowns, etc.) |
+| `raja-chrome-error-light` | `#F3E6E4` | Pale error background |
+| `raja-chrome-blue` | `#5B6B8C` | Mana's filled-pip state (`Gem` icon, solid fill) — the one blue in the chrome palette |
 
-Chrome is deliberately plain: one light neutral scale, one accent. It should never borrow game tokens (gold, wood, the dark surfaces) and the game domain should never borrow chrome's orange or lavender-grey — the contrast between the two is the point.
+**`raja-orange`** (`#E8792A`) is a special case: still defined under the `/* Game domain */` comment block in `globals.css` for historical reasons, but is now a de-facto chrome token — it's `PieceIconCard2`'s border/ability-band accent and the board's dark alternating square, both chrome-domain components. Not renamed/moved in `globals.css` as part of this pass; flagged here so it isn't mistaken for orphaned or confused with `raja-chrome-action` (a separate, similarly-warm accent used for chrome UI generally).
+
+Chrome is deliberately plain: one light neutral scale, two warm accents (`raja-chrome-action` for general UI, `raja-orange` for Icons2/board specifically), one blue reserved for mana.
 
 ---
 
 ## Functional token mapping
 
-- **Domain selection is component-location-based.** Shared atoms (`components/forms/*`, `components/layout/*`) are always chrome. Bespoke, page-local game components (board, piece, mana) always use game-domain tokens, even when composed inside a chrome-styled wrapper.
-- **Focus ring:** `ring-2 ring-raja-gold` inside the game domain; `ring-2 ring-raja-chrome-action` inside chrome. Never shared across domains.
-- **Primary accent:** `raja-gold` (game) / `raja-chrome-action` (chrome).
-- **Error colour:** `raja-crimson` (game) / `raja-chrome-error` (chrome — form-atom inline validation).
-- **Warning colour:** `raja-amber` (game-only, resource cost).
-- **Info/link/mana colour:** `raja-ink` (game-only).
-- **Board surface:** `raja-wood` / `raja-wood-dark`, alternating squares.
-- **Piece material:** driven entirely by `metalThemes.ts` (steel/gold), with `raja-steel`/`raja-gold-deep` as the flat Tailwind-token equivalents for non-SVG UI (e.g. a player-turn indicator dot).
+- **Domain selection is component-location-based.** Shared atoms (`components/forms/*`, `components/layout/*`) are chrome. `token-builder`'s `Piece/*` preview is the sole legacy-domain exception; everything else, including all of `/play`, is chrome.
+- **Focus ring:** `ring-2 ring-raja-chrome-action` everywhere in chrome/play. `ring-2 ring-raja-gold` only inside `token-builder`'s legacy preview.
+- **Error colour:** `raja-chrome-error` everywhere in chrome/play. `raja-crimson` only where legacy-domain code still references it (`PieceDetailCard`, `BagTableRow`).
+- **Board surface:** `raja-chrome-panel` (light square) / `raja-orange` (dark square, see the `raja-orange` special-case note above), alternating.
+- **Board/shelf token:** `PieceIconCard2` ("Icons 2") — a fixed 4.5cm square chrome card, not the metal coin. `ownerIndex` prop sets border color: player 0 → `raja-chrome-text` (black), player 1 → `raja-orange`. Placeholder scheme pending a real player-identity pass.
+- **Small single-token previews** (catalog drag overlay, and any future spot too small for a full Icons2 card): render just the movement-pattern symbol via `PieceMovementIcon`, not the full card.
+- **Mana:** `Gem` icon per pip (`ManaToken`) — filled = `raja-chrome-blue` (solid fill), empty = `raja-chrome-border` (outline), locked = `raja-chrome-muted` + `opacity-disabled`.
+- **Piece material (legacy only):** driven entirely by `metalThemes.ts` (steel/gold), with `raja-steel`/`raja-gold-deep` as the flat Tailwind-token equivalents for non-SVG UI. Only reachable via `token-builder` now.
 
 ---
 
 ## Status
 
-Palette rewritten as of the board/chrome domain pivot — see `.context/builds/board_chrome_pivot_plan.md` (design direction) and `.context/builds/chrome_game_domain_repaint_plan.md` (code execution plan) for the full decision record and code-impact inventory. Code build in progress.
+Palette rewritten as of the board/chrome domain pivot — see `.context/builds/board_chrome_pivot_plan.md` (design direction) and `.context/builds/chrome_game_domain_repaint_plan.md` (code execution plan) for the full decision record and code-impact inventory.
 
-Game-domain boundary narrowed further as of the `/play/room` layout rework (`.context/builds/play_room_rework_plan.md`) — `PlayerShelf`/`PlayerPanel`/`GameLogPanel`/`TurnStatus` reclassified game→chrome; only `Board`/`BoardSquare`/`Piece/*`/`ManaToken` remain game-domain.
+Game-domain boundary narrowed further as of the `/play/room` layout rework (`.context/builds/play_room_rework_plan.md`) — `PlayerShelf`/`PlayerPanel`/`GameLogPanel`/`TurnStatus` reclassified game→chrome.
+
+**The two-domain split is now retired for `/play` entirely**, as of the play chrome/Icons2 repaint (`.context/builds/play_chrome_icons2_repaint_plan.md`) — `Board`, `BoardSquare`, and `ManaToken` moved to chrome, board/shelf tokens render `PieceIconCard2` ("Icons 2") instead of the metal coin. The legacy domain now applies to exactly one place: `token-builder`'s `Piece/*` preview, deferred out of this pass. Known open issue from that build: `PlayerShelf` stacking 7 Icons2 cards (4.5cm each) vertically may overflow the room's `h-[85vh]` panel — not fixed, needs a look once seen live (no dev server was run to verify, per standing constraint).

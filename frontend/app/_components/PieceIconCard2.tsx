@@ -1,13 +1,15 @@
-import { Crown, Gem } from 'lucide-react';
+import { Gem } from 'lucide-react';
 import { translateAbilityToIcons, PATTERN_ICONS } from '@/utils/abilityTranslatorIcons';
 import type { IconChip, IconLine } from '@/utils/abilityTranslatorIcons';
 import { translateAbilityHalfIcon } from '@/utils/abilityHalfIconTranslator';
 import { ARCHETYPES } from '@/utils/archetypes';
+import PieceMovementIcon from './PieceMovementIcon';
 import type { PieceFull } from './types';
 import { KING_ROLE_TYPE } from './types';
 
 interface PieceIconCard2Props {
   piece: PieceFull;
+  ownerIndex?: 0 | 1;
   className?: string;
 }
 
@@ -91,21 +93,21 @@ function targetFilterChips(ability: string): IconChip[] {
   return openIndex === -1 ? [] : target.chips.slice(openIndex + 1, -1);
 }
 
-export default function PieceIconCard2({ piece, className = '' }: PieceIconCard2Props) {
+export default function PieceIconCard2({ piece, ownerIndex, className = '' }: PieceIconCard2Props) {
   const archetype = ARCHETYPES[piece.archetype];
   const isKing = piece.role_type === KING_ROLE_TYPE;
   const ability = translateAbilityHalfIcon(piece.ability);
   const { count: triggerCount, filterChips } = splitTriggerCorner(triggerChips(piece.ability));
   const targetFilters = targetFilterChips(piece.ability);
-  const PatternIcon = PATTERN_ICONS[piece.movement_type];
-  const MpsIcon = isKing ? Crown : PatternIcon;
+  const hasMpsIcon = isKing || !!PATTERN_ICONS[piece.movement_type];
   const mpsCount = Math.max(piece.attributes.action_count, 1);
   const mpsScale = Math.max(1 - 0.2 * (mpsCount - 1), 0.2);
   const mpsSize = Math.round((isKing ? 44 : 36) * mpsScale);
+  const borderCls = ownerIndex === 0 ? 'border-raja-chrome-text' : 'border-raja-orange';
 
   return (
     <div
-      className={`relative w-[4.5cm] h-[4.5cm] border-[3px] border-raja-orange bg-raja-chrome-panel px-1 pt-5 pb-5 ${className}`}
+      className={`relative w-[4.5cm] h-[4.5cm] border-[3px] ${borderCls} bg-raja-chrome-panel px-1 pt-5 pb-5 ${className}`}
     >
       <div className="absolute left-0.5 top-0.5 flex flex-col items-center gap-0.5">
         <archetype.Icon size={18} color={archetype.color} />
@@ -131,12 +133,12 @@ export default function PieceIconCard2({ piece, className = '' }: PieceIconCard2
       </p>
 
       <div className="absolute inset-0 flex items-center justify-center">
-        {MpsIcon && (
+        {hasMpsIcon && (
           <div className="flex flex-col items-center gap-1">
             <span className="font-monospace text-sm text-raja-chrome-text">{piece.attributes.action_cost}</span>
             <div className="flex items-center gap-1">
               {Array.from({ length: mpsCount }, (_, index) => (
-                <MpsIcon key={index} size={mpsSize} color={archetype.color} />
+                <PieceMovementIcon key={index} piece={piece} size={mpsSize} />
               ))}
             </div>
           </div>

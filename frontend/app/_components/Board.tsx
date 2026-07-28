@@ -1,11 +1,12 @@
 import BoardSquare from './BoardSquare';
-import type { BoardPiece } from './types';
+import type { BoardPiece, PieceFull } from './types';
 
 const BOARD_WIDTH = 7;
 const BOARD_HEIGHT = 7;
 
 interface BoardProps {
   board: Record<string, BoardPiece>;
+  catalogByName: Map<string, PieceFull>;
   selfPlayerId: number;
   isActivePlayer: boolean;
   flipped: boolean;
@@ -16,9 +17,9 @@ interface BoardProps {
   onDrop: (source: string, target: string) => void;
 }
 
-export default function Board({ board, selfPlayerId, isActivePlayer, flipped, highlightedSquares, selectedSquare, onSelectSquare, onSelectPiece, onDrop }: BoardProps) {
+export default function Board({ board, catalogByName, selfPlayerId, isActivePlayer, flipped, highlightedSquares, selectedSquare, onSelectSquare, onSelectPiece, onDrop }: BoardProps) {
   return (
-    <div className="border border-raja-gold/40 inline-block">
+    <div className="border border-raja-chrome-border inline-block">
       {Array.from({ length: BOARD_HEIGHT }, (_, i) => {
         const row = flipped ? i : BOARD_HEIGHT - 1 - i;
         return (
@@ -35,6 +36,7 @@ export default function Board({ board, selfPlayerId, isActivePlayer, flipped, hi
                   col={col}
                   square={square}
                   piece={piece}
+                  fullPiece={piece ? catalogByName.get(piece.name) ?? null : null}
                   isOwn={isOwn}
                   isActivePlayer={isActivePlayer}
                   isHighlighted={highlightedSquares.includes(square)}
