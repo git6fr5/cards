@@ -1,14 +1,14 @@
 Berserker King
 Berserker Witch
 Chieftess Berserker
-Windwalker Soldier
-Windwalker Soldier
 Whiplash Soldier
 Whiplash Soldier
 Storm Berserker
 Storm Berserker
-Exploding Nomad
-Exploding Nomad
+Divine Berserker
+Divine Berserker
+Warden Berserker
+Warden Berserker
 Bob Bob Berserker
 Bob Bob Berserker
 Bob Bob Berserker

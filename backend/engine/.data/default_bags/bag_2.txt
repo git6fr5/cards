@@ -1,13 +1,14 @@
 Trapped King
-Summoning Turret
 Suave Soldier
 Suave Soldier
 Dying Timekeeper
 Dying Timekeeper
 Colossal Soldier
 Colossal Soldier
-Giant Trap
-Giant Trap
+Whiplash Soldier
+Whiplash Soldier
+Windwalker Soldier
+Chieftess Berserker
 Salt Timekeeper
 Salt Timekeeper
 Salt Timekeeper

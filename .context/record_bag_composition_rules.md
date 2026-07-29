@@ -3,6 +3,7 @@
 ## Contents
 1. [Backend-enforced deck-building rules, default deck restructure](#1-backend-enforced-deck-building-rules-default-deck-restructure)
 2. [seed_game.py regression: hardcoded bag name, fixed with deterministic random pick](#2-seed_gamepy-regression-hardcoded-bag-name-fixed-with-deterministic-random-pick)
+3. [Default bags never actually conformed to the new caps — rebalanced](#3-default-bags-never-actually-conformed-to-the-new-caps--rebalanced)
 
 ---
 
@@ -117,3 +118,56 @@ work.
 
 Verified: `py_compile` clean. Functional check with fabricated in-memory `Bag`-like objects (no
 DB session/engine) confirmed the same seed produces the same picks across repeated runs.
+
+---
+
+## 3. Default bags never actually conformed to the new caps — rebalanced
+
+### Context
+User asked to rework the default bags to follow the actual bag-building rules. Checked
+`bag_0.txt`/`bag_1.txt`/`bag_2.txt` (section 1's replacements for `dragon`/`goblin`/`warlock`)
+against `validate_bag_composition` and found all three had been hand-picked for "rough archetype
+variety" without ever being run against the rules they were meant to demonstrate — each violated
+at least one bucket cap despite landing on the correct total (27/27/26).
+
+`bag_0`: square bucket at 4 (cap 2) from `Berserker Witch`+`Chieftess Berserker`+`Windwalker
+Soldier`×2, and diagonal at 6 (cap 4) from `Whiplash Soldier`+`Storm Berserker`+`Exploding
+Nomad`×2 each.
+`bag_1`: pawn bucket at 22 (cap 16) — four extra pawn-bucket pieces (`Adrenaline Turret`,
+`Graveyard Turret`, `Reaper Statue Demon`×2, `Golem Trap`×2) stacked on top of already-capped
+`Impish Soldier`×8 + `Goblin Vanguard`×8.
+`bag_2`: pawn bucket at 19 (cap 16) — `Summoning Turret` + `Giant Trap`×2 stacked on top of
+already-capped `Salt Timekeeper`×8 + `Hobgoblin Vanguard`×8.
+
+### Discussion points
+Draft went through two rounds. First pass fixed the bucket violations by trimming overflow pieces
+and backfilling freed slots from underused buckets (cross/diagonal), landing on 27/25/26 — user
+then said all three must be exact 27. Second pass filled the remaining headroom: both `bag_1` and
+`bag_2` only had room left in the square bucket (cross/diagonal/pawn already at cap), so each got
+topped up with two distinct square-bucket pieces at the per-name cap of 1 (`bag_1`: `Windwalker
+Soldier` + `Berserker Witch`; `bag_2`: `Windwalker Soldier` + `Chieftess Berserker`) — cross-
+archetype borrows, consistent with `bag_0` already mixing Soldier pieces into a Berserker-flavored
+deck.
+
+### Decision
+**`bag_0.txt`** (Berserker-flavored): dropped `Chieftess Berserker`'s extra square slot and
+`Exploding Nomad` entirely; added `Divine Berserker`×2 + `Warden Berserker`×2 to fill the cross
+bucket. Final: King 1, square 2 (`Witch`+`Chieftess`), cross 4 (`Divine`+`Warden`), diagonal 4
+(`Whiplash`+`Storm`), pawn 16 (`Bob Bob`+`Royal`) = 27.
+
+**`bag_1.txt`** (Nomad-flavored): dropped `Adrenaline Turret`, `Graveyard Turret`, `Reaper Statue
+Demon`, `Golem Trap` (all pawn-bucket overflow); added `Wandering Ghost`×2 (diagonal) and
+`Exploding Nomad`×2 (cross) to use the freed headroom, then `Windwalker Soldier`+`Berserker
+Witch` (1 each) to fill the square bucket to exactly cap. Final: King 1, square 2, cross 4
+(`Good News Nomad`+`Ghost`), diagonal 4 (`Nomad Priest`+`Exploding`), pawn 16 (`Impish`+`Goblin`)
+= 27.
+
+**`bag_2.txt`** (Timekeeper-flavored): dropped `Summoning Turret`, `Giant Trap` (pawn overflow);
+added `Whiplash Soldier`×2 (diagonal) to fill that bucket to cap, then `Windwalker
+Soldier`+`Chieftess Berserker` (1 each) to fill square to cap. Final: King 1, square 2, cross 4
+(`Suave Soldier`+`Dying Timekeeper`), diagonal 4 (`Colossal Soldier`+`Whiplash`), pawn 16
+(`Salt Timekeeper`+`Hobgoblin Vanguard`) = 27.
+
+Verified (DB-free, per the standing ban): ran `validate_bag_composition` directly against all
+three rewritten files using real catalog data loaded from disk (`load_catalog()`, no DB
+engine/session) — all three report `total=27` with zero violation flags.

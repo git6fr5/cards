@@ -1,14 +1,14 @@
 Nomad King
-Adrenaline Turret
-Graveyard Turret
-Reaper Statue Demon
-Reaper Statue Demon
 Good News Nomad
 Good News Nomad
 Nomad Priest
 Nomad Priest
-Golem Trap
-Golem Trap
+Wandering Ghost
+Wandering Ghost
+Exploding Nomad
+Exploding Nomad
+Windwalker Soldier
+Berserker Witch
 Impish Soldier
 Impish Soldier
 Impish Soldier
