@@ -13,7 +13,7 @@ def resolve_catalog_entries(names: list[str] | None) -> dict[str, dict]:
 def compute_movement_grid(movement: str) -> list[list[int]]:
     # 3x3 grid (row 0 = up, col 0 = left) of how many squares a piece reaches in each
     # direction; the center is always 0 (self).
-    positions = Piece.load_movement(movement)
+    positions = Piece.load_movement(movement).get_positions()
     grid = [[0] * 3 for _ in range(3)]
     for row in range(3):
         for col in range(3):

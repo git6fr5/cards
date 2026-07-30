@@ -46,7 +46,7 @@ class Player:
             return InputOutcome(False, "Not on board")
         if board.is_occupied(position):
             return InputOutcome(False, "Position occupied")
-        if not Patterns.is_within(self.king.position, position, self.king.summoning):
+        if not Patterns.is_within(self.king.position, position, self.king.summoning.get_positions()):
             return InputOutcome(False, "Not valid summoning position")
 
         piece = self.shelf[shelf_index]
@@ -151,7 +151,7 @@ class Player:
 
         facing = 1 if self.seat_index == 0 else -1
         positions = []
-        for offset in piece.movement:
+        for offset in piece.movement.get_positions():
             target = origin.translate(Position(offset.x, offset.y * facing))
             if not board.is_within(target):
                 continue

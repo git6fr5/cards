@@ -28,7 +28,7 @@ class DumbAgent:
                     position = Position(x, y)
                     if board.is_occupied(position):
                         continue
-                    if not Patterns.is_within(player.king.position, position, player.king.summoning):
+                    if not Patterns.is_within(player.king.position, position, player.king.summoning.get_positions()):
                         continue
                     options.append(f"S{shelf_index}@{format_square(position)}")
 

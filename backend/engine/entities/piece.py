@@ -1,15 +1,16 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
-from uuid import uuid4
+from uuid import UUID, uuid4
 from typing import TYPE_CHECKING
 
-from engine.utils.positions import Position
+from engine.utils.positions import Position, scale_pattern
 from engine.enums.archetype import Archetype
 from engine.enums.roletype import RoleType
 from engine.enums.triggers import TriggerStep
 from engine.enums.effects import EffectStep
 from engine.enums.targets import TargetStep
+from engine.enums.patterns import Patterns
 
 if TYPE_CHECKING:
     from engine.entities.player import Player
@@ -31,6 +32,7 @@ class PieceAttributes:
     action_count: int
 
     # Trackers
+    speed_increment: int = 0
     turns_on_board: int = 0
     kill_count: int = 0
     death_count: int = 0
@@ -106,15 +108,25 @@ class PieceAbility:
 
 
 @dataclass
+class PieceMovement:
+    movement_pattern: Patterns 
+    movement_distance: int
+
+    def get_positions(self, speed_increment: int = 0) -> set[Position]:
+        return scale_pattern(self.movement_pattern, self.movement_distance+speed_increment)
+
+@dataclass
 class Piece:
 
-    piece_id: uuid4
+    piece_id: UUID
     name: str
-    player: Player
+    player: Player | None
 
-    movement: set[Position]
     ability: PieceAbility
     ability_dsl: str
+
+    movement: PieceMovement
+    movement_dsl: str
 
     piecetype: PieceType
     attributes: PieceAttributes
@@ -130,6 +142,10 @@ class Piece:
     @property
     def can_capture_enemies(self):
         return self.piecetype.get("roletype") != RoleType.PACIFIST
+
+    @property
+    def movement_range(self):
+        return self.movement.get_positions(self.attributes.get("speed_increment"))
     
     @property
     def position(self) -> Position | None:
@@ -167,7 +183,7 @@ class Piece:
         return parse_ability(raw_ability_dsl)
 
     @staticmethod
-    def load_movement(raw_movement_dsl: str) -> set[Position]:
+    def load_movement(raw_movement_dsl: str) -> PieceMovement:
         from engine.utils.parsers import parse_pattern
         return parse_pattern(raw_movement_dsl)
 
@@ -179,6 +195,7 @@ class Piece:
             piece_id=uuid4(),
             name=data.get("name"),
             movement=Piece.load_movement(data.get("movement")),
+            movement_dsl=data.get("movement"),
             ability=Piece.load_ability(data.get("ability")),
             ability_dsl=data.get("ability"),
             piecetype=PieceType(
@@ -200,4 +217,4 @@ class Piece:
 
 @dataclass
 class KingPiece(Piece):
-    summoning: set[Position]
+    summoning: PieceMovement
