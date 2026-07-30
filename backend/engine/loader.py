@@ -18,6 +18,8 @@ KING_START = {
 def load_catalog() -> dict[str, dict]:
     catalog: dict[str, dict] = {}
     for path in sorted(CATALOG_DIR.glob("**/*.json")):
+        if any(part.startswith(".") for part in path.relative_to(CATALOG_DIR).parts):
+            continue
         data = json.loads(path.read_text())
         catalog[data["name"]] = data
 
