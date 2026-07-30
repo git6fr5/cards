@@ -2,6 +2,7 @@
 
 1. [PieceMovement migration and caller blast radius](#piecemovement-migration-and-caller-blast-radius)
 2. [Type hint cleanup on Piece and PieceMovement](#type-hint-cleanup-on-piece-and-piecemovement)
+3. [parse_pattern still returned a raw scaled set](#parse_pattern-still-returned-a-raw-scaled-set)
 
 ---
 
@@ -80,3 +81,43 @@ exists in Python without adding `__iter__`, which was deliberately not added).
 - `player: Player` → `player: Player | None`, matching `Piece.create`'s actual contract.
 - `get_positions(self, speed_increment: int = 0)` → added `-> set[Position]` return hint.
 - Verified with `python -m py_compile`.
+
+---
+
+## parse_pattern still returned a raw scaled set
+
+### Context
+
+Deeper bug under the migration above: `Piece.load_movement` was hinted `-> PieceMovement` and just
+`return`s `parse_pattern(...)` directly, but `parse_pattern` (parsers.py:186) never actually built a
+`PieceMovement` — it eagerly called `scale_pattern` and returned a plain `set[Position]`. Every
+`.get_positions()` call added by the caller fixes in section 1 would have hit `AttributeError` at
+runtime (`set` has no `.get_positions`), since the object flowing through was never the wrapper type.
+
+### Discussion points
+
+- Checked whether `parse_pattern`'s return type could just be swapped outright: grepped all callers
+  and found a second, independent consumer — `parse_zone` (parsers.py:174-179), for `BOARD PATTERN`
+  zone specs — which stores the result straight into `zone["positions"]`, consumed by
+  `board.all_within_pattern(center, pattern: set[Position])` (board.py:30) via `resolver.py:54`. That
+  path never goes through `PieceMovement` and genuinely wants the scaled `set[Position]`.
+- Resolved by making `parse_pattern` uniformly return `PieceMovement` (constructing it directly from
+  the parsed `pattern_type`/`pattern_size` instead of calling `scale_pattern`), and updating the
+  `parse_zone` call site to `parse_pattern(raw_pattern_dsl).get_positions()` — recovers the identical
+  scaled set as before (`speed_increment` defaults to 0), so `resolver.py`/`board.py` needed no
+  changes.
+- `Patterns.NONE` (patterns.py:18) is already `frozenset()`, so the `["NONE"]` case constructs
+  `PieceMovement(movement_pattern=Patterns.NONE, movement_distance=0)` and still yields an empty set
+  from `.get_positions()`.
+- Confirmed no circular import: `parsers.py` already imported `PieceAbility` from
+  `engine.entities.piece` at module top-level before this change (precedent), and `piece.py`'s own
+  imports of `parsers` are deferred inside methods — adding `PieceMovement` to that same top-level
+  import is safe.
+
+### Decision
+
+- `parse_pattern` (parsers.py:186) now returns `PieceMovement` in both match arms, no longer calls
+  `scale_pattern` itself.
+- `parse_zone`'s `BOARD PATTERN` case (parsers.py:178) calls `.get_positions()` on the result.
+- Removed the now-unused `scale_pattern` and `Position` imports from `parsers.py`.
+- Verified with `python -m py_compile` on `parsers.py` and `piece.py`.

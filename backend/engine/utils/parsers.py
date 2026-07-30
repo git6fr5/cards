@@ -9,8 +9,7 @@ from engine.enums.patterns import Patterns
 from engine.enums.triggers import TriggerCondition, TriggerStep, TRIGGER_ATTRIBUTE
 from engine.enums.effects import EffectOperation, EffectStep
 from engine.enums.targets import TargetType, TargetStep
-from engine.utils.positions import Position, scale_pattern
-from engine.entities.piece import PieceAbility
+from engine.entities.piece import PieceAbility, PieceMovement
 
 
 COMPARATORS = {
@@ -175,7 +174,7 @@ def parse_zone(zone_dsl: str, separator: str = " ") -> dict:
             raw_pattern_dsl = f"{pattern_type} {pattern_size}"
             return {
                 "zone": Zone.BOARD,
-                "positions": parse_pattern(raw_pattern_dsl)
+                "positions": parse_pattern(raw_pattern_dsl).get_positions()
             }
         case ["SHELF"]:
             return {"zone": Zone.SHELF}
@@ -183,14 +182,14 @@ def parse_zone(zone_dsl: str, separator: str = " ") -> dict:
             raise ValueError(f"Unparseable zone spec: {zone_dsl}")
 
 
-def parse_pattern(raw_pattern_dsl: str, separator: str = " ") -> set[Position]:
+def parse_pattern(raw_pattern_dsl: str, separator: str = " ") -> PieceMovement:
     parts = raw_pattern_dsl.strip().upper().split(separator)
 
     match parts:
         case ["NONE"]:
-            return set()
+            return PieceMovement(movement_pattern=Patterns.NONE, movement_distance=0)
         case [pattern_type, pattern_size]:
-            return scale_pattern(Patterns[pattern_type].value, int(pattern_size))
+            return PieceMovement(movement_pattern=Patterns[pattern_type], movement_distance=int(pattern_size))
         case _:
             raise ValueError(f"Unparseable movement_dsl spec: {raw_pattern_dsl}")
 
