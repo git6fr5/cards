@@ -3,7 +3,7 @@
   "archetype": "TRAP",
   "roleType": "UNIT",
   "movement": "NONE",
-  "ability": "ON DEATH 1\nMODIFY ACTION_COUNT -99 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL WHERE ATT:SUMMON_COST<4",
+  "ability": "ON DEATH 1\nMODIFY ACTION_COUNT -1 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL WHERE ATT:SUMMON_COST<4",
   "attributes": {
     "summon_cost": 0,
     "action_cost": 0,

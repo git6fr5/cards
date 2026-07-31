@@ -5,7 +5,7 @@
   "roleType": "KING",
   "movement": "SQUARE 1",
   "summoning": "SQUARE 1",
-  "ability": "ON DEATH 1\nMODIFY SUMMON_COST -1 TURNS 1\nFRIENDLY SHELF ALL",
+  "ability": "ON DEATH 1\nMODIFY SPEED_INCREMENT -1 TURNS 1\nENEMY BOARD:PATTERN:SQUARE:1 ALL",
   "attributes": {
     "summon_cost": 0,
     "action_cost": 1,

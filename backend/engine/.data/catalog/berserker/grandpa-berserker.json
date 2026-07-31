@@ -1,9 +1,9 @@
 {
-  "name": "Bob Bob Berserker",
+  "name": "Grandpa Berserker",
   "archetype": "BERSERKER",
   "roleType": "UNIT",
   "movement": "FORWARD 1",
-  "ability": "ON KILL 2\nMODIFY SPEED_INCREMENT -1 TURNS 1\nENEMY BOARD:PATTERN:DIAGONAL:1 ALL",
+  "ability": "ON KILL 1\nMODIFY ACTION_COST +1 TURNS 1\nSELF",
   "attributes": {
     "summon_cost": 1,
     "action_cost": 1,

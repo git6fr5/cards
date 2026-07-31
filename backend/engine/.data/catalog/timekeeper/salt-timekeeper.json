@@ -3,7 +3,7 @@
   "archetype": "TIMEKEEPER",
   "roleType": "UNIT",
   "movement": "FORWARD 1",
-  "ability": "ON TURNEND 2\nMODIFY ACTION_COUNT -99 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL",
+  "ability": "ON TURNEND 2\nMODIFY ACTION_COUNT -1 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL",
   "attributes": {
     "summon_cost": 10,
     "action_cost": 1,

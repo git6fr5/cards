@@ -1,0 +1,12 @@
+{
+  "name": "Inflate Trap",
+  "archetype": "TRAP",
+  "roleType": "UNIT",
+  "movement": "NONE",
+  "ability": "ON DEATH 1\nMODIFY SUMMON_COST +2 TURNS 99\nENEMY SHELF 1",
+  "attributes": {
+    "summon_cost": 2,
+    "action_cost": 0,
+    "action_count": 1
+  }
+}

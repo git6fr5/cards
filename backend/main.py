@@ -14,6 +14,7 @@ async def lifespan(app: FastAPI):
     global engine
     try:
         engine = init_engine()
+        print(engine)
         if os.getenv("DB_AUTO_CREATE", "false").lower() == "true":
             import play.orm  # noqa: F401
             import accounts.orm  # noqa: F401

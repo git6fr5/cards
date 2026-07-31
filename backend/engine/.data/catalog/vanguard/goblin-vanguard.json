@@ -3,7 +3,7 @@
   "archetype": "VANGUARD",
   "roleType": "UNIT",
   "movement": "FORWARD 1",
-  "ability": "ON PROMOTION 1\nMODIFY ACTION_COUNT -1 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL",
+  "ability": "ON PROMOTION 1\nMODIFY SPEED_INCREMENT -1 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL",
   "attributes": {
     "summon_cost": 3,
     "action_cost": 1,

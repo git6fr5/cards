@@ -3,7 +3,7 @@
   "archetype": "BERSERKER",
   "roleType": "UNIT",
   "movement": "CROSS 2",
-  "ability": "ON KILL 3\nMODIFY ACTION_COUNT -99 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL",
+  "ability": "ON KILL 3\nMODIFY ACTION_COUNT -1 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL",
   "attributes": {
     "summon_cost": 7,
     "action_cost": 2,

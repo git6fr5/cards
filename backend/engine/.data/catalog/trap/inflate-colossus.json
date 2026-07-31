@@ -1,9 +1,9 @@
 {
-  "name": "Colossal Trap",
+  "name": "Inflate Colossus",
   "archetype": "TRAP",
   "roleType": "UNIT",
   "movement": "NONE",
-  "ability": "ON DEATH 1\nMODIFY ACTION_COUNT -1 TURNS 1\nANY BOARD:PATTERN:SQUARE:1 ALL WHERE ATT:SUMMON_COST<10",
+  "ability": "ON DEATH 1\nMODIFY SUMMON_COST +1 TURNS 99\nENEMY SHELF ALL",
   "attributes": {
     "summon_cost": 3,
     "action_cost": 0,
