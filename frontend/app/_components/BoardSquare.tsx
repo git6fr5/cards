@@ -1,7 +1,7 @@
 'use client';
 
 import type { DragEvent } from 'react';
-import PieceIconCard2 from './PieceIconCard2';
+import Piece_OnBoard from './Piece/Piece_OnBoard';
 import type { BoardPiece, PieceFull } from './types';
 
 interface BoardSquareProps {
@@ -22,7 +22,7 @@ interface BoardSquareProps {
 export default function BoardSquare({ piece, fullPiece, row, col, square, isOwn, isActivePlayer, isHighlighted, isSelected, onSelect, onSelectPiece, onDrop }: BoardSquareProps) {
   const shade = (row + col) % 2 === 0
     ? 'bg-raja-chrome-panel'
-    : 'bg-raja-orange';
+    : 'bg-raja-chrome-action';
   const canInspect = !!piece;
   const canDrag = isActivePlayer && isOwn;
   const overlayClass = isSelected
@@ -52,7 +52,7 @@ export default function BoardSquare({ piece, fullPiece, row, col, square, isOwn,
 
   return (
     <div
-      className={`relative w-[4.5cm] h-[4.5cm] flex items-center justify-center ${shade}`}
+      className={`relative w-[4.5cm] h-[4.5cm] flex items-center justify-center ${shade} ${piece ? 'z-10' : 'z-0'}`}
       draggable={canDrag}
       onDragStart={canDrag ? handleDragStart : undefined}
       onClick={piece ? handleClick : undefined}
@@ -60,7 +60,7 @@ export default function BoardSquare({ piece, fullPiece, row, col, square, isOwn,
       onDrop={handleDrop}
     >
       {overlayClass && <div className={`pointer-events-none absolute inset-1 ${overlayClass}`} />}
-      {fullPiece && piece && <PieceIconCard2 piece={fullPiece} ownerIndex={piece.owner === 0 ? 0 : 1} />}
+      {fullPiece && piece && <Piece_OnBoard piece={fullPiece} ownerIndex={piece.owner === 0 ? 0 : 1} />}
     </div>
   );
 }

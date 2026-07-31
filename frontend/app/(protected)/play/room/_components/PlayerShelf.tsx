@@ -1,7 +1,7 @@
 'use client';
 
 import type { DragEvent } from 'react';
-import PieceIconCard2 from '@/app/_components/PieceIconCard2';
+import Piece_OnShelf from '@/app/_components/Piece/Piece_OnShelf';
 import type { PieceFull } from '@/app/_components/types';
 import type { ShelfPiece } from '../../types';
 
@@ -48,7 +48,7 @@ export default function PlayerShelf({ shelf, catalogByName, ownerIndex, isOwn, i
             onDragStart={canDrag ? (e) => handleDragStart(e, i) : undefined}
             onClick={() => handleClick(piece, i)}
           >
-            <PieceIconCard2 piece={fullPiece} ownerIndex={ownerIndex} />
+            <Piece_OnShelf piece={fullPiece} ownerIndex={ownerIndex} />
           </div>
         );
       })}

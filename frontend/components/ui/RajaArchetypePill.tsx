@@ -10,7 +10,7 @@ export default function RajaArchetypePill({ archetype }: RajaArchetypePillProps)
   return (
     <span
       className="inline-block px-2 py-0.5 font-sans-serif text-xs font-medium rounded-full whitespace-nowrap"
-      style={{ backgroundColor: `${color}80`, color }}
+      style={{ backgroundColor: `color-mix(in srgb, ${color} 50%, transparent)`, color }}
     >
       {archetype}
     </span>

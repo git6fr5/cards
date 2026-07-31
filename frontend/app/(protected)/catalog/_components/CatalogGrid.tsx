@@ -32,7 +32,7 @@ function groupByArchetype(pieces: PieceFull[]): [string, PieceFull[]][] {
   return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b));
 }
 
-export default function CatalogGrid({ pieces, abilityViewMode = 'text' }: CatalogGridProps) {
+export default function CatalogGrid({ pieces, abilityViewMode = 'card' }: CatalogGridProps) {
   const groups = groupByArchetype(pieces);
 
   if (groups.length === 0) {

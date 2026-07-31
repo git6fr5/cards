@@ -1,9 +1,9 @@
 'use client';
 
 import { useDraggable } from '@dnd-kit/core';
-import PieceDetailCard from '@/app/_components/PieceDetailCard';
-import PieceIconCard from '@/app/_components/PieceIconCard';
-import PieceIconCard2 from '@/app/_components/PieceIconCard2';
+import Piece_Card from '@/app/_components/Piece/Piece_Card';
+import Piece_OnShelf from '@/app/_components/Piece/Piece_OnShelf';
+import Piece_OnBoard from '@/app/_components/Piece/Piece_OnBoard';
 import type { PieceFull, AbilityViewMode } from '../types';
 
 interface PieceCardProps {
@@ -11,7 +11,7 @@ interface PieceCardProps {
   abilityViewMode?: AbilityViewMode;
 }
 
-export default function PieceCard({ piece, abilityViewMode = 'text' }: PieceCardProps) {
+export default function PieceCard({ piece, abilityViewMode = 'card' }: PieceCardProps) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: `catalog-${piece.name}`,
     data: { piece, source: 'catalog' },
@@ -21,12 +21,12 @@ export default function PieceCard({ piece, abilityViewMode = 'text' }: PieceCard
 
   return (
     <div ref={setNodeRef} {...listeners} {...attributes} className="cursor-grab">
-      {abilityViewMode === 'icons' ? (
-        <PieceIconCard piece={piece} className={opacity} />
-      ) : abilityViewMode === 'icons2' ? (
-        <PieceIconCard2 piece={piece} className={opacity} />
+      {abilityViewMode === 'shelf' ? (
+        <Piece_OnShelf piece={piece} className={opacity} />
+      ) : abilityViewMode === 'board' ? (
+        <Piece_OnBoard piece={piece} className={opacity} />
       ) : (
-        <PieceDetailCard piece={piece} showRawDsl={abilityViewMode === 'dsl'} className={opacity} />
+        <Piece_Card piece={piece} className={opacity} />
       )}
     </div>
   );

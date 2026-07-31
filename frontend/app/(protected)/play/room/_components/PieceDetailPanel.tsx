@@ -1,4 +1,4 @@
-import PieceDetailCard from '@/app/_components/PieceDetailCard';
+import Piece_Card from '@/app/_components/Piece/Piece_Card';
 import type { PieceFull } from '@/app/_components/types';
 
 interface PieceDetailPanelProps {
@@ -13,5 +13,5 @@ export default function PieceDetailPanel({ piece }: PieceDetailPanelProps) {
       </p>
     );
   }
-  return <PieceDetailCard piece={piece} />;
+  return <Piece_Card piece={piece} />;
 }

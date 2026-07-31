@@ -1,5 +1,5 @@
 // Selective icon/raw-DSL hybrid of abilityTranslatorIcons.ts (full icons) — only effect/target
-// lines; trigger stays full-icon (see PieceIconCard2). Text portions render the raw DSL tokens
+// lines; trigger stays full-icon (see Piece_OnShelf). Text portions render the raw DSL tokens
 // rather than translated prose. Grammar reference: .context/engine_dsl_reference.md.
 
 import { Angry, Axe, CornerRightDown, CornerRightUp, Pencil, Shield, Smile } from 'lucide-react';

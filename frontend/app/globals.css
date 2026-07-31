@@ -6,27 +6,19 @@
 
 @theme inline {
   /* Game domain */
-  --color-raja-black:         #171512;
-  --color-raja-obsidian:      #24211C;
-  --color-raja-white:         #F0EAD8;
-  --color-raja-hover:         #E4DCC8;
-  --color-raja-stone:         #43403A;
-  --color-raja-grey:          #7A7060;
-  --color-raja-grey-muted:    #9A9080;
-  --color-raja-grey-light:    #D8D0C0;
-  --color-raja-gold:          #C9A84C;
-  --color-raja-gold-light:    #F5DFA0;
-  --color-raja-gold-deep:     #8C6D2F;
-  --color-raja-steel:         #B8C2CC;
-  --color-raja-wood:          #B79868;
-  --color-raja-wood-dark:     #6B4A2C;
-  --color-raja-crimson:       #8C2E22;
-  --color-raja-crimson-light: #E8CFC7;
-  --color-raja-amber:         #A8752A;
-  --color-raja-amber-light:   #EDDCB8;
-  --color-raja-ink:           #3E5266;
-  --color-raja-ink-light:     #C7CDD4;
-  --color-raja-orange:        #E8792A;
+  --color-raja-gold:  #C9A84C;
+  --color-raja-steel: #B8C2CC;
+  --color-raja-ink:   #3E5266;
+
+  /* Archetype domain */
+  --color-raja-archetype-soldier:    #6B7280;
+  --color-raja-archetype-timekeeper: #CA8A04;
+  --color-raja-archetype-nomad:      #0EA5E9;
+  --color-raja-archetype-turret:     #7C3AED;
+  --color-raja-archetype-berserker:  #DC2626;
+  --color-raja-archetype-vanguard:   #C026D3;
+  --color-raja-archetype-demon:      #1E293B;
+  --color-raja-archetype-trap:       #78350F;
 
   /* Chrome domain */
   --color-raja-chrome-bg:          #F1EFF2;
@@ -44,6 +36,7 @@
   --radius-md:   4px;
   --radius-lg:   8px;
 
+  --font-size-pill: 0.6rem;
   --font-size-xs:   0.75rem;
   --font-size-sm:   0.875rem;
   --font-size-base: 1rem;

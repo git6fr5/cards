@@ -9,7 +9,7 @@ import { get, post, put } from '@/utils/api';
 import RajaLoader from '@/components/layout/RajaLoader';
 import RajaToast from '@/components/layout/RajaToast';
 import RajaPlayerGate from '@/components/layout/RajaPlayerGate';
-import PieceMovementIcon from '@/app/_components/PieceMovementIcon';
+import PieceMovementIcon from '@/app/_components/Piece/PieceMovementIcon';
 import { useToastQueue } from '@/hooks/useToastQueue';
 import CatalogFilters from './_components/CatalogFilters';
 import CatalogGrid from './_components/CatalogGrid';
@@ -56,7 +56,7 @@ function CatalogContent() {
   const [bags, setBags] = useState<Bag[]>([]);
   const [selectedBagId, setSelectedBagId] = useState<number | null>(null);
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS);
-  const [abilityViewMode, setAbilityViewMode] = useState<AbilityViewMode>('text');
+  const [abilityViewMode, setAbilityViewMode] = useState<AbilityViewMode>('card');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeDragPiece, setActiveDragPiece] = useState<PieceFull | null>(null);

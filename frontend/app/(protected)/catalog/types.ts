@@ -1,7 +1,7 @@
 export type { PieceAttributes, PieceFull, Bag } from '@/app/_components/types';
 export { KING_ROLE_TYPE } from '@/app/_components/types';
 
-export type AbilityViewMode = 'dsl' | 'text' | 'icons' | 'icons2';
+export type AbilityViewMode = 'card' | 'shelf' | 'board';
 
 export interface FilterState {
   search: string;

@@ -3,19 +3,26 @@ import type { MovementPattern } from '@/app/_components/MovementBoard';
 import RajaCostCircle from '@/components/ui/RajaCostCircle';
 import RajaArchetypeIcon from '@/components/ui/RajaArchetypeIcon';
 import RajaAbilityText from '@/components/ui/RajaAbilityText';
-import type { PieceFull } from './types';
+import { ARCHETYPES } from '@/utils/archetypes';
+import type { PieceFull } from '../types';
 
-interface PieceDetailCardProps {
+const RING_DARKEN_PERCENT = 50;
+
+interface Piece_CardProps {
   piece: PieceFull;
   showRawDsl?: boolean;
   className?: string;
 }
 
-export default function PieceDetailCard({ piece, showRawDsl = false, className = '' }: PieceDetailCardProps) {
+export default function Piece_Card({ piece, showRawDsl = false, className = '' }: Piece_CardProps) {
   const pattern = piece.movement_type.toLowerCase() as MovementPattern;
+  const borderColor = `color-mix(in srgb, ${ARCHETYPES[piece.archetype].color} ${RING_DARKEN_PERCENT}%, black)`;
 
   return (
-    <div className={`relative w-[5.5cm] h-[8cm] border-[3px] border-raja-orange bg-raja-chrome-panel px-1 pt-7 pb-7 ${className}`}>
+    <div
+      className={`relative w-[5.5cm] h-[8cm] border-[3px] bg-raja-chrome-panel px-1 pt-7 pb-7 ${className}`}
+      style={{ borderColor }}
+    >
       <RajaArchetypeIcon archetype={piece.archetype} className="absolute left-0.5 top-0.5" />
       <RajaCostCircle value={piece.attributes.action_cost} label="Action cost" className="absolute right-0.5 top-0.5" />
       <RajaCostCircle

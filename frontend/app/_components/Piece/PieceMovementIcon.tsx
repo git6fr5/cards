@@ -1,8 +1,8 @@
 import { Crown } from 'lucide-react';
 import { PATTERN_ICONS } from '@/utils/abilityTranslatorIcons';
 import { ARCHETYPES } from '@/utils/archetypes';
-import type { PieceFull } from './types';
-import { KING_ROLE_TYPE } from './types';
+import type { PieceFull } from '../types';
+import { KING_ROLE_TYPE } from '../types';
 
 interface PieceMovementIconProps {
   piece: PieceFull;

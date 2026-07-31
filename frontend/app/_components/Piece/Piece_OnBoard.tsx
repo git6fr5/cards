@@ -1,13 +1,22 @@
-import { Gem } from 'lucide-react';
+import { Circle, Gem } from 'lucide-react';
 import { translateAbilityToIcons, PATTERN_ICONS } from '@/utils/abilityTranslatorIcons';
 import type { IconChip, IconLine } from '@/utils/abilityTranslatorIcons';
 import { translateAbilityHalfIcon } from '@/utils/abilityHalfIconTranslator';
 import { ARCHETYPES } from '@/utils/archetypes';
 import PieceMovementIcon from './PieceMovementIcon';
-import type { PieceFull } from './types';
-import { KING_ROLE_TYPE } from './types';
+import type { PieceFull } from '../types';
+import { KING_ROLE_TYPE } from '../types';
 
-interface PieceIconCard2Props {
+const CORNER_ICON_SIZE = 24;
+const CHIP_ICON_SIZE = 14;
+const DOT_SIZE = 8;
+const KING_MPS_BASE_SIZE = 56;
+const UNIT_MPS_BASE_SIZE = 52;
+const PILL_TEXT_SIZE = 'text-[0.6rem]';
+const BODY_TEXT_SIZE = 'text-xs';
+const RING_DARKEN_PERCENT = 50;
+
+interface Piece_OnShelfProps {
   piece: PieceFull;
   ownerIndex?: 0 | 1;
   className?: string;
@@ -15,17 +24,21 @@ interface PieceIconCard2Props {
 
 interface ChipRowProps {
   line: IconLine;
+  light?: boolean;
 }
 
 interface ChipProps {
   chip: IconChip;
+  light?: boolean;
 }
 
-function Chip({ chip }: ChipProps) {
+function Chip({ chip, light }: ChipProps) {
+  const textCls = light ? 'text-white' : 'text-raja-chrome-text';
+
   if (chip.pill && chip.label) {
     return (
       <span
-        className="inline-block rounded-full px-1.5 py-0.5 font-sans-serif text-[0.6rem] font-bold bg-raja-chrome-border/70 text-raja-chrome-text"
+        className={`inline-block rounded-full px-1.5 py-0.5 font-sans-serif ${PILL_TEXT_SIZE} font-bold bg-raja-chrome-border/70 ${textCls}`}
         style={chip.color ? { backgroundColor: `${chip.color}B3`, color: '#000000' } : undefined}
       >
         {chip.label}
@@ -34,18 +47,18 @@ function Chip({ chip }: ChipProps) {
   }
 
   return (
-    <span className="inline-flex items-center gap-0.5 font-monospace text-xs text-raja-chrome-text">
-      {chip.Icon && <chip.Icon size={14} color={chip.color ?? 'currentColor'} />}
+    <span className={`inline-flex items-center gap-0.5 font-monospace ${BODY_TEXT_SIZE} ${textCls}`}>
+      {chip.Icon && <chip.Icon size={CHIP_ICON_SIZE} color={chip.color ?? 'currentColor'} />}
       {chip.label && <span>{chip.label}</span>}
     </span>
   );
 }
 
-function ChipRow({ line }: ChipRowProps) {
+function ChipRow({ line, light }: ChipRowProps) {
   if (line.kind === 'fallback') {
     if (!line.text) return null;
     return (
-      <p className="w-full font-sans-serif text-xs text-raja-chrome-error text-center leading-tight">
+      <p className={`w-full font-sans-serif ${BODY_TEXT_SIZE} text-raja-chrome-error text-center leading-tight`}>
         {line.text}
       </p>
     );
@@ -56,7 +69,7 @@ function ChipRow({ line }: ChipRowProps) {
   return (
     <div className="flex flex-wrap items-center justify-center gap-1">
       {line.chips.map((chip, index) => (
-        <Chip key={index} chip={chip} />
+        <Chip key={index} chip={chip} light={light} />
       ))}
     </div>
   );
@@ -93,7 +106,7 @@ function targetFilterChips(ability: string): IconChip[] {
   return openIndex === -1 ? [] : target.chips.slice(openIndex + 1, -1);
 }
 
-export default function PieceIconCard2({ piece, ownerIndex, className = '' }: PieceIconCard2Props) {
+export default function Piece_OnShelf({ piece, ownerIndex, className = '' }: Piece_OnShelfProps) {
   const archetype = ARCHETYPES[piece.archetype];
   const isKing = piece.role_type === KING_ROLE_TYPE;
   const ability = translateAbilityHalfIcon(piece.ability);
@@ -102,24 +115,26 @@ export default function PieceIconCard2({ piece, ownerIndex, className = '' }: Pi
   const hasMpsIcon = isKing || !!PATTERN_ICONS[piece.movement_type];
   const mpsCount = Math.max(piece.attributes.action_count, 1);
   const mpsScale = Math.max(1 - 0.2 * (mpsCount - 1), 0.2);
-  const mpsSize = Math.round((isKing ? 44 : 36) * mpsScale);
-  const borderCls = ownerIndex === 0 ? 'border-raja-chrome-text' : 'border-raja-orange';
+  const mpsSize = Math.round((isKing ? KING_MPS_BASE_SIZE : UNIT_MPS_BASE_SIZE) * mpsScale);
+  const archetypeBorderColor = `color-mix(in srgb, ${archetype.color} 50%, transparent)`;
+  const ringColor = `color-mix(in srgb, ${archetype.color} ${RING_DARKEN_PERCENT}%, black)`;
 
   return (
     <div
-      className={`relative w-[4.5cm] h-[4.5cm] border-[3px] ${borderCls} bg-raja-chrome-panel px-1 pt-5 pb-5 ${className}`}
+      className={`relative w-[4.5cm] h-[4.5cm] border-4 rounded-md shadow-sm ring-2 bg-raja-chrome-panel px-1 pt-5 pb-5 ${className}`}
+      style={{ borderColor: archetypeBorderColor, ['--tw-ring-color' as string]: ringColor } as React.CSSProperties}
     >
       <div className="absolute left-0.5 top-0.5 flex flex-col items-center gap-0.5">
-        <archetype.Icon size={18} color={archetype.color} />
-        {triggerCount && <span className="font-monospace text-xs text-raja-chrome-text">{triggerCount}</span>}
+        <archetype.Icon size={CORNER_ICON_SIZE} color={archetype.color} />
+        {triggerCount && <span className={`font-monospace ${BODY_TEXT_SIZE} text-raja-chrome-text`}>{triggerCount}</span>}
         {filterChips.map((chip, index) => (
           <Chip key={index} chip={chip} />
         ))}
       </div>
 
       <div className="absolute right-0.5 top-0.5 flex flex-col items-center gap-0.5">
-        <Gem size={18} className="text-raja-chrome-text" />
-        <span className="font-monospace text-xs text-raja-chrome-text">{piece.attributes.summon_cost}</span>
+        <Gem size={CORNER_ICON_SIZE} className="text-raja-chrome-text" />
+        <span className={`font-monospace ${BODY_TEXT_SIZE} text-raja-chrome-text`}>{piece.attributes.summon_cost}</span>
       </div>
 
       <div className="absolute right-0.5 bottom-0.5 flex flex-col-reverse items-center gap-0.5">
@@ -128,17 +143,25 @@ export default function PieceIconCard2({ piece, ownerIndex, className = '' }: Pi
         ))}
       </div>
 
-      <p className="absolute top-0.5 left-8 right-8 h-7 flex items-center justify-center font-serif text-xs font-bold uppercase text-raja-chrome-text text-center leading-tight">
+      <p className={`absolute top-0.5 left-8 right-8 h-7 flex items-center justify-center font-serif ${BODY_TEXT_SIZE} font-bold uppercase text-raja-chrome-text text-center leading-tight`}>
         {displayName(piece)}
       </p>
 
       <div className="absolute inset-0 flex items-center justify-center">
         {hasMpsIcon && (
           <div className="flex flex-col items-center gap-1">
-            <span className="font-monospace text-sm text-raja-chrome-text">{piece.attributes.action_cost}</span>
             <div className="flex items-center gap-1">
               {Array.from({ length: mpsCount }, (_, index) => (
                 <PieceMovementIcon key={index} piece={piece} size={mpsSize} />
+              ))}
+            </div>
+            <div className="flex flex-col items-center gap-0.5">
+              {Array.from({ length: Math.ceil(piece.attributes.action_cost / 3) }, (_, row) => (
+                <div key={row} className="flex items-center gap-0.5">
+                  {Array.from({ length: Math.min(3, piece.attributes.action_cost - row * 3) }, (_, index) => (
+                    <Circle key={index} size={DOT_SIZE} fill={archetype.color} color={archetype.color} />
+                  ))}
+                </div>
               ))}
             </div>
           </div>
@@ -146,9 +169,12 @@ export default function PieceIconCard2({ piece, ownerIndex, className = '' }: Pi
       </div>
 
       {ability && (
-        <div className="absolute bottom-0 left-9 right-9 h-10 flex flex-col items-center justify-center gap-0.5 bg-raja-orange px-1">
-          <ChipRow line={ability.target} />
-          <ChipRow line={ability.effect} />
+        <div
+          className="absolute bottom-0 left-9 right-9 h-10 rounded-t-md flex flex-col items-center justify-center gap-0.5 px-1"
+          style={{ backgroundColor: ringColor }}
+        >
+          <ChipRow line={ability.target} light />
+          <ChipRow line={ability.effect} light />
         </div>
       )}
     </div>

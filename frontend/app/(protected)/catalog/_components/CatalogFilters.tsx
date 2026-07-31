@@ -8,10 +8,9 @@ import type { PieceFull, FilterState, AbilityViewMode } from '../types';
 import { EMPTY_FILTERS } from '../types';
 
 const ABILITY_VIEW_MODE_OPTIONS = [
-  { value: 'dsl', label: 'Raw DSL' },
-  { value: 'text', label: 'Translated text' },
-  { value: 'icons', label: 'Icons' },
-  { value: 'icons2', label: 'Icons v2' },
+  { value: 'card', label: 'Card' },
+  { value: 'shelf', label: 'Shelf' },
+  { value: 'board', label: 'Board' },
 ];
 
 interface CatalogFiltersProps {
