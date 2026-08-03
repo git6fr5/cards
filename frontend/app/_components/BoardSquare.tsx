@@ -1,6 +1,6 @@
 'use client';
 
-import type { DragEvent } from 'react';
+import { useDraggable, useDroppable } from '@dnd-kit/core';
 import Piece_OnBoard from './Piece/Piece_OnBoard';
 import type { BoardPiece, PieceFull } from './types';
 
@@ -16,10 +16,9 @@ interface BoardSquareProps {
   isSelected: boolean;
   onSelect: (square: string) => void;
   onSelectPiece: (name: string) => void;
-  onDrop: (source: string, target: string) => void;
 }
 
-export default function BoardSquare({ piece, fullPiece, row, col, square, isOwn, isActivePlayer, isHighlighted, isSelected, onSelect, onSelectPiece, onDrop }: BoardSquareProps) {
+export default function BoardSquare({ piece, fullPiece, row, col, square, isOwn, isActivePlayer, isHighlighted, isSelected, onSelect, onSelectPiece }: BoardSquareProps) {
   const shade = (row + col) % 2 === 0
     ? 'bg-raja-chrome-panel'
     : 'bg-raja-chrome-action';
@@ -31,35 +30,33 @@ export default function BoardSquare({ piece, fullPiece, row, col, square, isOwn,
       ? 'bg-raja-chrome-text/25'
       : '';
 
+  const { attributes, listeners, setNodeRef: setDragRef } = useDraggable({
+    id: square,
+    disabled: !canDrag,
+    data: fullPiece ? { piece: fullPiece, source: 'board' } : undefined,
+  });
+  const { setNodeRef: setDropRef, isOver } = useDroppable({ id: square });
+
+  function setRefs(node: HTMLDivElement | null) {
+    setDragRef(node);
+    setDropRef(node);
+  }
+
   function handleClick() {
     if (canInspect) onSelect(square);
     if (piece) onSelectPiece(piece.name);
   }
 
-  function handleDragStart(e: DragEvent<HTMLDivElement>) {
-    e.dataTransfer.setData('text/plain', square);
-  }
-
-  function handleDragOver(e: DragEvent<HTMLDivElement>) {
-    e.preventDefault();
-  }
-
-  function handleDrop(e: DragEvent<HTMLDivElement>) {
-    e.preventDefault();
-    const source = e.dataTransfer.getData('text/plain');
-    if (source) onDrop(source, square);
-  }
-
   return (
     <div
-      className={`relative w-[4.5cm] h-[4.5cm] flex items-center justify-center ${shade} ${piece ? 'z-10' : 'z-0'}`}
-      draggable={canDrag}
-      onDragStart={canDrag ? handleDragStart : undefined}
+      ref={setRefs}
+      className={`relative w-tile h-tile flex items-center justify-center ${shade} ${piece ? 'z-10' : 'z-0'}`}
       onClick={piece ? handleClick : undefined}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
+      {...listeners}
+      {...attributes}
     >
       {overlayClass && <div className={`pointer-events-none absolute inset-1 ${overlayClass}`} />}
+      {isOver && <div className="pointer-events-none absolute inset-0 z-20 ring-2 ring-inset ring-raja-chrome-text" />}
       {fullPiece && piece && <Piece_OnBoard piece={fullPiece} ownerIndex={piece.owner === 0 ? 0 : 1} />}
     </div>
   );

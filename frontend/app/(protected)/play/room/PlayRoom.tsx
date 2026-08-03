@@ -1,6 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { get, post } from '@/utils/api';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useToastQueue } from '@/hooks/useToastQueue';
@@ -8,8 +11,12 @@ import RajaLoader from '@/components/layout/RajaLoader';
 import MainPanel from './_components/MainPanel';
 import Sidebar from './_components/Sidebar';
 import GameLobby from './_components/GameLobby';
+import Piece_OnDrag from '@/app/_components/Piece/Piece_OnDrag';
 import type { GameState, ActionResult, PreviewActionResult, Game } from '../types';
 import type { PieceFull } from '@/app/_components/types';
+
+const DRAG_ACTIVATION_DISTANCE = 8;
+const SHELF_DRAG_ID_PATTERN = /^shelf-\d+-(\d+)$/;
 
 interface PlayRoomProps {
   room: string;
@@ -38,8 +45,10 @@ export default function PlayRoom({ room, initialSeatIndex, coop }: PlayRoomProps
   const [highlightedSquares, setHighlightedSquares] = useState<string[]>([]);
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
   const [selectedPieceName, setSelectedPieceName] = useState<string | null>(null);
+  const [activeDragPiece, setActiveDragPiece] = useState<PieceFull | null>(null);
   const { active: toast, push: pushToast, dismiss: dismissToast } = useToastQueue();
   const catalogByName = useMemo(() => new Map(catalog.map((piece) => [piece.name, piece])), [catalog]);
+  const dragSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: DRAG_ACTIVATION_DISTANCE } }));
 
   useEffect(() => {
     async function loadState() {
@@ -127,10 +136,25 @@ export default function PlayRoom({ room, initialSeatIndex, coop }: PlayRoomProps
     setSelectedPieceName(name);
   }
 
-  function handleDropOnBoard(source: string, target: string) {
+  function submitDrag(source: string, target: string) {
     setHighlightedSquares([]);
     setSelectedSquare(null);
     handleSubmitAction(`${source}@${target}`);
+  }
+
+  function handleDragStart(event: DragStartEvent) {
+    const piece = event.active.data.current?.piece as PieceFull | undefined;
+    setActiveDragPiece(piece ?? null);
+  }
+
+  function handleDragEnd(event: DragEndEvent) {
+    setActiveDragPiece(null);
+    if (!event.over) return;
+    const activeId = String(event.active.id);
+    const target = String(event.over.id);
+    const shelfMatch = activeId.match(SHELF_DRAG_ID_PATTERN);
+    const source = shelfMatch ? `S${shelfMatch[1]}` : activeId;
+    submitDrag(source, target);
   }
 
   async function handleEndTurn() {
@@ -169,40 +193,45 @@ export default function PlayRoom({ room, initialSeatIndex, coop }: PlayRoomProps
     : null;
 
   return (
-    <div className="min-h-screen bg-raja-chrome-bg flex items-center justify-center p-8">
-      <div className="flex w-full h-[85vh] bg-raja-chrome-panel border border-raja-chrome-border">
-        <div className="flex-4 h-full">
-          <MainPanel
-            board={gameState.board}
-            catalogByName={catalogByName}
-            selfPlayer={self}
-            opponentPlayer={opponent}
-            selfLabel={`Player ${self.seat_index} — hand`}
-            opponentLabel={`Player ${opponent.seat_index} — hand`}
-            selfPlayerId={activeSeat}
-            otherPlayerIndex={1 - activeSeat}
-            isActivePlayer={isActivePlayer}
-            isSubmitting={isSubmitting}
-            flipped={activeSeat === 1}
-            highlightedSquares={highlightedSquares}
-            selectedSquare={selectedSquare}
-            toast={toast}
-            turnCount={gameState.turn_count}
-            activePlayerIndex={gameState.active_player_index}
-            lastOutcome={lastOutcome}
-            room={room}
-            onSelectSquare={handleSelectSquare}
-            onSelectPiece={handleSelectPiece}
-            onDrop={handleDropOnBoard}
-            onSelectShelf={handleSelectShelf}
-            onEndTurn={handleEndTurn}
-            onDismissToast={dismissToast}
-          />
-        </div>
-        <div className="flex-1 h-full border-l border-raja-chrome-border">
-          <Sidebar piece={selectedPiece} log={gameState.log} />
+    <DndContext sensors={dragSensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <div className="min-h-screen bg-raja-chrome-bg flex items-center justify-center p-8">
+        <div className="flex w-full h-[85vh] bg-raja-chrome-panel border border-raja-chrome-border">
+          <div className="flex-4 h-full">
+            <MainPanel
+              board={gameState.board}
+              catalogByName={catalogByName}
+              selfPlayer={self}
+              opponentPlayer={opponent}
+              selfLabel={`Player ${self.seat_index} — hand`}
+              opponentLabel={`Player ${opponent.seat_index} — hand`}
+              selfPlayerId={activeSeat}
+              otherPlayerIndex={1 - activeSeat}
+              isActivePlayer={isActivePlayer}
+              isSubmitting={isSubmitting}
+              flipped={activeSeat === 1}
+              highlightedSquares={highlightedSquares}
+              selectedSquare={selectedSquare}
+              toast={toast}
+              turnCount={gameState.turn_count}
+              activePlayerIndex={gameState.active_player_index}
+              lastOutcome={lastOutcome}
+              room={room}
+              onSelectSquare={handleSelectSquare}
+              onSelectPiece={handleSelectPiece}
+              onSelectShelf={handleSelectShelf}
+              onEndTurn={handleEndTurn}
+              onDismissToast={dismissToast}
+            />
+          </div>
+          <div className="flex-1 h-full border-l border-raja-chrome-border">
+            <Sidebar piece={selectedPiece} log={gameState.log} />
+          </div>
         </div>
       </div>
-    </div>
+
+      <DragOverlay modifiers={[snapCenterToCursor]}>
+        {activeDragPiece && <Piece_OnDrag piece={activeDragPiece} />}
+      </DragOverlay>
+    </DndContext>
   );
 }

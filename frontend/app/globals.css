@@ -56,6 +56,12 @@
 
   --width-sidebar: 13rem;
 
+  --width-shelf-tile: clamp(2.5rem, min(12vw, 12vh), 5cm);
+  --height-shelf-tile: clamp(2.5rem, min(12vw, 12vh), 5cm);
+
+  --width-tile: clamp(1.5rem, min(11vw, 11vh), 5cm);
+  --height-tile: clamp(1.5rem, min(11vw, 11vh), 5cm);
+
   --max-width-modal-sm: 24rem;
   --max-width-modal-md: 28rem;
   --max-width-modal-lg: 32rem;

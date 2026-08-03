@@ -1,4 +1,4 @@
-import { Circle, Gem } from 'lucide-react';
+import { Circle } from 'lucide-react';
 import { translateAbilityToIcons, PATTERN_ICONS } from '@/utils/abilityTranslatorIcons';
 import type { IconChip, IconLine } from '@/utils/abilityTranslatorIcons';
 import { translateAbilityHalfIcon } from '@/utils/abilityHalfIconTranslator';
@@ -12,11 +12,13 @@ const CHIP_ICON_SIZE = 14;
 const DOT_SIZE = 8;
 const KING_MPS_BASE_SIZE = 56;
 const UNIT_MPS_BASE_SIZE = 52;
+const MPS_CIRCLE_GAP = 4;
+const MPS_CIRCLE_PADDING = 28;
 const PILL_TEXT_SIZE = 'text-[0.6rem]';
 const BODY_TEXT_SIZE = 'text-xs';
 const RING_DARKEN_PERCENT = 50;
 
-interface Piece_OnShelfProps {
+interface Piece_OnBoardProps {
   piece: PieceFull;
   ownerIndex?: 0 | 1;
   className?: string;
@@ -106,7 +108,7 @@ function targetFilterChips(ability: string): IconChip[] {
   return openIndex === -1 ? [] : target.chips.slice(openIndex + 1, -1);
 }
 
-export default function Piece_OnShelf({ piece, ownerIndex, className = '' }: Piece_OnShelfProps) {
+export default function Piece_OnBoard({ piece, ownerIndex, className = '' }: Piece_OnBoardProps) {
   const archetype = ARCHETYPES[piece.archetype];
   const isKing = piece.role_type === KING_ROLE_TYPE;
   const ability = translateAbilityHalfIcon(piece.ability);
@@ -116,25 +118,19 @@ export default function Piece_OnShelf({ piece, ownerIndex, className = '' }: Pie
   const mpsCount = Math.max(piece.attributes.action_count, 1);
   const mpsScale = Math.max(1 - 0.2 * (mpsCount - 1), 0.2);
   const mpsSize = Math.round((isKing ? KING_MPS_BASE_SIZE : UNIT_MPS_BASE_SIZE) * mpsScale);
+  const mpsRowWidth = mpsCount * mpsSize + (mpsCount - 1) * MPS_CIRCLE_GAP;
+  const mpsCircleDiameter = Math.max(mpsRowWidth, mpsSize) + MPS_CIRCLE_PADDING;
   const archetypeBorderColor = `color-mix(in srgb, ${archetype.color} 50%, transparent)`;
   const ringColor = `color-mix(in srgb, ${archetype.color} ${RING_DARKEN_PERCENT}%, black)`;
 
   return (
-    <div
-      className={`relative w-[4.5cm] h-[4.5cm] border-4 rounded-md shadow-sm ring-2 bg-raja-chrome-panel px-1 pt-5 pb-5 ${className}`}
-      style={{ borderColor: archetypeBorderColor, ['--tw-ring-color' as string]: ringColor } as React.CSSProperties}
-    >
+    <div className={`relative w-tile h-tile ${className}`}>
       <div className="absolute left-0.5 top-0.5 flex flex-col items-center gap-0.5">
         <archetype.Icon size={CORNER_ICON_SIZE} color={archetype.color} />
         {triggerCount && <span className={`font-monospace ${BODY_TEXT_SIZE} text-raja-chrome-text`}>{triggerCount}</span>}
         {filterChips.map((chip, index) => (
           <Chip key={index} chip={chip} />
         ))}
-      </div>
-
-      <div className="absolute right-0.5 top-0.5 flex flex-col items-center gap-0.5">
-        <Gem size={CORNER_ICON_SIZE} className="text-raja-chrome-text" />
-        <span className={`font-monospace ${BODY_TEXT_SIZE} text-raja-chrome-text`}>{piece.attributes.summon_cost}</span>
       </div>
 
       <div className="absolute right-0.5 bottom-0.5 flex flex-col-reverse items-center gap-0.5">
@@ -150,11 +146,22 @@ export default function Piece_OnShelf({ piece, ownerIndex, className = '' }: Pie
       <div className="absolute inset-0 flex items-center justify-center">
         {hasMpsIcon && (
           <div className="flex flex-col items-center gap-1">
-            <div className="flex items-center gap-1">
-              {Array.from({ length: mpsCount }, (_, index) => (
-                <PieceMovementIcon key={index} piece={piece} size={mpsSize} />
-              ))}
+            <div
+              className="flex items-center justify-center rounded-full border-4 shadow-sm ring-2 bg-raja-chrome-panel"
+              style={{
+                width: mpsCircleDiameter,
+                height: mpsCircleDiameter,
+                borderColor: archetypeBorderColor,
+                ['--tw-ring-color' as string]: ringColor,
+              } as React.CSSProperties}
+            >
+              <div className="flex items-center gap-1">
+                {Array.from({ length: mpsCount }, (_, index) => (
+                  <PieceMovementIcon key={index} piece={piece} size={mpsSize} />
+                ))}
+              </div>
             </div>
+
             <div className="flex flex-col items-center gap-0.5">
               {Array.from({ length: Math.ceil(piece.attributes.action_cost / 3) }, (_, row) => (
                 <div key={row} className="flex items-center gap-0.5">
@@ -169,12 +176,9 @@ export default function Piece_OnShelf({ piece, ownerIndex, className = '' }: Pie
       </div>
 
       {ability && (
-        <div
-          className="absolute bottom-0 left-9 right-9 h-10 rounded-t-md flex flex-col items-center justify-center gap-0.5 px-1"
-          style={{ backgroundColor: ringColor }}
-        >
-          <ChipRow line={ability.target} light />
-          <ChipRow line={ability.effect} light />
+        <div className="absolute bottom-0 left-9 right-9 flex flex-col items-center justify-center gap-0.5 px-1">
+          <ChipRow line={ability.target} />
+          <ChipRow line={ability.effect} />
         </div>
       )}
     </div>

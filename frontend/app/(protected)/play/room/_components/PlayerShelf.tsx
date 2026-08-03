@@ -1,6 +1,6 @@
 'use client';
 
-import type { DragEvent } from 'react';
+import { useDraggable } from '@dnd-kit/core';
 import Piece_OnShelf from '@/app/_components/Piece/Piece_OnShelf';
 import type { PieceFull } from '@/app/_components/types';
 import type { ShelfPiece } from '../../types';
@@ -17,12 +17,30 @@ interface PlayerShelfProps {
   onSelectPiece: (name: string) => void;
 }
 
+interface ShelfSlotProps {
+  index: number;
+  piece: PieceFull;
+  ownerIndex: 0 | 1;
+  canDrag: boolean;
+  onClick: () => void;
+}
+
+function ShelfSlot({ index, piece, ownerIndex, canDrag, onClick }: ShelfSlotProps) {
+  const { attributes, listeners, setNodeRef } = useDraggable({
+    id: `shelf-${ownerIndex}-${index}`,
+    disabled: !canDrag,
+    data: { piece, source: 'shelf' },
+  });
+
+  return (
+    <div ref={setNodeRef} onClick={onClick} {...listeners} {...attributes}>
+      <Piece_OnShelf piece={piece} ownerIndex={ownerIndex} />
+    </div>
+  );
+}
+
 export default function PlayerShelf({ shelf, catalogByName, ownerIndex, isOwn, isActivePlayer, onSelectShelf, onSelectPiece }: PlayerShelfProps) {
   const canDrag = isOwn && isActivePlayer;
-
-  function handleDragStart(e: DragEvent<HTMLDivElement>, index: number) {
-    e.dataTransfer.setData('text/plain', `S${index}`);
-  }
 
   function handleClick(piece: ShelfPiece, index: number) {
     if (isOwn) onSelectShelf(index);
@@ -30,26 +48,26 @@ export default function PlayerShelf({ shelf, catalogByName, ownerIndex, isOwn, i
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="w-full grid grid-cols-[repeat(auto-fit,minmax(4rem,1fr))] content-start justify-items-center gap-2">
       {Array.from({ length: SHELF_SIZE }, (_, i) => {
         const piece = shelf[i];
         if (!piece) {
-          return <div key={i} className="w-[4.5cm] h-[4.5cm] border border-dashed border-raja-chrome-border" />;
+          return <div key={i} className="w-shelf-tile h-shelf-tile border border-dashed border-raja-chrome-border" />;
         }
         if (piece.hidden) {
-          return <div key={i} className="w-[4.5cm] h-[4.5cm] bg-raja-chrome-muted/40 border border-raja-chrome-border" />;
+          return <div key={i} className="w-shelf-tile h-shelf-tile bg-raja-chrome-muted/40 border border-raja-chrome-border" />;
         }
         const fullPiece = catalogByName.get(piece.name);
-        if (!fullPiece) return <div key={i} className="w-[4.5cm] h-[4.5cm]" />;
+        if (!fullPiece) return <div key={i} className="w-shelf-tile h-shelf-tile" />;
         return (
-          <div
+          <ShelfSlot
             key={i}
-            draggable={canDrag}
-            onDragStart={canDrag ? (e) => handleDragStart(e, i) : undefined}
+            index={i}
+            piece={fullPiece}
+            ownerIndex={ownerIndex}
+            canDrag={canDrag}
             onClick={() => handleClick(piece, i)}
-          >
-            <Piece_OnShelf piece={fullPiece} ownerIndex={ownerIndex} />
-          </div>
+          />
         );
       })}
     </div>

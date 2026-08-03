@@ -16,7 +16,7 @@ const PILL_TEXT_SIZE = 'text-[0.6rem]';
 const BODY_TEXT_SIZE = 'text-xs';
 const RING_DARKEN_PERCENT = 50;
 
-interface Piece_OnShelfProps {
+interface Piece_OnDragProps {
   piece: PieceFull;
   ownerIndex?: 0 | 1;
   className?: string;
@@ -106,7 +106,7 @@ function targetFilterChips(ability: string): IconChip[] {
   return openIndex === -1 ? [] : target.chips.slice(openIndex + 1, -1);
 }
 
-export default function Piece_OnShelf({ piece, ownerIndex, className = '' }: Piece_OnShelfProps) {
+export default function Piece_OnDrag({ piece, ownerIndex, className = '' }: Piece_OnDragProps) {
   const archetype = ARCHETYPES[piece.archetype];
   const isKing = piece.role_type === KING_ROLE_TYPE;
   const ability = translateAbilityHalfIcon(piece.ability);
@@ -121,7 +121,7 @@ export default function Piece_OnShelf({ piece, ownerIndex, className = '' }: Pie
 
   return (
     <div
-      className={`relative w-shelf-tile h-shelf-tile border-4 rounded-md shadow-sm ring-2 bg-raja-chrome-panel px-1 pt-5 pb-5 ${className}`}
+      className={`relative w-tile h-tile border-4 rounded-md shadow-sm ring-2 bg-raja-chrome-panel px-1 pt-5 pb-5 ${className}`}
       style={{ borderColor: archetypeBorderColor, ['--tw-ring-color' as string]: ringColor } as React.CSSProperties}
     >
       <div className="absolute left-0.5 top-0.5 flex flex-col items-center gap-0.5">
@@ -170,7 +170,7 @@ export default function Piece_OnShelf({ piece, ownerIndex, className = '' }: Pie
 
       {ability && (
         <div
-          className="absolute bottom-0 left-5 right-5 h-10 rounded-t-md flex flex-col items-center justify-center gap-0.5 px-1"
+          className="absolute bottom-0 left-9 right-9 h-10 rounded-t-md flex flex-col items-center justify-center gap-0.5 px-1"
           style={{ backgroundColor: ringColor }}
         >
           <ChipRow line={ability.target} light />
