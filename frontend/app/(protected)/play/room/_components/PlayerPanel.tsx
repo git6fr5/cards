@@ -17,7 +17,7 @@ export default function PlayerPanel({ player, catalogByName, label, isOwn, isAct
   const ownerIndex = player.seat_index === 0 ? 0 : 1;
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="w-full flex flex-col items-center gap-3">
       <span className="font-sans-serif text-xs uppercase tracking-wide text-raja-chrome-muted">
         {label}
       </span>
